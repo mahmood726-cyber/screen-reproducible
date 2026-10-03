@@ -1,5 +1,5 @@
 {
- "source": "Values as printed in the F1000Research draft (Table 1, Results text). Each reproduced number is rounded to the stated decimals and must equal the printed value exactly.",
+ "source": "Values printed in the F1000Research article. They are the canonical results: the Docker run at commit 7712c15 (bit-identical to native Linux runs), each rounded to the stated decimals. A reproduced number passes only if it rounds to exactly this value.",
  "values": {
   "screen_wss95[cohen_aceinhibitors]": {
    "value": 0.758,
@@ -74,7 +74,7 @@
    "decimals": 3
   },
   "screen_wss95[cohen_estrogens]": {
-   "value": 0.266,
+   "value": 0.265,
    "decimals": 3
   },
   "asreview_nb_wss95[cohen_estrogens]": {
@@ -106,7 +106,7 @@
    "decimals": 3
   },
   "asreview_svm_wss95[cohen_opiods]": {
-   "value": 0.269,
+   "value": 0.28,
    "decimals": 3
   },
   "screen_wss95[cohen_oralhypoglycemics]": {
@@ -142,7 +142,7 @@
    "decimals": 3
   },
   "asreview_svm_wss95[cohen_skeletalmusclerelaxants]": {
-   "value": 0.128,
+   "value": 0.135,
    "decimals": 3
   },
   "screen_wss95[cohen_statins]": {
@@ -170,7 +170,7 @@
    "decimals": 3
   },
   "screen_wss95[cohen_urinaryincontinence]": {
-   "value": 0.492,
+   "value": 0.493,
    "decimals": 3
   },
   "asreview_nb_wss95[cohen_urinaryincontinence]": {
@@ -190,7 +190,7 @@
    "decimals": 3
   },
   "asreview_svm_wss95[appenzeller_herzog_2020]": {
-   "value": 0.483,
+   "value": 0.476,
    "decimals": 3
   },
   "screen_wss95[kwok_2020]": {
@@ -234,7 +234,7 @@
    "decimals": 3
   },
   "screen_median_all": {
-   "value": 0.492,
+   "value": 0.493,
    "decimals": 3
   },
   "screen_min": {
@@ -258,7 +258,7 @@
    "decimals": 3
   },
   "asreview_svm_mean": {
-   "value": 0.465,
+   "value": 0.466,
    "decimals": 3
   },
   "wins_vs_nb": {
@@ -274,20 +274,20 @@
    "decimals": 3
   },
   "mean_diff_vs_svm": {
-   "value": -0.018,
+   "value": -0.019,
    "decimals": 3
   },
   "median_diff_vs_svm": {
-   "value": -0.012,
+   "value": -0.018,
    "decimals": 3
   },
   "wilcoxon_p_vs_nb": {
-   "value": 0.18,
-   "decimals": 2
+   "value": 0.1819,
+   "decimals": 4
   },
   "wilcoxon_p_vs_svm": {
-   "value": 0.049,
-   "decimals": 3
+   "value": 0.0494,
+   "decimals": 4
   },
   "recall_at_10pct_pct": {
    "value": 54,
@@ -356,6 +356,18 @@
   "dedup_blocked_comparisons[n=100000]": {
    "value": 916991,
    "decimals": 0
+  },
+  "wilcoxon_W_vs_nb": {
+   "value": 61,
+   "decimals": 0
+  },
+  "wilcoxon_W_vs_svm": {
+   "value": 46,
+   "decimals": 0
+  },
+  "median_diff_vs_nb": {
+   "value": 0.014,
+   "decimals": 3
   }
  }
 }
