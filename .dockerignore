@@ -1,0 +1,7 @@
+.git
+results
+outputs
+data/corpora/cohen_*.csv.gz
+**/__pycache__
+.venv
+venv

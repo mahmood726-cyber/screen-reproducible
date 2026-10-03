@@ -1,0 +1,8 @@
+{
+  "name": "screen-reproducible",
+  "build": { "dockerfile": "../Dockerfile", "context": ".." },
+  "overrideCommand": true,
+  "postCreateCommand": "python bench/fetch_data.py",
+  "customizations": { "vscode": { "extensions": ["ms-python.python"] } },
+  "hostRequirements": { "cpus": 4 }
+}

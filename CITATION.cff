@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+title: "screen-reproducible: reproducible benchmark of the Screen title–abstract screening tool"
+message: >
+  If you use this software or the benchmark, please cite it using the metadata below,
+  and cite the accompanying article and the original dataset authors (see data/README.md).
+type: software
+authors:
+  - family-names: Ahmad
+    given-names: Mahmood
+    # orcid: https://orcid.org/0000-0000-0000-0000   <- add before the Zenodo release
+repository-code: "https://github.com/mahmood726-cyber/screen-reproducible"
+url: "https://github.com/mahmood726-cyber/screen-reproducible"
+license: MIT
+version: 1.0.0
+date-released: 2026-10-03
+keywords:
+  - systematic review
+  - citation screening
+  - active learning
+  - technology-assisted review
+  - reproducibility
+  - benchmark
+references:
+  - type: software
+    title: "allmeta — open browser-only tools for evidence synthesis"
+    authors:
+      - family-names: Ahmad
+        given-names: Mahmood
+    doi: 10.5281/zenodo.20516880
+    repository-code: "https://github.com/mahmood726-cyber/allmeta"
