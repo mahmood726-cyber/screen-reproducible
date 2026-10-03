@@ -60,11 +60,12 @@ Everything is written to `outputs/full/` (or `outputs/quick/`):
 |---|---|
 | `table1_wss95.md` / `.csv` | Table 1: WSS@95 per dataset for Screen, ASReview NB and ASReview SVM |
 | `table2_dedup.md` / `.csv` | Table 2: de-duplication results |
-| `figure1_wss95_by_dataset.png` | Figure 1: WSS@95 by dataset, three tools |
-| `figure2_paired_differences.png` | Figure 2: paired per-dataset differences, with Wilcoxon p |
-| `figure3_dedup_scaling.png` | Figure 3: de-duplication workload, blocked vs all pairs |
+| `docs/screenshots/step1.png` … `step6.png` | Figure 1 (A–F): the six steps of a screening session (see docs/screenshots/README.md) |
+| `figure2_wss95_by_dataset.png` | Figure 2: WSS@95 by dataset, three tools |
+| `figure3_paired_differences.png` | Figure 3: paired per-dataset differences, with Wilcoxon p |
+| `figure4_dedup_scaling.png` | Figure 4: de-duplication workload, blocked vs all pairs |
 | `visual_abstract.png` | Visual abstract |
-| `stats.json` | All statistics quoted in the text (means 0.447 / 0.428 / 0.465; 12/19 and 4/19; Wilcoxon p 0.18 and 0.049; recall at 10/20/50%; stopping-rule count) |
+| `stats.json` | All statistics quoted in the text (means 0.447 / 0.428 / 0.466; 12/19 and 4/19; Wilcoxon p 0.1819 (W = 61) and 0.0494 (W = 46); recall at 10/20/50%; stopping-rule count) |
 | `reproduction_report.md` / `.json` | Expected vs reproduced, PASS/FAIL per number |
 
 Raw per-dataset results (with per-seed values) are in `results/<mode>/`. The values the

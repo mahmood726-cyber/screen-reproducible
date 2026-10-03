@@ -104,11 +104,11 @@ def figures(rows, st, dedup, outdir):
     ax.axvline(0, color="#888", lw=0.8, ls="--")
     ax.set_yticks(y, names)
     ax.set_xlabel("WSS@95 (0 = no better than random screening order)")
-    ax.set_title("Figure 1. Work saved at 95% recall, by dataset")
+    ax.set_title("Figure 2. Work saved at 95% recall, by dataset")
     ax.grid(axis="x", color="#ddd", lw=0.6)
     ax.legend(loc="lower right", frameon=False)
     fig.tight_layout()
-    fig.savefig(outdir / "figure1_wss95_by_dataset.png", dpi=200, metadata=meta)
+    fig.savefig(outdir / "figure2_wss95_by_dataset.png", dpi=200, metadata=meta)
     plt.close(fig)
 
     # Figure 2 — paired differences
@@ -125,9 +125,9 @@ def figures(rows, st, dedup, outdir):
         ax.set_xlabel("Difference in WSS@95")
         ax.grid(axis="x", color="#ddd", lw=0.6)
     axes[0].set_yticks(y, names)
-    fig.suptitle("Figure 2. Paired per-dataset differences (positive = Screen better)", fontsize=10)
+    fig.suptitle("Figure 3. Paired per-dataset differences (positive = Screen better)", fontsize=10)
     fig.tight_layout()
-    fig.savefig(outdir / "figure2_paired_differences.png", dpi=200, metadata=meta)
+    fig.savefig(outdir / "figure3_paired_differences.png", dpi=200, metadata=meta)
     plt.close(fig)
 
     # Figure 3 — de-duplication scaling (deterministic comparison counts)
@@ -140,11 +140,11 @@ def figures(rows, st, dedup, outdir):
         ax.annotate(f"{s['blocked_comparisons']:,}", (s["n"], s["blocked_comparisons"]), textcoords="offset points", xytext=(4, -10), fontsize=7)
     ax.set_xlabel("Records")
     ax.set_ylabel("Title-pair comparisons")
-    ax.set_title("Figure 3. De-duplication workload on synthetic corpora", fontsize=10)
+    ax.set_title("Figure 4. De-duplication workload on synthetic corpora", fontsize=10)
     ax.grid(which="both", color="#eee", lw=0.5)
     ax.legend(frameon=False, fontsize=8)
     fig.tight_layout()
-    fig.savefig(outdir / "figure3_dedup_scaling.png", dpi=200, metadata=meta)
+    fig.savefig(outdir / "figure4_dedup_scaling.png", dpi=200, metadata=meta)
     plt.close(fig)
 
     # Visual abstract
