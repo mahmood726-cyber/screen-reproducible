@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://api.openai.com https://api.anthropic.com https://generativelanguage.googleapis.com https://*.supabase.co; worker-src 'self' blob:; media-src 'self' blob:; manifest-src 'self'">
+  <link rel="stylesheet" href="../shared/forced-colors.css">
+  <link rel="stylesheet" href="../shared/alm-task.css">
+  <meta name="description" content="Rayyan-class title/abstract screening, fully local: keyboard-driven cards, dual-reviewer with conflict resolution and Cohen's kappa, RIS/.nbib/CSV/JSON import, inline dedup, transparent local relevance ranking, customizable exclusion reasons and labels, and one-click PRISMA flow counts.">
+  <meta name="color-scheme" content="light dark">
+  <title>Screen — local citation screening</title>
+  <style>
+    :root {
+      --bg:#f6f4ef; --panel:#fff; --ink:#15181d; --muted:#5c6470;
+      --accent:#2c5e8a; --accent-soft:#e8f0f7; --warn:#b05a1c;
+      --warn-soft:#fbeedd; --border:#d9d5cc; --border-strong:#7a8294;
+      --input-bg:#fbfaf6;
+      --inc:#0d7a27; --exc:#912121; --dup:#5c6470; --maybe:#7a5a0d; --conflict:#7a2da0;
+      --inc-soft:#dff3e0; --exc-soft:#fbd2d2; --dup-soft:#e5e5e5;
+      --maybe-soft:#fff4d5; --conflict-soft:#f0e0fb;
+      --hl-inc:#bff0c8; --hl-exc:#fbcaca;
+    }
+    @media (prefers-color-scheme:dark) {
+      :root {
+        --bg:#141618; --panel:#1c1f23; --ink:#e7e4dc; --muted:#98a0ae;
+        --accent:#6aa6d4; --accent-soft:#223044; --warn:#e0a268;
+        --warn-soft:#3a2d1c; --border:#2f343a; --border-strong:#495262;
+        --input-bg:#23272c;
+        --inc:#5bc47b; --exc:#ef7373; --dup:#98a0ae; --maybe:#e0a268; --conflict:#c79be6;
+        --inc-soft:#1e3a27; --exc-soft:#3a1e1e; --dup-soft:#2f343a;
+        --maybe-soft:#3a2d1c; --conflict-soft:#2e2138;
+        --hl-inc:#1e5230; --hl-exc:#5a2020;
+      }
+    }
+    @media (prefers-reduced-motion:reduce) { * { transition:none !important; animation:none !important; } }
+    * { box-sizing:border-box; }
+    html,body { margin:0; padding:0; }
+    body { font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+           background:var(--bg); color:var(--ink); min-height:100vh; line-height:1.5; }
+    header { padding:1.5rem clamp(1rem,3vw,3rem) 0.75rem; border-bottom:1px solid var(--border); background:var(--panel); }
+    header h1 { margin:0 0 0.2rem; font-size:1.4rem; letter-spacing:-0.01em; }
+    header p { margin:0; color:var(--muted); font-size:0.9rem; max-width:80ch; }
+    .toolbar { display:flex; gap:0.4rem; flex-wrap:wrap; align-items:center;
+               padding:0.6rem clamp(1rem,3vw,3rem); background:var(--panel);
+               border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50; }
+    .layout { display:grid; grid-template-columns:minmax(300px,24rem) 1fr;
+              gap:1.25rem; padding:1.25rem clamp(1rem,3vw,3rem); align-items:start; }
+    @media (max-width:1000px) { .layout { grid-template-columns:1fr; } }
+    .panel { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:0.9rem 1.1rem; margin-bottom:1rem; }
+    .panel h2 { margin:0 0 0.6rem; font-size:0.78rem; font-weight:600;
+                text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
+    label { display:block; margin-bottom:0.6rem; font-size:0.85rem; }
+    label .lbl { display:block; margin-bottom:0.15rem; }
+    label .hint { display:block; color:var(--muted); font-size:0.72rem; margin-top:0.1rem; }
+    input[type="text"],textarea,select {
+      width:100%; padding:0.4rem 0.55rem; border:1px solid var(--border);
+      border-radius:6px; background:var(--input-bg); color:var(--ink); font:inherit; font-size:0.88rem;
+    }
+    textarea { resize:vertical; min-height:3.5rem; font-size:0.82rem; }
+    input:focus,textarea:focus,select:focus { outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent); }
+    .row-2 { display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; }
+    button { font:inherit; font-size:0.84rem; padding:0.42rem 0.8rem; border-radius:6px;
+             border:1px solid var(--border-strong); background:var(--panel); color:var(--ink); cursor:pointer; }
+    button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+    button:hover { filter:brightness(0.96); }
+    button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+    .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); gap:0.4rem; }
+    .stat { background:var(--accent-soft); padding:0.4rem 0.6rem; border-radius:6px; }
+    .stat .k { display:block; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); }
+    .stat .v { display:block; font-size:1rem; font-weight:600; font-variant-numeric:tabular-nums; }
+
+    /* card */
+    .cardwrap { min-height:60vh; }
+    .progress { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; margin-bottom:0.6rem; flex-wrap:wrap; }
+    .progress .pos { font-size:0.82rem; color:var(--muted); font-variant-numeric:tabular-nums; }
+    .bar { flex:1; height:8px; min-width:120px; background:var(--border); border-radius:5px; overflow:hidden; }
+    .bar > i { display:block; height:100%; background:var(--inc); width:0%; }
+    .focus-toggle { font:inherit; font-size:0.78rem; padding:0.3rem 0.6rem; border:1px solid var(--border); border-radius:7px; background:var(--panel); color:var(--ink); cursor:pointer; white-space:nowrap; }
+    .focus-toggle[aria-pressed="true"] { background:var(--inc-soft); color:var(--inc); border-color:var(--inc); }
+    .focus-legend { display:none; gap:0.4rem 0.9rem; flex-wrap:wrap; margin:0 0 0.7rem; font-size:0.76rem; color:var(--muted); }
+    .focus-legend kbd { font:inherit; font-size:0.72rem; background:var(--border); border-radius:4px; padding:0.05rem 0.32rem; }
+    /* ---- Rayyan-style immersive Focus mode: one big card, no sidebar ---- */
+    body.focus-mode .layout { grid-template-columns:1fr; max-width:860px; margin:0 auto; }
+    body.focus-mode aside[aria-label="Project setup"] { display:none; }
+    body.focus-mode .focus-legend { display:flex; }
+    body.focus-mode .cardwrap { min-height:auto; }
+    body.focus-mode .progress { position:sticky; top:0; z-index:5; background:var(--bg); padding:0.5rem 0; border-bottom:1px solid var(--border); margin-bottom:0.9rem; }
+    body.focus-mode .card { padding:1.8rem 2rem; box-shadow:0 6px 24px rgba(0,0,0,0.10); }
+    body.focus-mode .card .ctitle { font-size:1.45rem; }
+    body.focus-mode .card .abstract { font-size:1.02rem; line-height:1.65; max-height:60vh; }
+    body.focus-mode footer, body.focus-mode #conflict-panel { display:none; }
+    .card { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:1.25rem 1.4rem; }
+    .card.is-dup { border-color:var(--dup); }
+    .card .ctitle { font-size:1.2rem; font-weight:650; line-height:1.35; margin:0 0 0.5rem; }
+    .card .cmeta { font-size:0.85rem; color:var(--muted); margin:0 0 0.4rem; }
+    .card .cmeta a { color:var(--accent); }
+    .badges { display:flex; gap:0.4rem; flex-wrap:wrap; margin:0 0 0.75rem; }
+    .badge { display:inline-block; padding:0.12rem 0.5rem; border-radius:10px; font-size:0.72rem; font-weight:600; }
+    .b-src { background:var(--accent-soft); color:var(--accent); }
+    .b-score { background:var(--maybe-soft); color:var(--maybe); }
+    .b-dup { background:var(--dup-soft); color:var(--dup); }
+    .b-sugg { background:var(--exc-soft); color:var(--exc); }
+    .b-dec-include { background:var(--inc-soft); color:var(--inc); }
+    .b-dec-exclude { background:var(--exc-soft); color:var(--exc); }
+    .b-dec-maybe { background:var(--maybe-soft); color:var(--maybe); }
+    .b-dec-conflict { background:var(--conflict-soft); color:var(--conflict); }
+    .b-dec-duplicate { background:var(--dup-soft); color:var(--dup); }
+    .b-ml { background:var(--accent-soft); color:var(--accent); }
+    .b-rct { background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent); }
+    .b-ai-include { background:var(--inc-soft); color:var(--inc); border:1px dashed var(--inc); }
+    .b-ai-exclude { background:var(--exc-soft); color:var(--exc); border:1px dashed var(--exc); }
+    .b-ai-maybe { background:var(--maybe-soft); color:var(--maybe); border:1px dashed var(--maybe); }
+    .ai-rationale { font-size:0.82rem; color:var(--muted); font-style:italic; margin:0 0 0.6rem; padding:0.4rem 0.6rem; border-left:3px solid var(--border-strong); background:var(--input-bg); border-radius:4px; }
+    .ml-term { display:inline-block; padding:0.1rem 0.45rem; border-radius:10px; margin:0.1rem; font-size:0.72rem; }
+    .ml-term.pos { background:var(--inc-soft); color:var(--inc); }
+    .ml-term.neg { background:var(--exc-soft); color:var(--exc); }
+    .abstract { font-size:0.95rem; line-height:1.6; margin:0.5rem 0 1rem; max-height:42vh; overflow:auto;
+                border:1px solid var(--border); border-radius:8px; padding:0.75rem 0.9rem; background:var(--input-bg); }
+    .abstract.empty { color:var(--muted); font-style:italic; }
+    .abstract-src { font-size:0.74rem; color:var(--muted); margin:0.5rem 0 0.2rem; }
+    .abstract-src strong { color:var(--ink, inherit); }
+    .abstract-src.ctgov { color:var(--warn, #b45309); }
+    /* Prominent per-record source links; ClinicalTrials.gov gets the strongest button. */
+    .reclinks { display:flex; gap:0.5rem; flex-wrap:wrap; margin:0.55rem 0 0.2rem; }
+    .reclink { display:inline-flex; align-items:center; gap:0.3rem; font-size:0.8rem; font-weight:600;
+               text-decoration:none; padding:0.4rem 0.8rem; min-height:36px; border-radius:8px;
+               border:1px solid var(--border-strong, #94a3b8); color:var(--ink, inherit); background:var(--input-bg); }
+    .reclink:hover, .reclink:focus-visible { filter:brightness(1.05); text-decoration:none; }
+    .reclink.ct { background:#1d4ed8; border-color:#1d4ed8; color:#fff; }
+    .reclink.ct:hover { background:#1e40af; }
+    .reclink.pm { border-color:#0e7490; color:#0e7490; }
+    .reclink.doi { border-color:var(--border-strong, #94a3b8); }
+    mark.hl-inc { background:var(--hl-inc); color:inherit; border-radius:3px; padding:0 1px; }
+    mark.hl-exc { background:var(--hl-exc); color:inherit; border-radius:3px; padding:0 1px; }
+    .decbtns { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.75rem; }
+    .decbtns button { font-weight:600; padding:0.5rem 1rem; }
+    .db-inc { border-color:var(--inc); color:var(--inc); }
+    .db-inc.on { background:var(--inc); color:#fff; }
+    .db-exc { border-color:var(--exc); color:var(--exc); }
+    .db-exc.on { background:var(--exc); color:#fff; }
+    .db-maybe { border-color:var(--maybe); color:var(--maybe); }
+    .db-maybe.on { background:var(--maybe); color:#fff; }
+    .db-dup { border-color:var(--dup); color:var(--dup); }
+    .db-dup.on { background:var(--dup); color:#fff; }
+    .chips { display:flex; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.6rem; }
+    .chips .lblk { font-size:0.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; align-self:center; margin-right:0.2rem; }
+    .chip { display:inline-block; padding:0.2rem 0.55rem; border-radius:12px; font-size:0.78rem; cursor:pointer;
+            border:1px solid var(--border); background:var(--panel); color:var(--ink); }
+    .chip.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+    .chip.reason.on { background:var(--exc); border-color:var(--exc); }
+    .chip .kbd { opacity:0.6; font-size:0.68rem; margin-left:0.25rem; }
+    .nav { display:flex; gap:0.5rem; align-items:center; margin-top:0.5rem; flex-wrap:wrap; }
+    .empty-state { text-align:center; color:var(--muted); padding:3rem 1rem; }
+    .conflict-row { display:grid; grid-template-columns:1fr auto; gap:0.5rem; align-items:center;
+                    padding:0.5rem 0; border-bottom:1px solid var(--border); font-size:0.85rem; }
+    .conflict-row .ct { overflow:hidden; text-overflow:ellipsis; }
+    kbd { font-family:ui-monospace,monospace; background:var(--accent-soft); color:var(--accent);
+          border:1px solid var(--border); border-radius:4px; padding:0 0.35rem; font-size:0.78rem; }
+    .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; z-index:200;
+                align-items:center; justify-content:center; padding:1rem; }
+    .modal-bg.on { display:flex; }
+    .modal { background:var(--panel); border:1px solid var(--border-strong); border-radius:12px;
+             max-width:540px; width:100%; padding:1.25rem 1.5rem; max-height:85vh; overflow:auto; }
+    .modal h3 { margin:0 0 0.75rem; }
+    .modal table { width:100%; border-collapse:collapse; font-size:0.88rem; }
+    .modal td { padding:0.3rem 0.4rem; border-bottom:1px solid var(--border); }
+    .footer-note { margin:0; color:var(--muted); font-size:0.76rem; padding:0 clamp(1rem,3vw,3rem) 2rem; max-width:90ch; }
+    .file-input-hidden { display:none; }
+    .toggle { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.84rem; }
+  </style>
+  <link rel="stylesheet" href="../hub/app-style.css">
+</head>
+<body>
+<a id="hub-back" href="../" aria-label="Back to allmeta hub" style="position:fixed;top:12px;left:12px;z-index:99999;padding:6px 12px;background:rgba(28,31,35,0.85);color:#fff;text-decoration:none;border-radius:14px;font:600 12px/1 system-ui,sans-serif;letter-spacing:.04em;box-shadow:0 2px 8px rgba(0,0,0,0.18);transition:opacity .15s ease;opacity:.85" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.85'">← allmeta</a>
+
+  <header>
+    <h1>Screen <span style="font-size:0.8rem;color:var(--muted);font-weight:400;">· local citation screening</span></h1>
+    <p>Keyboard-driven title/abstract screening that runs entirely in your browser — no account, no upload. Import RIS / PubMed&nbsp;.nbib / CSV / JSON, screen one record at a time, run dual-reviewer with Cohen's&nbsp;&kappa; and conflict resolution, and push PRISMA counts straight into the flow generator.</p>
+    <details class="alm-task" open>
+      <summary>What to do on this page — decide which records to include</summary>
+      <div class="alm-task-body">
+        <p>Read each record and decide whether it belongs in your review. <strong>This is a human judgement the tool cannot make for you.</strong></p>
+        <ol>
+          <li>Import records (from <a href="../search/">Search</a> or a file), or click <strong>Load example</strong>.</li>
+          <li>For each card, read the abstract. Where a journal (PubMed) abstract exists it is shown in preference; records that only have a ClinicalTrials.gov brief summary are labelled as such — use the <strong>ClinicalTrials.gov / PubMed / DOI</strong> buttons to open the source and check it.</li>
+          <li>Press <strong>i</strong> (include), <strong>e</strong> (exclude) or <strong>m</strong> (maybe); add a reason for excludes.</li>
+          <li>In dual-reviewer mode, resolve any conflicts so each record has one agreed decision.</li>
+          <li>When done, send the included records on to <a href="../extract/">Extraction</a>.</li>
+        </ol>
+        <div class="alm-task-grid">
+          <div class="alm-card alm-tool"><h4>The tool does</h4>Flags likely duplicates, an offline RCT-likelihood score and your search-term matches — these are <em>hints</em>.</div>
+          <div class="alm-card alm-you"><h4>You must check</h4>Every <strong>include / exclude</strong> decision, and that the final included set is correct, before moving on.</div>
+        </div>
+      </div>
+    </details>
+  </header>
+
+  <div class="toolbar">
+    <button type="button" id="btn-import" class="primary">Import records…</button>
+    <button type="button" id="btn-from-search">Import from Search</button>
+    <button type="button" id="btn-example">Load example</button>
+    <span style="flex:1"></span>
+    <button type="button" id="btn-dedup">Re-run dedup</button>
+    <button type="button" id="btn-export-json">Export JSON</button>
+    <button type="button" id="btn-export-csv">Export CSV</button>
+    <button type="button" id="btn-export-ris">Export includes (RIS)</button>
+    <button type="button" id="btn-to-extract" class="primary" title="Extract structured data from the included records">→ Extract</button>
+    <button type="button" id="btn-prisma" class="primary" title="Write counts to prisma-flow-v1">→ PRISMA Flow</button>
+    <button type="button" id="btn-help" title="Keyboard shortcuts">?</button>
+    <button type="button" id="btn-reset">Reset</button>
+    <input type="file" id="file-import" class="file-input-hidden" accept=".ris,.txt,.nbib,.csv,.json,.bib,application/json,text/csv" aria-label="File import">
+  </div>
+
+  <main class="layout">
+    <!-- LEFT: project setup -->
+    <aside aria-label="Project setup">
+      <section class="panel">
+        <h2>Project</h2>
+        <label><span class="lbl">Review title</span>
+          <input type="text" id="f-title" placeholder="e.g. SGLT2i in heart failure"></label>
+        <label><span class="lbl">Include terms (relevance &amp; highlighting)</span>
+          <textarea id="f-inc" placeholder="comma- or line-separated, e.g. SGLT2, dapagliflozin, heart failure, HFpEF"></textarea>
+          <span class="hint">Boosts relevance score; highlighted green in cards.</span></label>
+        <label><span class="lbl">Exclude terms</span>
+          <textarea id="f-exc" placeholder="e.g. animal, in vitro, protocol, cost-effectiveness"></textarea>
+          <span class="hint">Penalises relevance; highlighted red. Records with a negative score get an auto-exclude suggestion.</span></label>
+      </section>
+
+      <section class="panel">
+        <h2>Reviewers</h2>
+        <label class="toggle"><input type="checkbox" id="f-dual"> Dual-reviewer mode</label>
+        <div id="dual-controls" style="display:none;margin-top:0.5rem;">
+          <label><span class="lbl">Screening as</span>
+            <select id="f-active"><option value="r1">Reviewer 1</option><option value="r2">Reviewer 2</option></select></label>
+          <label class="toggle"><input type="checkbox" id="f-blind"> Blind to other reviewer's decision</label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Collaborate (serverless)</h2>
+        <p class="hint" style="margin-top:0">No backend needed: each reviewer screens locally and exchanges a small decisions file. Merging matches records by id → DOI → PMID → title, fills the other reviewer's column, and flags every disagreement as a conflict.</p>
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+          <button type="button" id="btn-export-rev">Export my decisions</button>
+          <button type="button" id="btn-merge-rev">Merge a reviewer file…</button>
+        </div>
+        <label style="margin-top:0.5rem"><span class="lbl">Merge incoming into</span>
+          <select id="f-merge-into"><option value="auto">Auto (the other reviewer)</option><option value="r1">Reviewer 1</option><option value="r2">Reviewer 2</option></select></label>
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.3rem">
+          <button type="button" id="btn-export-bundle" class="primary">Export shareable bundle</button>
+        </div>
+        <div id="merge-status" role="status" aria-live="polite" style="margin-top:0.4rem;font-size:0.78rem;color:var(--muted)"></div>
+        <input type="file" id="rev-file" class="file-input-hidden" accept=".json,application/json" aria-label="Reviewer decisions file">
+        <div id="team-folder" style="margin-top:0.6rem;border-top:1px solid var(--border);padding-top:0.5rem">
+          <p class="hint" style="margin-top:0">Or sync through one shared folder — if that folder lives inside your Google&nbsp;Drive / Dropbox / OneDrive folder, your <em>desktop</em> sync app does the upload, so there's still no account or server here. Each reviewer publishes their file; <strong>Pull &amp; merge</strong> unions everyone's decisions. <em>(Chrome / Edge only; on Firefox / Safari use Export / Merge above.)</em></p>
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+            <button type="button" id="btn-folder-connect">Connect shared folder…</button>
+            <button type="button" id="btn-folder-publish" disabled>Publish my decisions</button>
+            <button type="button" id="btn-folder-pull" disabled>Pull &amp; merge all</button>
+          </div>
+          <div id="folder-status" role="status" aria-live="polite" style="margin-top:0.4rem;font-size:0.78rem;color:var(--muted)"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Exclusion reasons</h2>
+        <textarea id="f-reasons" aria-label="Exclusion reasons" placeholder="one per line"></textarea>
+        <span class="hint">Press <kbd>1</kbd>–<kbd>9</kbd> on a card to exclude with that reason.</span>
+      </section>
+
+      <section class="panel">
+        <h2>Labels (optional)</h2>
+        <textarea id="f-labels" aria-label="Labels" placeholder="one per line, e.g. RCT, key paper, ongoing trial"></textarea>
+      </section>
+
+      <section class="panel">
+        <h2>View</h2>
+        <div class="row-2">
+          <label><span class="lbl">Filter</span>
+            <select id="f-filter">
+              <option value="all">All</option>
+              <option value="undecided">Undecided</option>
+              <option value="include">Included</option>
+              <option value="exclude">Excluded</option>
+              <option value="maybe">Maybe</option>
+              <option value="conflict">Conflicts</option>
+              <option value="duplicate">Duplicates</option>
+              <option value="suggested">Auto-exclude suggested</option>
+              <option value="aisugg">Has AI suggestion</option>
+            </select></label>
+          <label><span class="lbl">Sort</span>
+            <select id="f-sort">
+              <option value="order">Import order</option>
+              <option value="ml">ML relevance ↓</option>
+              <option value="relevance">Term score ↓</option>
+              <option value="rct">RCT likelihood ↓</option>
+              <option value="year">Year ↓</option>
+            </select></label>
+        </div>
+        <label><span class="lbl">Keyword (title/abstract contains…)</span>
+          <input type="text" id="f-kw" placeholder="filter…"></label>
+      </section>
+
+      <section class="panel">
+        <h2>Cold-start RCT classifier</h2>
+        <p class="hint" style="margin-top:0">Every card shows a <strong>RCT&nbsp;%</strong> badge — a study-design likelihood from an offline, transparent bag-of-words logistic model trained on real PubMed abstracts (labelled by Publication Type). It needs <em>no</em> labels from you, so it helps from record&nbsp;one; sort by <em>RCT likelihood</em> to triage trials first. <span id="rct-meta"></span></p>
+      </section>
+
+      <section class="panel">
+        <h2>Local ML ranking</h2>
+        <p class="hint" style="margin-top:0">Label a few records with <kbd>i</kbd>/<kbd>e</kbd>, then train an in-browser classifier (TF-IDF + Naive Bayes, ASReview's default ranker, with class-balanced weighting) to rank the rest by predicted relevance. Retrain after each small batch for continuous active learning. 100% local, no key, reproducible.</p>
+        <button type="button" id="btn-train" class="primary">Train &amp; rank</button>
+        <div id="ml-status" style="margin-top:0.5rem;font-size:0.82rem;color:var(--muted)">Not trained yet.</div>
+        <div id="ml-terms" style="margin-top:0.5rem;font-size:0.76rem"></div>
+        <div id="ml-perf" style="margin-top:0.4rem;font-size:0.76rem;color:var(--muted)"></div>
+        <p class="hint" style="margin-top:0.5rem">Features: unigrams + MeSH/keywords (TF-IDF). In dual-reviewer mode both reviewers' labels train the model. Held-out AUC is 5-fold cross-validated; the stopping rule is the buscar target-recall criterion (Callaghan &amp; Müller-Hansen 2020) — it reports the statistical confidence that 95% recall has been reached.</p>
+      </section>
+
+      <section class="panel">
+        <h2>AI assist (optional)</h2>
+        <label class="toggle"><input type="checkbox" id="ai-on"> Enable AI suggestions</label>
+        <div id="ai-controls" style="display:none;margin-top:0.6rem">
+          <label><span class="lbl">Mode</span>
+            <select id="ai-mode">
+              <option value="handoff">Local-agent handoff (no cost)</option>
+              <option value="byokey">Bring your own API key</option>
+            </select></label>
+          <div id="ai-handoff">
+            <p class="hint" style="margin-top:0">Export a ready-to-run task for the agent you already pay for (Claude&nbsp;Code / Codex / Gemini&nbsp;CLI). Nothing is sent from here — you run it, then re-import the JSON.</p>
+            <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+              <button type="button" id="btn-ai-export">Export AI task</button>
+              <button type="button" id="btn-ai-import">Import AI results</button>
+            </div>
+            <input type="file" id="ai-file" class="file-input-hidden" accept=".json,application/json" aria-label="AI results">
+          </div>
+          <div id="ai-byokey" style="display:none">
+            <label><span class="lbl">Provider</span>
+              <select id="ai-provider">
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="gemini">Google Gemini</option>
+              </select></label>
+            <label><span class="lbl">Model (optional)</span>
+              <input type="text" id="ai-model" placeholder="e.g. gpt-4o-mini / claude-haiku-4-5-20251001"></label>
+            <label><span class="lbl">API key (this browser only)</span>
+              <input type="text" id="ai-key" placeholder="sk-…" autocomplete="off" spellcheck="false"></label>
+            <button type="button" id="btn-ai-run">Run AI on undecided</button>
+            <p class="hint">Key is saved to localStorage on this device only and is <strong>never</strong> included in project exports. Calls bill your own account.</p>
+          </div>
+          <p class="hint" style="margin-top:0.5rem">AI output is a <em>suggestion</em> shown on each card — press <kbd>a</kbd> to accept it as your decision. Never auto-applied.</p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Progress</h2>
+        <div id="stats" class="stats"></div>
+        <div id="kappa" style="margin-top:0.6rem;font-size:0.85rem;color:var(--muted)"></div>
+      </section>
+    </aside>
+
+    <!-- RIGHT: screening surface -->
+    <section class="cardwrap" aria-label="Screening">
+      <div class="progress">
+        <span class="pos" id="pos">0 of 0</span>
+        <div class="bar"><i id="bar-fill"></i></div>
+        <button type="button" id="btn-focus" class="focus-toggle" aria-pressed="false" title="Focus mode — distraction-free rapid screening (f)">⤢ Focus</button>
+      </div>
+      <div class="focus-legend" id="focus-legend" aria-hidden="true">
+        <span><kbd>i</kbd> include</span><span><kbd>e</kbd>/<kbd>x</kbd> exclude</span><span><kbd>m</kbd> maybe</span>
+        <span><kbd>1</kbd>–<kbd>9</kbd> reason</span><span><kbd>n</kbd> next undecided</span><span><kbd>j</kbd>/<kbd>k</kbd> move</span>
+        <span><kbd>u</kbd> undo</span><span><kbd>f</kbd> exit</span>
+      </div>
+      <div id="card-host" aria-live="polite"></div>
+
+      <section class="panel" id="conflict-panel" style="display:none;margin-top:1rem;">
+        <h2>Conflicts to resolve (<span id="conflict-count">0</span>)</h2>
+        <div id="conflict-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <p class="footer-note">Local by default — with AI assist off, records never leave your device. The optional <em>bring-your-own-key</em> path is the only exception: it sends the title and abstract of each screened record to the AI provider you choose (which is why <code>connect-src</code> allowlists those three hosts), and your key is stored only in this browser. Dedup: DOI exact + trigram-Jaccard title similarity (≥0.85), with a multi-field assist (relaxed title threshold when first-author surname AND year both match) that catches reformatted titles and same-work/different-DOI duplicates. Candidate pairs come from blocking + a sorted-neighbourhood window, so it stays fast into the 100k-record range instead of the old O(n²) pass; earliest-imported record wins. Agreement: Cohen's &kappa; over records both reviewers decided. Effective decision in dual mode: resolved &gt; agreement &gt; conflict. PRISMA push writes the <code>prisma-flow-v1</code> key. Relevance is a transparent term-frequency score over your own include/exclude terms — no cloud model, no black box.</p>
+
+  <!-- Help modal -->
+  <div class="modal-bg" id="help-modal" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+    <div class="modal">
+      <h3>Keyboard shortcuts</h3>
+      <table>
+        <tr><td><kbd>i</kbd></td><td>Include</td></tr>
+        <tr><td><kbd>e</kbd> / <kbd>x</kbd></td><td>Exclude</td></tr>
+        <tr><td><kbd>m</kbd></td><td>Maybe</td></tr>
+        <tr><td><kbd>d</kbd></td><td>Toggle duplicate</td></tr>
+        <tr><td><kbd>1</kbd>–<kbd>9</kbd></td><td>Exclude with reason #n</td></tr>
+        <tr><td><kbd>u</kbd> / <kbd>Backspace</kbd></td><td>Clear decision (undo)</td></tr>
+        <tr><td><kbd>→</kbd> / <kbd>j</kbd></td><td>Next record</td></tr>
+        <tr><td><kbd>←</kbd> / <kbd>k</kbd></td><td>Previous record</td></tr>
+        <tr><td><kbd>n</kbd> / <kbd>Enter</kbd></td><td>Next undecided</td></tr>
+        <tr><td><kbd>a</kbd></td><td>Accept the AI suggestion (if any)</td></tr>
+        <tr><td><kbd>f</kbd></td><td>Focus mode (immersive rapid screening)</td></tr>
+        <tr><td><kbd>?</kbd></td><td>This help</td></tr>
+      </table>
+      <p style="margin-top:1rem;"><button type="button" id="help-close" class="primary">Close</button></p>
+    </div>
+  </div>
+
+  <script src="../shared/toast.js"></script>
+  <script src="../shared/alm-auth-config.js"></script>
+  <script src="../shared/alm-auth.js" defer></script>
+  <script src="../shared/sr-collab-v1.js"></script>
+  <script src="../shared/rct-classifier-v1.js"></script>
+  <script src="assets/rct-classifier-weights-v1.js"></script>
+  <script>
+  (function () {
+    "use strict";
+    var LS_KEY = "screen-v1";
+    var PRISMA_FLOW_KEY = "prisma-flow-v1";
+    var SR_RECORDS_KEY = "sr-records-v1";
+    var SR_PROJECT_KEY = "sr-project-v1"; // Design protocol envelope (read for screening terms)
+
+    var DEFAULT_REASONS = [
+      "Wrong population", "Wrong intervention", "Wrong comparator",
+      "Wrong outcome", "Wrong study design", "Not original research / review",
+      "Conference abstract", "Wrong language", "Full text unavailable"
+    ];
+
+    var toast = function (m) {
+      try { if (window.AlmToast && AlmToast.show) return AlmToast.show(m); } catch (e) {}
+      try { console.log(m); } catch (e) {}
+    };
+
+    // ---- state ----
+    var S = null;
+    function blankState() {
+      return {
+        _schema: LS_KEY, title: "", incTerms: [], excTerms: [],
+        reasons: DEFAULT_REASONS.slice(), labels: [],
+        mode: "single", active: "r1", blind: false,
+        filter: "all", sort: "order", kw: "",
+        cursor: 0, records: []
+      };
+    }
+
+    // ---- text helpers ----
+    function clean(s, cap) { s = String(s == null ? "" : s).replace(/\s+/g, " ").trim(); cap = cap || 4000; return s.length > cap ? s.slice(0, cap) : s; }
+    function escapeHtml(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
+    function escapeRe(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+    function splitTerms(text) {
+      return String(text || "").split(/[\n,;]/).map(function (t) { return t.trim(); }).filter(Boolean);
+    }
+    function splitLines(text) {
+      return String(text || "").split(/\r?\n/).map(function (t) { return t.trim(); }).filter(Boolean);
+    }
+    function splitAuthors(s) {
+      if (!s) return [];
+      return String(s).split(/;| and |&/).map(function (a) { return a.trim(); }).filter(Boolean);
+    }
+    function countOcc(hay, needle) {
+      if (!needle) return 0; var n = 0, i = 0;
+      while ((i = hay.indexOf(needle, i)) >= 0) { n++; i += needle.length; }
+      return n;
+    }
+
+    // ---- dedup math (from citation-dedup) ----
+    var STOP = new Set("a an the of and or to in for on with without via using study trial randomized randomised controlled".split(" "));
+    function normTitle(t) {
+      return String(t || "").toLowerCase().replace(/[^a-z0-9 ]+/g, " ").split(/\s+/)
+        .filter(function (w) { return w && !STOP.has(w); }).join(" ").trim();
+    }
+    function trigrams(s) {
+      var g = new Set(); s = " " + s + " ";
+      for (var i = 0; i < s.length - 2; i++) g.add(s.slice(i, i + 3));
+      return g;
+    }
+    function jaccard(a, b) {
+      if (!a.size || !b.size) return 0;
+      var inter = 0; a.forEach(function (x) { if (b.has(x)) inter++; });
+      return inter / (a.size + b.size - inter);
+    }
+    // First-author surname proxy: the longest alphabetic token in the first
+    // author string (initials are short; this is format-agnostic for both
+    // "McMurray JJV" and "P Nazzaro" orderings). Used only for the multi-field
+    // recall assist, never on its own.
+    function firstAuthorKey(r) {
+      var a = (r.authors && r.authors.length) ? String(r.authors[0]) : "";
+      var toks = a.toLowerCase().match(/[a-z]{2,}/g) || [];
+      var best = "";
+      for (var i = 0; i < toks.length; i++) if (toks[i].length > best.length) best = toks[i];
+      return best.length >= 3 ? best : "";
+    }
+
+    // Blocked + multi-field dedup. DOI-exact is O(n). The fuzzy title pass used
+    // to be O(n^2) on the main thread (frozen tab beyond ~50k records, PERF-1).
+    // It now generates candidate pairs by BLOCKING — buckets keyed by the first,
+    // last and longest title token plus an (author,year) key — and a
+    // sorted-neighbourhood window over normalised titles. Each candidate pair is
+    // visited once, in (survivor-index, other-index) order, so the survivor is
+    // the earliest-imported record exactly as the brute-force loop chose it.
+    // Multi-field assist (M-4): a slightly relaxed title threshold is accepted
+    // when first-author surname AND year both match, catching reformatted titles
+    // and same-work-different-DOI duplicates that the title-only 0.85 rule misses.
+    var DEDUP_T_STRICT = 0.85, DEDUP_T_ASSIST = 0.72, SN_WINDOW = 8;
+    function dedupCore(recs, opts) {
+      opts = opts || {};
+      var bruteOnly = !!opts.brute;       // reference O(n^2), strict-threshold only
+      var i, j, info = { comparisons: 0, merges: 0 };
+      for (i = 0; i < recs.length; i++) {
+        if (recs[i].dupManual) { recs[i].dup = true; if (!recs[i].dupOf) recs[i].dupOf = "(manual)"; }
+        else { recs[i].dup = false; recs[i].dupOf = null; }
+      }
+      // DOI exact
+      var seenDoi = {};
+      for (i = 0; i < recs.length; i++) {
+        if (recs[i].dup) continue;
+        var d = (recs[i].doi || "").toLowerCase();
+        if (!d) continue;
+        if (seenDoi[d]) { recs[i].dup = true; recs[i].dupOf = seenDoi[d]; }
+        else seenDoi[d] = recs[i].id;
+      }
+      // live entries keep their ORIGINAL record index (oi) for survivor choice
+      var live = [];
+      for (i = 0; i < recs.length; i++) if (!recs[i].dup) {
+        var nt = normTitle(recs[i].title);
+        live.push({ r: recs[i], oi: i, nt: nt, t: trigrams(nt), toks: nt ? nt.split(" ") : [] });
+      }
+      function tryMerge(a, b) {
+        info.comparisons++;
+        if (a.r.dup || b.r.dup) return;
+        if (!a.t.size || !b.t.size) return;
+        var jac = jaccard(a.t, b.t), merge = false;
+        if (jac >= DEDUP_T_STRICT) merge = true;
+        else if (!bruteOnly && jac >= DEDUP_T_ASSIST) {
+          var ka = firstAuthorKey(a.r), kb = firstAuthorKey(b.r);
+          if (ka && ka === kb && a.r.year && a.r.year === b.r.year) merge = true;
+        }
+        if (!merge) return;
+        var keep = a.oi <= b.oi ? a : b, drop = a.oi <= b.oi ? b : a;
+        drop.r.dup = true; drop.r.dupOf = keep.r.id; info.merges++;
+      }
+      if (bruteOnly || live.length <= 60) {
+        // Exact pass for small sets (keeps unit-test parity) or when explicitly
+        // requested as the reference.
+        for (i = 0; i < live.length; i++) {
+          if (live[i].r.dup) continue;
+          for (j = i + 1; j < live.length; j++) tryMerge(live[i], live[j]);
+        }
+        return info;
+      }
+      // Candidate generation via blocking
+      var pairSeen = {}, pairs = [];
+      function addPair(x, y) {
+        if (x === y) return;
+        var lo = x < y ? x : y, hi = x < y ? y : x, pk = lo + "|" + hi;
+        if (pairSeen[pk]) return; pairSeen[pk] = 1; pairs.push([lo, hi]);
+      }
+      var buckets = {};
+      function bucket(key, idx) { if (!key) return; (buckets[key] || (buckets[key] = [])).push(idx); }
+      for (i = 0; i < live.length; i++) {
+        var tk = live[i].toks;
+        if (tk.length) {
+          bucket("f:" + tk[0], i);
+          bucket("l:" + tk[tk.length - 1], i);
+          var lng = tk[0];
+          for (var z = 1; z < tk.length; z++) if (tk[z].length > lng.length) lng = tk[z];
+          bucket("m:" + lng, i);
+        }
+        var au = firstAuthorKey(live[i].r), yr = live[i].r.year || "";
+        if (au && yr) bucket("ay:" + au + ":" + yr, i);
+      }
+      var bk;
+      for (bk in buckets) {
+        var grp = buckets[bk];
+        // Skip pathological mega-buckets (a stop-token slipping through) to stay
+        // near-linear; sorted-neighbourhood still covers those records.
+        if (grp.length > 400) continue;
+        for (i = 0; i < grp.length; i++) for (j = i + 1; j < grp.length; j++) addPair(grp[i], grp[j]);
+      }
+      // sorted-neighbourhood over normalised titles
+      var order = live.map(function (_, k) { return k; });
+      order.sort(function (a, b) { return live[a].nt < live[b].nt ? -1 : live[a].nt > live[b].nt ? 1 : a - b; });
+      for (i = 0; i < order.length; i++)
+        for (j = i + 1; j < Math.min(order.length, i + SN_WINDOW); j++) addPair(order[i], order[j]);
+      // Process in (survivor-oi, other-oi) order so chains resolve deterministically.
+      pairs.sort(function (p, q) {
+        var pa = Math.min(live[p[0]].oi, live[p[1]].oi), qa = Math.min(live[q[0]].oi, live[q[1]].oi);
+        if (pa !== qa) return pa - qa;
+        return Math.max(live[p[0]].oi, live[p[1]].oi) - Math.max(live[q[0]].oi, live[q[1]].oi);
+      });
+      for (i = 0; i < pairs.length; i++) tryMerge(live[pairs[i][0]], live[pairs[i][1]]);
+      return info;
+    }
+    function runDedup() { return dedupCore(S.records, {}); }
+
+    // ---- relevance score (transparent TF over user terms) ----
+    function scoreRecord(r) {
+      if (!S.incTerms.length && !S.excTerms.length) { r.score = null; return; }
+      var text = (r.title + " " + r.title + " " + r.title + " " + r.abstract + " " + (r.keywords || []).join(" ")).toLowerCase();
+      var s = 0, k;
+      for (k = 0; k < S.incTerms.length; k++) s += countOcc(text, S.incTerms[k].toLowerCase());
+      for (k = 0; k < S.excTerms.length; k++) s -= 2 * countOcc(text, S.excTerms[k].toLowerCase());
+      r.score = s;
+    }
+    function rescoreAll() { for (var i = 0; i < S.records.length; i++) scoreRecord(S.records[i]); }
+
+    // ---- cold-start RCT likelihood (offline classifier; complements buscar) ----
+    // Lazy + cached on the record: title/abstract don't change after import, and
+    // it gives a useful study-design signal BEFORE any screening decisions exist.
+    function rctScore(r) {
+      if (r._rct !== undefined) return r._rct;
+      r._rct = (window.SrRctClassifier && SrRctClassifier.available())
+        ? SrRctClassifier.score((r.title || "") + ". " + (r.abstract || "")) : null;
+      return r._rct;
+    }
+
+    // ---- highlighting ----
+    function highlight(text) {
+      var esc = escapeHtml(text);
+      var terms = [];
+      S.incTerms.forEach(function (t) { if (t.length > 1) terms.push({ t: t, c: "inc" }); });
+      S.excTerms.forEach(function (t) { if (t.length > 1) terms.push({ t: t, c: "exc" }); });
+      if (!terms.length) return esc;
+      terms.sort(function (a, b) { return b.t.length - a.t.length; });
+      var pat = terms.map(function (o) { return escapeRe(o.t); }).join("|");
+      var re;
+      try { re = new RegExp("(" + pat + ")", "gi"); } catch (e) { return esc; }
+      return esc.replace(re, function (m) {
+        var ml = m.toLowerCase(), hit = null, i;
+        for (i = 0; i < terms.length; i++) { if (terms[i].t.toLowerCase() === ml) { hit = terms[i]; break; } }
+        if (!hit) for (i = 0; i < terms.length; i++) { if (ml.indexOf(terms[i].t.toLowerCase()) >= 0) { hit = terms[i]; break; } }
+        return '<mark class="hl-' + (hit ? hit.c : "inc") + '">' + m + "</mark>";
+      });
+    }
+
+    // ---- import parsers ----
+    var _autoId = 0;
+    function freshId() { return "rec" + (++_autoId); }
+    // Decisions are a closed set — whitelist on import so a crafted reviewer file
+    // can't inject markup through r1.d/r2.d/resolved (rendered into class+text).
+    function dec(d) { return (["include", "exclude", "maybe"].indexOf(d) >= 0) ? d : ""; }
+    function normalizeImported(r) {
+      var rec = {
+        id: (r.id && String(r.id).trim()) || freshId(),
+        title: clean(r.title), abstract: clean(r.abstract, 8000),
+        authors: Array.isArray(r.authors) ? r.authors.map(function (a) { return clean(a, 200); }).filter(Boolean) : splitAuthors(r.authors),
+        journal: clean(r.journal, 300),
+        year: r.year ? (String(r.year).match(/\d{4}/) || [""])[0] : "",
+        doi: clean(r.doi, 200).replace(/^https?:\/\/(dx\.)?doi\.org\//i, ""),
+        pmid: clean(r.pmid, 30),
+        nct: clean(r.nct, 30) || (function () { var m = String(r.id || "").match(/NCT\d{8}/i); return m ? m[0].toUpperCase() : ""; })(),
+        url: clean(r.url, 500),
+        ctgovUrl: clean(r.ctgovUrl, 500),
+        abstractSource: clean(r.abstractSource, 60),
+        mergedSources: Array.isArray(r.mergedSources) ? r.mergedSources.map(function (s) { return clean(s, 40); }).filter(Boolean) : null,
+        keywords: Array.isArray(r.keywords) ? r.keywords.map(function (k) { return clean(k, 120); }).filter(Boolean) : [],
+        source: clean(r.source, 40) || "import",
+        r1: r.r1 && typeof r.r1 === "object" ? { d: dec(r.r1.d), reason: r.r1.reason || "" } : { d: "", reason: "" },
+        r2: r.r2 && typeof r.r2 === "object" ? { d: dec(r.r2.d), reason: r.r2.reason || "" } : { d: "", reason: "" },
+        resolved: dec(r.resolved),
+        labels: Array.isArray(r.labels) ? r.labels.slice() : [],
+        dup: !!r.dup, dupManual: !!r.dupManual, dupOf: r.dupOf || null, score: null,
+        mlScore: null,
+        aiSuggestion: ["include", "exclude", "maybe"].indexOf(r.aiSuggestion) >= 0 ? r.aiSuggestion : "",
+        aiRationale: clean(r.aiRationale, 400),
+        aiConfidence: (typeof r.aiConfidence === "number") ? r.aiConfidence : null
+      };
+      return rec;
+    }
+
+    function splitCSVLine(line) {
+      var out = [], cur = "", q = false, i, ch;
+      for (i = 0; i < line.length; i++) {
+        ch = line[i];
+        if (q) { if (ch === '"') { if (line[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; }
+        else { if (ch === ",") { out.push(cur); cur = ""; } else if (ch === '"') q = true; else cur += ch; }
+      }
+      out.push(cur); return out;
+    }
+    function parseCSVRecords(text) {
+      var lines = String(text).split(/\r?\n/).filter(function (l) { return l.trim() !== ""; });
+      if (!lines.length) return [];
+      var header = splitCSVLine(lines[0]).map(function (h) { return h.trim().toLowerCase(); });
+      function idx(names) { for (var n = 0; n < names.length; n++) { var i = header.indexOf(names[n]); if (i >= 0) return i; } return -1; }
+      var iT = idx(["title", "ti"]), iA = idx(["abstract", "ab"]), iAu = idx(["authors", "author", "au"]),
+        iY = idx(["year", "py", "pubyear", "publication year"]), iJ = idx(["journal", "source", "jo", "publication"]),
+        iD = idx(["doi"]), iId = idx(["id", "record id", "key", "refid"]), iP = idx(["pmid"]), iK = idx(["keywords", "kw"]);
+      var recs = [], start = iT >= 0 ? 1 : 0, r, c;
+      for (r = start; r < lines.length; r++) {
+        c = splitCSVLine(lines[r]); if (!c.length) continue;
+        function get(i) { return i >= 0 && i < c.length ? c[i].trim() : ""; }
+        var rec;
+        if (iT >= 0) {
+          rec = {
+            id: get(iId), title: get(iT), abstract: get(iA), authors: splitAuthors(get(iAu)),
+            year: get(iY), journal: get(iJ), doi: get(iD), pmid: get(iP),
+            keywords: get(iK) ? get(iK).split(/[;|]/).map(function (s) { return s.trim(); }).filter(Boolean) : []
+          };
+        } else {
+          rec = { id: c[0] || "", title: c[1] || "", abstract: c[2] || "" };
+        }
+        if (rec.title || rec.abstract) recs.push(rec);
+      }
+      return recs.map(normalizeImported);
+    }
+
+    function parseRIS(text) {
+      var recs = [], cur = null, last = null;
+      function flush() { if (cur && (cur.title || cur.abstract)) recs.push(cur); cur = null; last = null; }
+      var lines = String(text).split(/\r?\n/), i, m, tag, val;
+      for (i = 0; i < lines.length; i++) {
+        m = lines[i].match(/^([A-Z][A-Z0-9])\s\s?-\s?(.*)$/);
+        if (!m) { if (cur && last && lines[i].trim()) cur[last] += " " + lines[i].trim(); continue; }
+        tag = m[1]; val = (m[2] || "").trim();
+        if (tag === "TY") { flush(); cur = { authors: [], keywords: [] }; last = null; continue; }
+        if (!cur) cur = { authors: [], keywords: [] };
+        last = null;
+        switch (tag) {
+          case "TI": case "T1": cur.title = (cur.title ? cur.title + " " : "") + val; last = "title"; break;
+          case "AB": case "N2": cur.abstract = (cur.abstract ? cur.abstract + " " : "") + val; last = "abstract"; break;
+          case "AU": case "A1": case "A2": if (val) cur.authors.push(val); break;
+          case "PY": case "Y1": cur.year = (val.match(/\d{4}/) || [""])[0]; break;
+          case "JO": case "JF": case "JA": case "T2": if (!cur.journal) cur.journal = val; break;
+          case "DO": cur.doi = val; break;
+          case "KW": if (val) cur.keywords.push(val); break;
+          case "ER": flush(); break;
+          default: break;
+        }
+      }
+      flush();
+      return recs.map(normalizeImported);
+    }
+
+    function parseNbib(text) {
+      var recs = [], cur = null, last = null;
+      function flush() { if (cur && (cur.title || cur.abstract)) recs.push(cur); cur = null; last = null; }
+      var lines = String(text).split(/\r?\n/), i, m, tag, val;
+      for (i = 0; i < lines.length; i++) {
+        if (/^\s{6}\S/.test(lines[i])) { if (cur && last) cur[last] += " " + lines[i].trim(); continue; }
+        m = lines[i].match(/^([A-Z]+)\s*-\s?(.*)$/);
+        if (!m) continue;
+        tag = m[1]; val = (m[2] || "").trim(); last = null;
+        switch (tag) {
+          case "PMID": flush(); cur = { authors: [], keywords: [] }; cur.pmid = val; break;
+          case "TI": if (!cur) cur = { authors: [], keywords: [] }; cur.title = (cur.title ? cur.title + " " : "") + val; last = "title"; break;
+          case "AB": if (!cur) cur = { authors: [], keywords: [] }; cur.abstract = (cur.abstract ? cur.abstract + " " : "") + val; last = "abstract"; break;
+          case "AU": if (cur && val) cur.authors.push(val); break;
+          case "DP": if (cur) cur.year = (val.match(/\d{4}/) || [""])[0]; break;
+          case "TA": case "JT": if (cur && !cur.journal) cur.journal = val; break;
+          case "LID": case "AID": if (cur && !cur.doi && /\[doi\]/i.test(val)) { var d = val.match(/10\.\d{4,}\/[^\s\[\]]+/); if (d) cur.doi = d[0]; } break;
+          case "MH": case "OT": if (cur && val) cur.keywords.push(val.replace(/^\*/, "")); break;
+          default: break;
+        }
+      }
+      flush();
+      return recs.map(normalizeImported);
+    }
+
+    function detectAndParse(text, name) {
+      var t = text.replace(/^﻿/, ""), trimmed = t.replace(/^\s+/, "");
+      // JSON
+      if (trimmed[0] === "{" || trimmed[0] === "[") {
+        try {
+          var p = JSON.parse(t);
+          if (p && p._schema === LS_KEY && Array.isArray(p.records)) return p.records.map(normalizeImported);
+          // Shareable bundle (sr-bundle-v1): pull its screen records (decisions preserved).
+          if (p && p._schema === "sr-bundle-v1" && p.screen && Array.isArray(p.screen.records)) return p.screen.records.map(normalizeImported);
+          if (Array.isArray(p)) return p.map(normalizeImported);
+          if (p && Array.isArray(p.records)) {
+            // prisma-screen-v1 style {records:[{id,title,tag1,...}]}
+            return p.records.map(function (r) { return normalizeImported({ id: r.id, title: r.title, abstract: r.abstract, doi: r.doi, year: r.year, journal: r.journal, authors: r.authors }); });
+          }
+        } catch (e) { /* fall through */ }
+      }
+      // RIS: starts with "TY  -"
+      if (/^\s*TY\s\s?-\s/m.test(t)) return parseRIS(t);
+      // nbib / MEDLINE: has "PMID-" lines
+      if (/^PMID\s*-\s/m.test(t)) return parseNbib(t);
+      // by extension
+      if (/\.ris$/i.test(name || "")) return parseRIS(t);
+      if (/\.nbib$/i.test(name || "")) return parseNbib(t);
+      // default CSV
+      return parseCSVRecords(t);
+    }
+
+    function addRecords(newRecs) {
+      if (!newRecs.length) { toast("No records found in that file."); return; }
+      // de-id-collision: ensure unique ids vs existing
+      var existing = {}; S.records.forEach(function (r) { existing[r.id] = 1; });
+      newRecs.forEach(function (r) { while (existing[r.id]) r.id = freshId(); existing[r.id] = 1; });
+      S.records = S.records.concat(newRecs);
+      runDedup(); rescoreAll();
+      var dups = S.records.filter(function (r) { return r.dup; }).length;
+      toast("Imported " + newRecs.length + " record(s). " + (dups ? dups + " duplicate(s) flagged." : "No duplicates."));
+      S.cursor = 0; save(); render();
+    }
+
+    // ---- effective decision / counts / kappa ----
+    function effDecision(r) {
+      if (r.dup) return "duplicate";
+      if (S.mode === "single") return r.r1.d || "";
+      if (r.resolved) return r.resolved;
+      var a = r.r1.d, b = r.r2.d;
+      if (a && b) return a === b ? a : "conflict";
+      return a || b || "";
+    }
+    function activeSlot(r) { return (S.mode === "dual" && S.active === "r2") ? r.r2 : r.r1; }
+    function isUndecidedForActive(r) {
+      if (r.dup) return false;
+      return !(activeSlot(r).d);
+    }
+    function computeCounts(records) {
+      var identified = records.length, duplicates = 0, included = 0, excluded = 0, maybe = 0, undecided = 0, conflict = 0;
+      for (var i = 0; i < records.length; i++) {
+        var t = effDecision(records[i]);
+        if (t === "duplicate") { duplicates++; continue; }
+        if (t === "include") included++;
+        else if (t === "exclude") excluded++;
+        else if (t === "maybe") maybe++;
+        else if (t === "conflict") conflict++;
+        else undecided++;
+      }
+      var screened = identified - duplicates;
+      return { identified: identified, duplicates: duplicates, screened: screened, included: included, excluded: excluded, maybe: maybe, conflict: conflict, undecided: undecided };
+    }
+    function cohensKappa(records) {
+      var pairs = records.filter(function (r) { return !r.dup && r.r1.d && r.r2.d; });
+      var n = pairs.length;
+      if (n < 2) return null;
+      var cats = {}; pairs.forEach(function (r) { cats[r.r1.d] = 1; cats[r.r2.d] = 1; });
+      var keys = Object.keys(cats), agree = 0, i;
+      for (i = 0; i < pairs.length; i++) if (pairs[i].r1.d === pairs[i].r2.d) agree++;
+      var po = agree / n, pe = 0;
+      keys.forEach(function (c) {
+        var p1 = pairs.filter(function (r) { return r.r1.d === c; }).length / n;
+        var p2 = pairs.filter(function (r) { return r.r2.d === c; }).length / n;
+        pe += p1 * p2;
+      });
+      // When both reviewers used a single category, pe = 1 and κ = 0/0 is undefined.
+      // Reporting κ = 0 ("no agreement beyond chance") for what may be 100% agreement
+      // is misleading, so flag the degenerate case for the UI instead of forcing 0.
+      var degenerate = (1 - pe) < 1e-12;
+      var kappa = degenerate ? null : (po - pe) / (1 - pe);
+      return { n: n, agree: agree, po: po, pe: pe, kappa: kappa, degenerate: degenerate };
+    }
+
+    // ---- filtering / sorting ----
+    function filteredRecords() {
+      var f = S.filter, kw = (S.kw || "").toLowerCase().trim();
+      var out = S.records.filter(function (r) {
+        var t = effDecision(r);
+        if (f === "undecided" && !(t === "" && !r.dup)) return false;
+        if (f === "include" && t !== "include") return false;
+        if (f === "exclude" && t !== "exclude") return false;
+        if (f === "maybe" && t !== "maybe") return false;
+        if (f === "conflict" && t !== "conflict") return false;
+        if (f === "duplicate" && !r.dup) return false;
+        if (f === "suggested" && !(r.score != null && r.score < 0 && t === "" && !r.dup)) return false;
+        if (f === "aisugg" && !r.aiSuggestion) return false;
+        if (kw && (r.title + " " + r.abstract).toLowerCase().indexOf(kw) < 0) return false;
+        return true;
+      });
+      if (S.sort === "ml") out.sort(function (a, b) { return (b.mlScore == null ? -1 : b.mlScore) - (a.mlScore == null ? -1 : a.mlScore); });
+      else if (S.sort === "relevance") out.sort(function (a, b) { return (b.score == null ? -1e9 : b.score) - (a.score == null ? -1e9 : a.score); });
+      else if (S.sort === "rct") out.sort(function (a, b) { var ra = rctScore(a), rb = rctScore(b); return (rb == null ? -1 : rb) - (ra == null ? -1 : ra); });
+      else if (S.sort === "year") out.sort(function (a, b) { return (parseInt(b.year, 10) || 0) - (parseInt(a.year, 10) || 0); });
+      return out;
+    }
+
+    // ---- DOM refs ----
+    var $ = function (id) { return document.getElementById(id); };
+    var cardHost = $("card-host"), posEl = $("pos"), barFill = $("bar-fill"),
+      statsEl = $("stats"), kappaEl = $("kappa"),
+      conflictPanel = $("conflict-panel"), conflictList = $("conflict-list"), conflictCount = $("conflict-count");
+
+    var VIEW = []; // current filtered list
+
+    function currentRecord() { return VIEW[S.cursor] || null; }
+
+    function decBadge(t) {
+      if (!t) return "";
+      var lbl = t === "duplicate" ? "duplicate" : t;
+      return '<span class="badge b-dec-' + t + '">' + escapeHtml(lbl) + "</span>";
+    }
+
+    // Per-record source links. ClinicalTrials.gov is rendered as a prominent button
+    // (issue: CT.gov links were buried as plain "doi:"/"PMID:" text). Links open the
+    // real registry / PubMed / DOI page — nothing is fabricated; a button only shows
+    // when that identifier was actually captured for the record.
+    function ctgovUrlOf(r) {
+      if (r.ctgovUrl) return r.ctgovUrl;
+      if (r.nct) return "https://clinicaltrials.gov/study/" + r.nct;
+      if (/clinicaltrials\.gov/i.test(r.url || "")) return r.url;
+      return "";
+    }
+    function recordLinksHtml(r) {
+      var out = [];
+      var ct = ctgovUrlOf(r);
+      var pm = r.pmid ? "https://pubmed.ncbi.nlm.nih.gov/" + String(r.pmid).replace(/\D/g, "") + "/" : "";
+      var doiUrl = r.doi ? "https://doi.org/" + String(r.doi).replace(/^doi:/i, "") : "";
+      if (ct) out.push('<a class="reclink ct" target="_blank" rel="noopener noreferrer" href="' + escapeHtml(ct) + '">↗ ClinicalTrials.gov' + (r.nct ? " (" + escapeHtml(r.nct) + ")" : "") + "</a>");
+      if (pm) out.push('<a class="reclink pm" target="_blank" rel="noopener noreferrer" href="' + escapeHtml(pm) + '">↗ PubMed ' + escapeHtml(r.pmid) + "</a>");
+      if (doiUrl) out.push('<a class="reclink doi" target="_blank" rel="noopener noreferrer" href="' + escapeHtml(doiUrl) + '">↗ DOI</a>');
+      if (!ct && !pm && !doiUrl && r.url) out.push('<a class="reclink" target="_blank" rel="noopener noreferrer" href="' + escapeHtml(r.url) + '">↗ Source</a>');
+      return out.length ? '<div class="reclinks">' + out.join("") + "</div>" : "";
+    }
+
+    function renderCard() {
+      var r = currentRecord();
+      if (!r) {
+        cardHost.innerHTML = '<div class="card"><div class="empty-state">' +
+          (S.records.length ? "No records match this filter." : "No records yet — <strong>Import records…</strong> or <strong>Load example</strong>.") +
+          "</div></div>";
+        return;
+      }
+      var t = effDecision(r);
+      var meta = [];
+      if (r.authors && r.authors.length) meta.push(escapeHtml(r.authors.slice(0, 6).join(", ")) + (r.authors.length > 6 ? " et al." : ""));
+      var line2 = [];
+      if (r.journal) line2.push("<em>" + escapeHtml(r.journal) + "</em>");
+      if (r.year) line2.push(escapeHtml(r.year));
+      if (r.doi) line2.push('doi:' + escapeHtml(r.doi));
+      if (r.pmid) line2.push("PMID:" + escapeHtml(r.pmid));
+
+      var badges = '<span class="badge b-src">' + escapeHtml(r.source) + "</span>";
+      if (r.mlScore != null) badges += '<span class="badge b-ml">ML ' + Math.round(r.mlScore * 100) + "%</span>";
+      var rct = rctScore(r);
+      if (rct != null) badges += '<span class="badge b-rct" title="Cold-start RCT likelihood from the offline classifier — a study-design signal before any screening decisions">RCT ' + Math.round(rct * 100) + "%</span>";
+      if (r.score != null) badges += '<span class="badge b-score">term ' + r.score + "</span>";
+      if (r.dup) badges += '<span class="badge b-dup">duplicate of ' + escapeHtml(r.dupOf || "?") + "</span>";
+      if (r.score != null && r.score < 0 && !t && !r.dup) badges += '<span class="badge b-sugg">auto-exclude suggested</span>';
+      if (r.aiSuggestion) badges += '<span class="badge b-ai-' + r.aiSuggestion + '">AI: ' + r.aiSuggestion +
+        (r.aiConfidence != null ? " " + Math.round(r.aiConfidence * 100) + "%" : "") + "</span>";
+      if (t) badges += decBadge(t);
+      if (S.mode === "dual") {
+        if (r.r1.d) badges += '<span class="badge b-dec-' + r.r1.d + '">R1: ' + r.r1.d + "</span>";
+        if (r.r2.d) badges += '<span class="badge b-dec-' + r.r2.d + '">R2: ' + r.r2.d + "</span>";
+      }
+
+      var slot = activeSlot(r);
+      var abEmpty = !r.abstract;
+      // Abstract provenance (truth-first): show which source the displayed abstract
+      // came from. After cross-source dedup a PubMed/journal abstract is preferred
+      // over a CT.gov brief summary; this line makes that preference visible and
+      // never invents text.
+      var absSrc = r.abstractSource || (r.source === "CT.gov" ? "ClinicalTrials.gov" : (r.source && r.source !== "import" ? r.source : ""));
+      var absIsCt = /clinicaltrials|ct\.gov/i.test(absSrc);
+      var absNote = abEmpty ? "" :
+        '<div class="abstract-src' + (absIsCt ? " ctgov" : "") + '">Abstract source: <strong>' + escapeHtml(absSrc || "imported record") + "</strong>" +
+        (absIsCt ? " — ClinicalTrials.gov brief summary (no journal abstract found for this record)" : "") + "</div>";
+      var abEmptyMsg = (r.nct || /clinicaltrials|ct\.gov/i.test(r.source || ""))
+        ? "No abstract available — this is a ClinicalTrials.gov registry record. Open the ClinicalTrials.gov link above to read the trial details."
+        : "No abstract available.";
+      var html = '<div class="card' + (r.dup ? " is-dup" : "") + '">' +
+        '<h2 class="ctitle">' + highlight(r.title || "(no title)") + "</h2>" +
+        (meta.length ? '<p class="cmeta">' + meta.join("") + "</p>" : "") +
+        (line2.length ? '<p class="cmeta">' + line2.join(" · ") + "</p>" : "") +
+        recordLinksHtml(r) +
+        '<div class="badges">' + badges + "</div>" +
+        absNote +
+        '<div class="abstract' + (abEmpty ? " empty" : "") + '">' + (abEmpty ? abEmptyMsg : highlight(r.abstract)) + "</div>" +
+        (r.aiRationale ? '<p class="ai-rationale">AI rationale: ' + escapeHtml(r.aiRationale) + "</p>" : "") +
+        '<div class="decbtns">' +
+        '<button type="button" class="db-inc' + (slot.d === "include" ? " on" : "") + '" data-dec="include">Include <span class="kbd">i</span></button>' +
+        '<button type="button" class="db-exc' + (slot.d === "exclude" ? " on" : "") + '" data-dec="exclude">Exclude <span class="kbd">e</span></button>' +
+        '<button type="button" class="db-maybe' + (slot.d === "maybe" ? " on" : "") + '" data-dec="maybe">Maybe <span class="kbd">m</span></button>' +
+        '<button type="button" class="db-dup' + (r.dup ? " on" : "") + '" data-dec="duplicate">Duplicate <span class="kbd">d</span></button>' +
+        (r.aiSuggestion ? '<button type="button" class="primary" id="btn-accept-ai">Accept AI: ' + r.aiSuggestion + ' <span class="kbd">a</span></button>' : "") +
+        "</div>";
+
+      // reasons
+      if (S.reasons.length) {
+        html += '<div class="chips"><span class="lblk">Reason</span>';
+        S.reasons.forEach(function (rs, i) {
+          var on = slot.d === "exclude" && slot.reason === rs;
+          html += '<span class="chip reason' + (on ? " on" : "") + '" data-reason="' + i + '" role="button" tabindex="0" aria-pressed="' + (on ? "true" : "false") + '">' + escapeHtml(rs) +
+            (i < 9 ? '<span class="kbd">' + (i + 1) + "</span>" : "") + "</span>";
+        });
+        html += "</div>";
+      }
+      // labels
+      if (S.labels.length) {
+        html += '<div class="chips"><span class="lblk">Labels</span>';
+        S.labels.forEach(function (lb) {
+          var on = r.labels.indexOf(lb) >= 0;
+          html += '<span class="chip label' + (on ? " on" : "") + '" data-label="' + escapeHtml(lb) + '" role="button" tabindex="0" aria-pressed="' + (on ? "true" : "false") + '">' + escapeHtml(lb) + "</span>";
+        });
+        html += "</div>";
+      }
+
+      html += '<div class="nav">' +
+        '<button type="button" id="nav-prev">← Prev</button>' +
+        '<button type="button" id="nav-next">Next →</button>' +
+        '<button type="button" id="nav-undec" class="primary">Next undecided</button>' +
+        '<button type="button" id="nav-clear">Clear decision</button>' +
+        "</div></div>";
+
+      cardHost.innerHTML = html;
+
+      // wire card buttons
+      Array.prototype.forEach.call(cardHost.querySelectorAll("[data-dec]"), function (b) {
+        b.addEventListener("click", function () { decide(b.getAttribute("data-dec")); });
+      });
+      // Enter/Space activate a focusable chip (role="button"), matching native button semantics.
+      function chipKey(handler) {
+        return function (e) { if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") { e.preventDefault(); handler(); } };
+      }
+      Array.prototype.forEach.call(cardHost.querySelectorAll("[data-reason]"), function (b) {
+        var act = function () { applyReason(parseInt(b.getAttribute("data-reason"), 10)); };
+        b.addEventListener("click", act);
+        b.addEventListener("keydown", chipKey(act));
+      });
+      Array.prototype.forEach.call(cardHost.querySelectorAll("[data-label]"), function (b) {
+        var act = function () { toggleLabel(b.getAttribute("data-label")); };
+        b.addEventListener("click", act);
+        b.addEventListener("keydown", chipKey(act));
+      });
+      $("nav-prev").addEventListener("click", function () { move(-1); });
+      $("nav-next").addEventListener("click", function () { move(1); });
+      $("nav-undec").addEventListener("click", nextUndecided);
+      $("nav-clear").addEventListener("click", clearDecision);
+      var accBtn = $("btn-accept-ai"); if (accBtn) accBtn.addEventListener("click", acceptAI);
+    }
+
+    function renderStatsAndConflicts() {
+      var c = computeCounts(S.records);
+      var cells = [
+        ["Records", c.identified], ["Duplicates", c.duplicates], ["Screened", c.screened],
+        ["Included", c.included], ["Excluded", c.excluded], ["Maybe", c.maybe]
+      ];
+      if (S.mode === "dual") cells.push(["Conflicts", c.conflict]);
+      cells.push(["Undecided", c.undecided]);
+      statsEl.innerHTML = cells.map(function (kv) {
+        return '<div class="stat"><span class="k">' + kv[0] + '</span><span class="v">' + kv[1] + "</span></div>";
+      }).join("");
+
+      if (S.mode === "dual") {
+        var k = cohensKappa(S.records);
+        kappaEl.innerHTML = !k
+          ? "Cohen's κ needs ≥2 records decided by both reviewers."
+          : (k.degenerate
+            ? "Cohen's κ undefined — both reviewers used a single category (" + (k.po * 100).toFixed(0) + "% raw agreement over " + k.n + ")."
+            : "Cohen's κ = <strong>" + k.kappa.toFixed(3) + "</strong> over " + k.n + " dual-decided (" + (k.po * 100).toFixed(0) + "% raw agreement).");
+      } else kappaEl.innerHTML = "";
+
+      // conflicts panel
+      if (S.mode === "dual") {
+        var conflicts = S.records.filter(function (r) { return effDecision(r) === "conflict"; });
+        conflictPanel.style.display = conflicts.length ? "" : "none";
+        conflictCount.textContent = conflicts.length;
+        conflictList.innerHTML = conflicts.map(function (r) {
+          return '<div class="conflict-row"><div class="ct" title="' + escapeHtml(r.title) + '">' +
+            escapeHtml(r.title.slice(0, 90)) + ' <span style="color:var(--muted)">(R1 ' + escapeHtml(r.r1.d) + " / R2 " + escapeHtml(r.r2.d) + ")</span></div>" +
+            '<div><button type="button" class="db-inc" data-res-inc="' + escapeHtml(r.id) + '">Include</button> ' +
+            '<button type="button" class="db-exc" data-res-exc="' + escapeHtml(r.id) + '">Exclude</button></div></div>';
+        }).join("");
+        Array.prototype.forEach.call(conflictList.querySelectorAll("[data-res-inc]"), function (b) {
+          b.addEventListener("click", function () { resolveConflict(b.getAttribute("data-res-inc"), "include"); });
+        });
+        Array.prototype.forEach.call(conflictList.querySelectorAll("[data-res-exc]"), function (b) {
+          b.addEventListener("click", function () { resolveConflict(b.getAttribute("data-res-exc"), "exclude"); });
+        });
+      } else conflictPanel.style.display = "none";
+    }
+
+    function render() {
+      VIEW = filteredRecords();
+      if (S.cursor >= VIEW.length) S.cursor = Math.max(0, VIEW.length - 1);
+      posEl.textContent = (VIEW.length ? (S.cursor + 1) : 0) + " of " + VIEW.length + (S.records.length !== VIEW.length ? " (filtered from " + S.records.length + ")" : "");
+      barFill.style.width = VIEW.length ? ((S.cursor + 1) / VIEW.length * 100) + "%" : "0%";
+      renderCard();
+      renderStatsAndConflicts();
+    }
+
+    // ---- actions ----
+    function decide(val) {
+      var r = currentRecord(); if (!r) return;
+      if (val === "duplicate") { r.dup = !r.dup; r.dupManual = r.dup; r.dupOf = r.dup ? "(manual)" : null; }
+      else { activeSlot(r).d = val; if (val !== "exclude") activeSlot(r).reason = ""; r.dup = false; r.dupManual = false; }
+      save(); render();
+      if (val !== "duplicate") autoAdvance();
+    }
+    function applyReason(i) {
+      var r = currentRecord(); if (!r || i < 0 || i >= S.reasons.length) return;
+      var slot = activeSlot(r);
+      slot.d = "exclude"; slot.reason = S.reasons[i]; r.dup = false;
+      save(); render(); autoAdvance();
+    }
+    function toggleLabel(lb) {
+      var r = currentRecord(); if (!r) return;
+      var k = r.labels.indexOf(lb);
+      if (k >= 0) r.labels.splice(k, 1); else r.labels.push(lb);
+      save(); render();
+    }
+    function clearDecision() {
+      var r = currentRecord(); if (!r) return;
+      activeSlot(r).d = ""; activeSlot(r).reason = ""; r.resolved = "";
+      save(); render();
+    }
+    function resolveConflict(id, val) {
+      var r = null; for (var i = 0; i < S.records.length; i++) if (S.records[i].id === id) { r = S.records[i]; break; }
+      if (!r) return;
+      r.resolved = val; save(); render();
+    }
+    function move(d) {
+      if (!VIEW.length) return;
+      S.cursor = Math.min(VIEW.length - 1, Math.max(0, S.cursor + d));
+      save(); render();
+    }
+    function autoAdvance() {
+      // advance to next undecided within view; if none, just go next
+      var found = findNextUndecided();
+      if (found >= 0) { S.cursor = found; } else if (S.cursor < VIEW.length - 1) { S.cursor++; }
+      save(); render();
+    }
+    function findNextUndecided() {
+      for (var i = S.cursor + 1; i < VIEW.length; i++) if (isUndecidedForActive(VIEW[i])) return i;
+      for (var j = 0; j <= S.cursor && j < VIEW.length; j++) if (isUndecidedForActive(VIEW[j])) return j;
+      return -1;
+    }
+    function nextUndecided() {
+      var f = findNextUndecided();
+      if (f >= 0) { S.cursor = f; save(); render(); }
+      else toast("No undecided records in this view.");
+    }
+
+    // ---- persistence ----
+    function save() {
+      S._savedAt = new Date().toISOString();
+      try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) {}
+    }
+    function load() {
+      try {
+        var raw = localStorage.getItem(LS_KEY);
+        if (!raw) return false;
+        var p = JSON.parse(raw);
+        if (p && p._schema === LS_KEY && Array.isArray(p.records)) {
+          S = Object.assign(blankState(), p);
+          S.records = p.records.map(normalizeImported);
+          // preserve decisions from stored (normalizeImported keeps r1/r2/resolved/labels/dup)
+          return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+
+    // ---- sync setup inputs <-> state ----
+    function pullSetupToState() {
+      S.title = $("f-title").value;
+      S.incTerms = splitTerms($("f-inc").value);
+      S.excTerms = splitTerms($("f-exc").value);
+      S.reasons = splitLines($("f-reasons").value);
+      S.labels = splitLines($("f-labels").value);
+      S.mode = $("f-dual").checked ? "dual" : "single";
+      S.active = $("f-active").value;
+      S.blind = $("f-blind").checked;
+      S.filter = $("f-filter").value;
+      S.sort = $("f-sort").value;
+      S.kw = $("f-kw").value;
+      $("dual-controls").style.display = S.mode === "dual" ? "" : "none";
+    }
+    function pushStateToSetup() {
+      $("f-title").value = S.title || "";
+      $("f-inc").value = (S.incTerms || []).join(", ");
+      $("f-exc").value = (S.excTerms || []).join(", ");
+      $("f-reasons").value = (S.reasons || []).join("\n");
+      $("f-labels").value = (S.labels || []).join("\n");
+      $("f-dual").checked = S.mode === "dual";
+      $("f-active").value = S.active || "r1";
+      $("f-blind").checked = !!S.blind;
+      $("f-filter").value = S.filter || "all";
+      $("f-sort").value = S.sort || "order";
+      $("f-kw").value = S.kw || "";
+      $("dual-controls").style.display = S.mode === "dual" ? "" : "none";
+    }
+    function onSetupChange() {
+      pullSetupToState();
+      rescoreAll();
+      save(); render();
+    }
+
+    // ---- exports ----
+    function downloadBlob(blob, fn) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a"); a.href = url; a.download = fn;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }
+    function csvCell(v) {
+      v = String(v == null ? "" : v);
+      // Neutralise spreadsheet formula injection. NOTE: hyphen is deliberately
+      // excluded so legitimate negative numbers (e.g. a negative term_score)
+      // are not corrupted into a text cell "'-4". See rules/lessons.md.
+      if (/^[=+@\t\r]/.test(v)) v = "'" + v;
+      return '"' + v.replace(/"/g, '""') + '"';
+    }
+    function exportJSON() {
+      var out = Object.assign({}, S, { counts: computeCounts(S.records), agreement: cohensKappa(S.records) });
+      downloadBlob(new Blob([JSON.stringify(out, null, 2)], { type: "application/json" }), "screen-project.json");
+    }
+    function exportCSV() {
+      var header = ["id", "title", "authors", "year", "journal", "doi", "pmid", "decision", "r1", "r2", "resolved", "reason", "labels", "term_score", "ml_score", "rct_score", "ai_suggestion", "ai_confidence", "ai_rationale", "duplicate"];
+      var rows = S.records.map(function (r) {
+        var rct = rctScore(r);
+        return [r.id, r.title, (r.authors || []).join("; "), r.year, r.journal, r.doi, r.pmid,
+          effDecision(r), r.r1.d, r.r2.d, r.resolved, (r.r1.reason || r.r2.reason || ""),
+          (r.labels || []).join("; "), (r.score == null ? "" : r.score),
+          (r.mlScore == null ? "" : r.mlScore.toFixed(4)), (rct == null ? "" : rct.toFixed(4)), r.aiSuggestion || "",
+          (r.aiConfidence == null ? "" : r.aiConfidence), r.aiRationale || "",
+          r.dup ? "1" : ""].map(csvCell).join(",");
+      });
+      downloadBlob(new Blob([[header.map(csvCell).join(",")].concat(rows).join("\n")], { type: "text/csv;charset=utf-8" }), "screen-decisions.csv");
+    }
+    function exportRIS() {
+      var inc = S.records.filter(function (r) { return effDecision(r) === "include"; });
+      if (!inc.length) { toast("No included records to export."); return; }
+      var ris = inc.map(function (r) {
+        var lines = ["TY  - JOUR"];
+        if (r.title) lines.push("TI  - " + r.title);
+        (r.authors || []).forEach(function (a) { lines.push("AU  - " + a); });
+        if (r.year) lines.push("PY  - " + r.year);
+        if (r.journal) lines.push("JO  - " + r.journal);
+        if (r.abstract) lines.push("AB  - " + r.abstract);
+        if (r.doi) lines.push("DO  - " + r.doi);
+        (r.keywords || []).forEach(function (k) { lines.push("KW  - " + k); });
+        lines.push("ER  - "); return lines.join("\n");
+      }).join("\n\n");
+      downloadBlob(new Blob([ris], { type: "application/x-research-info-systems" }), "screen-includes.ris");
+    }
+    function pushPrisma() {
+      var c = computeCounts(S.records);
+      // Records still in progress (undecided / maybe / conflict) are folded into the
+      // "excluded at screening" box so the flow numbers reconcile. That is only
+      // correct once screening is COMPLETE — make the composition explicit and warn
+      // if it is not, so undecided records are never silently reported as excluded.
+      var pending = c.maybe + c.conflict + c.undecided;
+      var breakdownBits = ["Excluded at title/abstract (n=" + c.excluded + ")"];
+      if (c.maybe) breakdownBits.push("maybe (n=" + c.maybe + ")");
+      if (c.conflict) breakdownBits.push("unresolved conflicts (n=" + c.conflict + ")");
+      if (c.undecided) breakdownBits.push("not yet screened (n=" + c.undecided + ")");
+      var payload = {
+        db: c.identified, reg: 0, removed: c.duplicates,
+        removedBreakdown: "Duplicates flagged in Screen (n=" + c.duplicates + ")",
+        screened: c.screened, excludedScreen: c.excluded + pending,
+        sought: c.included, notRetrieved: 0, assessed: c.included,
+        excludedEligible: 0, excludedBreakdown: breakdownBits.join("; "),
+        studies: c.included, reports: c.included,
+        title: (S.title || "Screen") + " (" + new Date().toISOString().slice(0, 10) + ")"
+      };
+      try {
+        localStorage.setItem(PRISMA_FLOW_KEY, JSON.stringify(payload));
+        if (pending) toast("Pushed to PRISMA Flow — but " + pending + " record(s) are still undecided/maybe/conflict and are counted as excluded. Finish screening for accurate counts.");
+        else toast("Pushed counts to PRISMA Flow. Open ../prisma-flow/index.html to render the diagram.");
+      } catch (e) { toast("Could not save: " + e.message); }
+    }
+
+    // ================= collaboration (serverless reviewer exchange) =================
+    function reviewerSlotName() { return (S.mode === "dual" && S.active === "r2") ? "r2" : "r1"; }
+    function exportReviewerState() {
+      var who = reviewerSlotName();
+      var decisions = S.records.filter(function (r) { return !r.dup; }).map(function (r) {
+        var slot = who === "r2" ? r.r2 : r.r1;
+        return { id: r.id, doi: r.doi, pmid: r.pmid, title: r.title, d: slot.d, reason: slot.reason, labels: (r.labels || []).slice() };
+      }).filter(function (d) { return d.d; });
+      if (!decisions.length) { toast("No decisions to export yet — screen a few records first."); return; }
+      var env = { _schema: "sr-reviewer-v1", _savedAt: new Date().toISOString(), reviewer: who, project: S.title || "", count: decisions.length, decisions: decisions };
+      downloadBlob(new Blob([JSON.stringify(env, null, 2)], { type: "application/json" }), "screen-reviewer-" + who + ".json");
+      toast("Exported " + decisions.length + " " + who.toUpperCase() + " decision(s). Share this file; your collaborator merges it.");
+    }
+    function buildMatchIndex() {
+      var ix = { byId: {}, byDoi: {}, byPmid: {}, byTitle: {} };
+      S.records.forEach(function (r) {
+        ix.byId[r.id] = r;
+        var d = (r.doi || "").toLowerCase(); if (d && !ix.byDoi[d]) ix.byDoi[d] = r;
+        if (r.pmid && !ix.byPmid[String(r.pmid)]) ix.byPmid[String(r.pmid)] = r;
+        var nt = normTitle(r.title); if (nt && !ix.byTitle[nt]) ix.byTitle[nt] = r;
+      });
+      return ix;
+    }
+    function matchIncoming(d, ix) {
+      if (d.id && ix.byId[d.id]) return ix.byId[d.id];
+      var doi = (d.doi || "").toLowerCase(); if (doi && ix.byDoi[doi]) return ix.byDoi[doi];
+      if (d.pmid && ix.byPmid[String(d.pmid)]) return ix.byPmid[String(d.pmid)];
+      var nt = normTitle(d.title || ""); if (nt && ix.byTitle[nt]) return ix.byTitle[nt];
+      return null;
+    }
+    // Pure, testable merge of an incoming sr-reviewer-v1 payload into the project.
+    function mergeReviewerState(payload, into) {
+      if (!payload || !Array.isArray(payload.decisions)) throw new Error("not a reviewer file (missing decisions[])");
+      var slotName = into;
+      if (!slotName || slotName === "auto") {
+        // Honour the file's declared reviewer (these ARE that reviewer's decisions);
+        // if undeclared, drop them into whichever slot the local reviewer is NOT using.
+        slotName = (payload.reviewer === "r1" || payload.reviewer === "r2") ? payload.reviewer : (S.active === "r1" ? "r2" : "r1");
+      }
+      if (slotName !== "r1" && slotName !== "r2") slotName = "r2";
+      var ix = buildMatchIndex();
+      var res = { slot: slotName, incoming: payload.decisions.length, matched: 0, unmatched: 0, filled: 0, conflicts: 0 };
+      payload.decisions.forEach(function (d) {
+        if (!d) return;
+        var r = matchIncoming(d, ix);
+        if (!r) { res.unmatched++; return; }
+        res.matched++;
+        if (["include", "exclude", "maybe"].indexOf(d.d) < 0) return;
+        var slot = slotName === "r2" ? r.r2 : r.r1;
+        var other = slotName === "r2" ? r.r1 : r.r2;
+        slot.d = d.d; slot.reason = clean(d.reason, 200) || "";
+        if (Array.isArray(d.labels)) d.labels.forEach(function (lb) { lb = clean(lb, 120); if (lb && r.labels.indexOf(lb) < 0) r.labels.push(lb); });
+        res.filled++;
+        if (other.d && other.d !== slot.d) res.conflicts++;
+      });
+      S.mode = "dual"; // an incoming second opinion makes this a dual-reviewer project
+      return res;
+    }
+    function onMergeReviewerFile(file) {
+      var rd = new FileReader();
+      rd.onload = function () {
+        try {
+          var payload = JSON.parse(rd.result);
+          if (payload && payload._schema === "sr-bundle-v1" && payload.screen) {
+            toast("That's a full bundle — use Import records to load it."); return;
+          }
+          var res = mergeReviewerState(payload, $("f-merge-into").value);
+          runDedup(); rescoreAll();
+          pushStateToSetup(); save(); render();
+          var msg = "Merged into " + res.slot.toUpperCase() + ": " + res.filled + " decision(s) across " + res.matched + " matched record(s)" +
+            (res.unmatched ? ", " + res.unmatched + " unmatched" : "") + (res.conflicts ? " — " + res.conflicts + " conflict(s) to resolve." : ".");
+          $("merge-status").textContent = msg; toast(msg);
+        } catch (e) { var em = "Merge failed: " + e.message; $("merge-status").textContent = em; toast(em); }
+      };
+      rd.readAsText(file);
+    }
+    function exportBundle() {
+      var proj = null; try { proj = JSON.parse(localStorage.getItem(SR_PROJECT_KEY) || "null"); } catch (e) {}
+      var bundle = {
+        _schema: "sr-bundle-v1", _savedAt: new Date().toISOString(),
+        protocol: proj,
+        screen: Object.assign({}, S, { counts: computeCounts(S.records), agreement: cohensKappa(S.records) })
+      };
+      downloadBlob(new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" }), "screen-bundle.json");
+      toast("Exported shareable bundle (protocol + records + both reviewers + counts + κ).");
+    }
+
+    // ---- shared-folder collaboration (File System Access; the OS sync client does the network) ----
+    var folderHandle = null;
+    function folderStatus(msg) { var el = $("folder-status"); if (el) el.textContent = msg; }
+    function initFolderUI() {
+      if (!window.SrCollab || !SrCollab.supportsFolder()) {
+        ["btn-folder-connect", "btn-folder-publish", "btn-folder-pull"].forEach(function (id) { var b = $(id); if (b) b.disabled = true; });
+        folderStatus("Shared-folder sync needs a Chromium browser (Chrome / Edge). On others, use Export my decisions + Merge a reviewer file.");
+      }
+    }
+    function connectFolder() {
+      SrCollab.pickFolder().then(function (h) {
+        folderHandle = h;
+        $("btn-folder-publish").disabled = false;
+        $("btn-folder-pull").disabled = false;
+        folderStatus("Connected to “" + (h.name || "folder") + "”. Publish your decisions, then Pull & merge to bring in collaborators.");
+      }).catch(function (e) { if (e && e.name === "AbortError") return; folderStatus("Could not open folder: " + e.message); });
+    }
+    function publishToFolder() {
+      if (!folderHandle) return;
+      var who = reviewerSlotName();
+      var env = SrCollab.buildReviewerEnvelope(who, S.records, S.title, new Date().toISOString());
+      if (!env.count) { folderStatus("No decisions yet — screen a few records first."); return; }
+      SrCollab.publishReviewer(folderHandle, env).then(function (name) {
+        folderStatus("Published " + env.count + " " + who.toUpperCase() + " decision(s) to " + name + " — if this folder is synced, your desktop client uploads it.");
+        toast("Published to shared folder.");
+      }).catch(function (e) { folderStatus("Publish failed: " + e.message); });
+    }
+    function pullFromFolder() {
+      if (!folderHandle) return;
+      SrCollab.pullFolder(folderHandle).then(function (payloads) {
+        if (!payloads.length) { folderStatus("No reviewer files in the folder yet — ask a collaborator to publish."); return; }
+        var totFilled = 0, slots = [];
+        payloads.forEach(function (p) {
+          try { var res = mergeReviewerState(p, p.reviewer || "auto"); totFilled += res.filled; if (slots.indexOf(res.slot) < 0) slots.push(res.slot); } catch (e) {}
+        });
+        runDedup(); rescoreAll(); pushStateToSetup(); save(); render();
+        var sum = SrCollab.summarize(S.records);
+        var msg = "Merged " + payloads.length + " reviewer file(s) [" + slots.map(function (s) { return s.toUpperCase(); }).join(", ") + "]: " + totFilled + " decision(s) filled; " + sum.consensusIncluded + " consensus include(s)" + (sum.conflicts ? ", " + sum.conflicts + " conflict(s) to resolve." : ".");
+        folderStatus(msg); toast(msg);
+      }).catch(function (e) { folderStatus("Pull failed: " + e.message); });
+    }
+
+    // ---- example ----
+    function loadExample() {
+      var ex = [
+        { title: "Dapagliflozin in Patients with Heart Failure and Reduced Ejection Fraction (DAPA-HF)", abstract: "In this randomized, controlled trial, patients with HFrEF received dapagliflozin or placebo. The primary outcome of worsening heart failure or cardiovascular death was reduced. SGLT2 inhibition improved outcomes regardless of diabetes status.", authors: ["McMurray JJV", "Solomon SD"], journal: "N Engl J Med", year: "2019", doi: "10.1056/NEJMoa1911303", pmid: "31535829", nct: "NCT03036124", abstractSource: "PubMed/EuropePMC", source: "pubmed", keywords: ["heart failure", "SGLT2", "dapagliflozin"] },
+        { title: "A Study to Evaluate the Effect of Empagliflozin in Heart Failure With Preserved Ejection Fraction", abstract: "Brief Summary: This trial studies empagliflozin versus placebo in adults with chronic heart failure and a preserved ejection fraction. The primary endpoint is the composite of cardiovascular death or hospitalisation for heart failure.", authors: ["Boehringer Ingelheim"], journal: "Interventional · Completed", year: "2017", doi: "", nct: "NCT03057951", abstractSource: "ClinicalTrials.gov", source: "CT.gov", keywords: ["HFpEF", "empagliflozin"] },
+        { title: "Effect of SGLT2 inhibitors on cardiac remodeling in a murine model", abstract: "We studied the effect of SGLT2 inhibition in mice subjected to transverse aortic constriction. This in vitro and animal study examined molecular signaling pathways.", authors: ["Lee K", "Park J"], journal: "J Mol Cell Cardiol", year: "2020", doi: "10.1016/j.yjmcc.2020.01.002", source: "pubmed", keywords: ["animal", "in vitro"] },
+        { title: "Cost-effectiveness analysis of dapagliflozin for heart failure", abstract: "A health-economic model estimated the cost-effectiveness of dapagliflozin in HFrEF from a payer perspective. Incremental cost-effectiveness ratios are reported.", authors: ["Smith A"], journal: "PharmacoEconomics", year: "2021", doi: "10.1007/s40273-021-01010-z", source: "embase", keywords: ["cost-effectiveness"] },
+        { title: "Dapagliflozin in patients with heart failure and reduced ejection fraction", abstract: "Duplicate import of the DAPA-HF primary results from a second database.", authors: ["McMurray JJV"], journal: "NEJM", year: "2019", doi: "10.1056/NEJMoa1911303", source: "embase", keywords: [] },
+        { title: "Canagliflozin and Cardiovascular and Renal Events in Type 2 Diabetes (CANVAS)", abstract: "Randomized trial assessing canagliflozin versus placebo for cardiovascular and renal outcomes in type 2 diabetes. Heart failure hospitalization was a secondary endpoint.", authors: ["Neal B", "Perkovic V"], journal: "N Engl J Med", year: "2017", doi: "10.1056/NEJMoa1611925", source: "pubmed", keywords: ["canagliflozin", "diabetes"] },
+        { title: "A narrative review of cardiorenal protection with SGLT2 inhibitors", abstract: "This review summarizes mechanisms of cardiorenal protection. It is not a primary study and presents no new trial data.", authors: ["Jones P"], journal: "Curr Cardiol Rep", year: "2022", doi: "", source: "pubmed", keywords: ["review"] }
+      ];
+      S = blankState();
+      S.title = "SGLT2 inhibitors in heart failure (example)";
+      S.incTerms = ["SGLT2", "dapagliflozin", "empagliflozin", "canagliflozin", "heart failure", "HFpEF", "HFrEF"];
+      S.excTerms = ["animal", "in vitro", "murine", "cost-effectiveness", "review"];
+      S.records = ex.map(normalizeImported);
+      runDedup(); rescoreAll();
+      pushStateToSetup(); save(); render();
+      toast("Example loaded: " + S.records.length + " records, duplicates flagged, relevance scored.");
+    }
+
+    // ---- keyboard ----
+    function onKey(e) {
+      if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+      if ($("help-modal").classList.contains("on")) { if (e.key === "Escape") closeHelp(); return; }
+      var k = e.key;
+      if (k >= "1" && k <= "9") { applyReason(parseInt(k, 10) - 1); e.preventDefault(); return; }
+      switch (k.toLowerCase()) {
+        case "i": decide("include"); e.preventDefault(); break;
+        case "e": case "x": decide("exclude"); e.preventDefault(); break;
+        case "m": decide("maybe"); e.preventDefault(); break;
+        case "d": decide("duplicate"); e.preventDefault(); break;
+        case "u": case "backspace": clearDecision(); e.preventDefault(); break;
+        case "j": case "arrowright": move(1); e.preventDefault(); break;
+        case "k": case "arrowleft": move(-1); e.preventDefault(); break;
+        case "n": case "enter": nextUndecided(); e.preventDefault(); break;
+        case "a": acceptAI(); e.preventDefault(); break;
+        case "f": toggleFocus(); e.preventDefault(); break;
+        case "?": openHelp(); e.preventDefault(); break;
+      }
+    }
+    function openHelp() { $("help-modal").classList.add("on"); }
+    function closeHelp() { $("help-modal").classList.remove("on"); }
+
+    // ---- Rayyan-style Focus mode (immersive single-card rapid screening) ----
+    var FOCUS_KEY = "screen-focus-v1";
+    function setFocus(on) {
+      document.body.classList.toggle("focus-mode", on);
+      var b = $("btn-focus");
+      if (b) { b.setAttribute("aria-pressed", on ? "true" : "false"); b.textContent = on ? "⤡ Exit focus" : "⤢ Focus"; }
+      var lg = $("focus-legend"); if (lg) lg.setAttribute("aria-hidden", on ? "false" : "true");
+      try { localStorage.setItem(FOCUS_KEY, on ? "1" : "0"); } catch (e) {}
+      if (on) { try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) {} }
+    }
+    function toggleFocus() { setFocus(!document.body.classList.contains("focus-mode")); }
+
+    // ---- pipeline bridge: import from the Search app via sr-records-v1 ----
+    function importFromSearch() {
+      try {
+        var raw = localStorage.getItem(SR_RECORDS_KEY);
+        if (!raw) { toast("No Search results found (sr-records-v1). Run the Search app and 'Send to Screen'."); return; }
+        var p = JSON.parse(raw);
+        if (!p || !Array.isArray(p.records) || !p.records.length) { toast("sr-records-v1 has no records."); return; }
+        addRecords(p.records.map(normalizeImported));
+        if (p.query && !S.title) { S.title = clean(p.query, 200); $("f-title").value = S.title; save(); }
+        // Pull screening terms from the Design protocol (sr-project-v1), if present and not yet set.
+        try {
+          var proj = JSON.parse(localStorage.getItem(SR_PROJECT_KEY) || "null");
+          if (proj && proj.screenTerms) {
+            if (!S.incTerms.length && Array.isArray(proj.screenTerms.include)) { S.incTerms = proj.screenTerms.include.slice(); $("f-inc").value = S.incTerms.join(", "); }
+            if (!S.excTerms.length && Array.isArray(proj.screenTerms.exclude)) { S.excTerms = proj.screenTerms.exclude.slice(); $("f-exc").value = S.excTerms.join(", "); }
+            if (!S.title && proj.title) { S.title = clean(proj.title, 200); $("f-title").value = S.title; }
+            rescoreAll(); save(); render();
+          }
+        } catch (e2) {}
+      } catch (e) { toast("Could not import from Search: " + e.message); }
+    }
+
+    // ---- import flow ----
+    function onFile(file) {
+      var rd = new FileReader();
+      rd.onload = function () {
+        try { addRecords(detectAndParse(String(rd.result), file.name)); }
+        catch (err) { toast("Import failed: " + err.message); }
+      };
+      rd.readAsText(file);
+    }
+
+    // ---- wire up ----
+    function attach() {
+      $("btn-import").addEventListener("click", function () { $("file-import").click(); });
+      $("file-import").addEventListener("change", function (e) {
+        var f = e.target.files && e.target.files[0]; if (f) onFile(f); e.target.value = "";
+      });
+      $("btn-from-search").addEventListener("click", importFromSearch);
+      $("btn-example").addEventListener("click", loadExample);
+      $("btn-dedup").addEventListener("click", function () { runDedup(); rescoreAll(); save(); render(); toast("Dedup re-run."); });
+      $("btn-export-json").addEventListener("click", exportJSON);
+      $("btn-export-csv").addEventListener("click", exportCSV);
+      $("btn-export-ris").addEventListener("click", exportRIS);
+      $("btn-prisma").addEventListener("click", pushPrisma);
+      $("btn-to-extract").addEventListener("click", function () {
+        var inc = S.records.filter(function (r) { return effDecision(r) === "include"; }).length;
+        if (!inc) { toast("No included records to extract yet."); return; }
+        save(); // screen-v1 is what Extract reads
+        toast("Opening Extract with " + inc + " included record(s)…");
+        setTimeout(function () { window.location.href = "../extract/index.html?from=screen"; }, 500);
+      });
+      $("btn-export-rev").addEventListener("click", exportReviewerState);
+      $("btn-merge-rev").addEventListener("click", function () { $("rev-file").click(); });
+      $("btn-folder-connect").addEventListener("click", connectFolder);
+      $("btn-folder-publish").addEventListener("click", publishToFolder);
+      $("btn-folder-pull").addEventListener("click", pullFromFolder);
+      initFolderUI();
+      $("rev-file").addEventListener("change", function (e) { var f = e.target.files && e.target.files[0]; if (f) onMergeReviewerFile(f); e.target.value = ""; });
+      $("btn-export-bundle").addEventListener("click", exportBundle);
+      $("btn-help").addEventListener("click", openHelp);
+      $("btn-focus").addEventListener("click", toggleFocus);
+      try { if (localStorage.getItem(FOCUS_KEY) === "1") setFocus(true); } catch (e) {}
+      $("help-close").addEventListener("click", closeHelp);
+      $("help-modal").addEventListener("click", function (e) { if (e.target === $("help-modal")) closeHelp(); });
+      $("btn-reset").addEventListener("click", function () {
+        if (!confirm("Clear the whole project (records and decisions)?")) return;
+        S = blankState(); pushStateToSetup(); save(); render();
+      });
+      ["f-title", "f-inc", "f-exc", "f-reasons", "f-labels"].forEach(function (id) { $(id).addEventListener("input", onSetupChange); });
+      ["f-dual", "f-active", "f-blind", "f-filter", "f-sort"].forEach(function (id) { $(id).addEventListener("change", onSetupChange); });
+      $("f-kw").addEventListener("input", onSetupChange);
+
+      // ML
+      $("btn-train").addEventListener("click", onTrain);
+      // AI assist
+      $("ai-on").addEventListener("change", function () { $("ai-controls").style.display = this.checked ? "" : "none"; });
+      $("ai-mode").addEventListener("change", function () {
+        var byo = this.value === "byokey";
+        $("ai-handoff").style.display = byo ? "none" : "";
+        $("ai-byokey").style.display = byo ? "" : "none";
+      });
+      $("btn-ai-export").addEventListener("click", aiExportTask);
+      $("btn-ai-import").addEventListener("click", function () { $("ai-file").click(); });
+      $("ai-file").addEventListener("change", function (e) { var f = e.target.files && e.target.files[0]; if (f) aiImportResults(f); e.target.value = ""; });
+      $("btn-ai-run").addEventListener("click", aiRunByoKey);
+      $("ai-key").addEventListener("change", function () { aiKeySet(this.value.trim()); });
+      var savedKey = aiKeyGet(); if (savedKey) $("ai-key").value = savedKey;
+
+      document.addEventListener("keydown", onKey);
+    }
+
+    // ================= local ML classifier (TF-IDF + logistic regression) =================
+    // Fully client-side active learning: the reviewer labels records with i/e, we
+    // train a transparent logistic-regression model over TF-IDF features (unigrams
+    // + bigrams + MeSH keywords) and re-rank the rest. No backend, no key,
+    // deterministic given the same labels. In dual-reviewer mode BOTH reviewers'
+    // labels are used (was R1-only before). 5-fold cross-validated AUC and a
+    // data-driven stopping signal are surfaced so quality is measurable, not asserted.
+    var ML = { model: null, V: null, topPos: [], topNeg: [], trained: false, cv: null };
+    var ML_STOP = new Set(("a an the of and or to in for on with without via using study trial we our this that these those is are was were be been being as at by from into results methods method background conclusion conclusions objective objectives aim aims patients patient effect effects group groups versus compared comparison between among also can may use used using based both than then there their which while".split(/\s+/)));
+    // ---- ranker configuration (overridable; benchmark ablation reads these) ----
+    // ML_TF: "sublinear" (1+log tf, default) damps repeated-term dominance, the
+    //   standard Salton TF for screening; "raw" = plain counts (pre-upgrade).
+    // ML_MODEL_MODE: "ens" (default) averages logistic regression with a
+    //   complement-Naive-Bayes log-ratio scorer — NB is ASReview's strong default
+    //   and is very robust under heavy class imbalance, so the ensemble lifts the
+    //   hardest low-prevalence sets; "lr"/"nb" select a single ranker (ablation).
+    var ML_TF = "raw";
+    var ML_MODEL_MODE = "nb";
+    // Unigram-only vocabulary by default (ML_NGRAM_MAX=1, matching ASReview's
+    // TfidfVectorizer default). Kaizen ablation (2026-06-09, full 19-set, multi-seed)
+    // found adjacent bigrams add no measured WSS@95 over unigrams here and roughly
+    // double per-record retraining cost, so unigrams are shipped. Set 2 to re-enable.
+    var ML_NGRAM_MAX = 1;
+    // Multinomial-NB Laplace smoothing (sklearn MultinomialNB `alpha`). ASReview's
+    // published default is 3.822, but under per-record continuous AL on this 19-set
+    // suite a lighter alpha=2 measured best (all-19 WSS@95 0.4507 vs 0.4427 at 3.822,
+    // 3-seed) — with more training data accumulating each retrain, less smoothing wins.
+    var ML_NB_ALPHA = 2.0;
+    // Balanced sample-weighting ratio (ASReview "balanced" balancer / the successor
+    // to v1 dynamic-resampling). Positives get weight 1; negatives get
+    // nPos/(ratio·nNeg), so the positive:negative weight ratio is ratio·(nNeg/nPos).
+    // ratio=1 reproduces plain class-balancing; ASReview tunes 1.2 (NB) / 9.8 (SVM).
+    // Kaizen (2026-06-09): ratio=2 measured the best single-lever gain on the 19-set
+    // suite (all-19 +0.010 WSS@95 over ratio=1), so the shipped default is 2.
+    var ML_BALANCE_RATIO = 2.0;
+    // Max document-frequency cut as a fraction of N (terms in >this share of docs are
+    // dropped as too-common). Kaizen: 0.4 measured marginally better than 0.6 here.
+    var ML_DF_MAX_FRAC = 0.4;
+    function mlUnigrams(s) {
+      var m = String(s || "").toLowerCase().match(/[a-z0-9]+/g) || [], out = [], i, w;
+      for (i = 0; i < m.length; i++) { w = m[i]; if (w.length >= 3 && w.length <= 30 && !ML_STOP.has(w) && !/^\d+$/.test(w)) out.push(w); }
+      return out;
+    }
+    // Tokens = unigrams + adjacent bigrams (over the unfiltered stream so phrases
+    // like "heart failure" survive even though neither word is a stopword). Bigrams
+    // are marked with a "_" join and add local context the bag-of-words misses.
+    function mlTokenize(s) {
+      var uni = mlUnigrams(s), out = uni.slice(), i;
+      if (ML_NGRAM_MAX >= 2) for (i = 0; i + 1 < uni.length; i++) out.push(uni[i] + "_" + uni[i + 1]);
+      return out;
+    }
+    function mlText(r) { return r.title + " " + r.title + " " + r.abstract + " " + (r.keywords || []).join(" "); }
+    function mlBuildVocab(recs) {
+      var df = {}, N = recs.length, i;
+      for (i = 0; i < N; i++) {
+        var seen = {}, toks = mlTokenize(mlText(recs[i])), j;
+        for (j = 0; j < toks.length; j++) { if (!seen[toks[j]]) { seen[toks[j]] = 1; df[toks[j]] = (df[toks[j]] || 0) + 1; } }
+      }
+      var terms = Object.keys(df).filter(function (w) { return df[w] >= 2 && df[w] <= Math.max(2, N * ML_DF_MAX_FRAC); });
+      terms.sort(function (a, b) { return (df[b] - df[a]) || (a < b ? -1 : 1); });
+      terms = terms.slice(0, 4000);
+      var vocab = {}, idf = new Float64Array(terms.length);
+      for (i = 0; i < terms.length; i++) { vocab[terms[i]] = i; idf[i] = Math.log(N / df[terms[i]]) + 1; }
+      return { vocab: vocab, idf: idf, terms: terms };
+    }
+    function mlVector(r, V) {
+      // Memoise per record against the (vocab, tf-mode) it was built for. The vocab
+      // object is rebuilt on every train, so a stale cache is impossible in the UI;
+      // the active-learning loop (fixed vocab across retrains) skips re-tokenising
+      // every labelled doc each round — the dominant cost — making it 3–5× faster.
+      // Stored in a NON-enumerable slot so it never reaches JSON.stringify/save().
+      if (r._mlc && r._mlc.V === V && r._mlc.mode === ML_TF) return r._mlc.vec;
+      var tf = {}, toks = mlTokenize(mlText(r)), i, idx, k;
+      for (i = 0; i < toks.length; i++) { idx = V.vocab[toks[i]]; if (idx == null) continue; tf[idx] = (tf[idx] || 0) + 1; }
+      var vec = [], norm = 0, sublin = (ML_TF !== "raw");
+      for (k in tf) { var tw = sublin ? (1 + Math.log(tf[k])) : tf[k]; var v = tw * V.idf[k]; vec.push([+k, v]); norm += v * v; }
+      norm = Math.sqrt(norm) || 1;
+      for (i = 0; i < vec.length; i++) vec[i][1] /= norm;
+      try { Object.defineProperty(r, "_mlc", { value: { V: V, mode: ML_TF, vec: vec }, writable: true, configurable: true }); } catch (e) { /* non-extensible record: skip cache */ }
+      return vec;
+    }
+    function sigmoid(z) { return z >= 0 ? 1 / (1 + Math.exp(-z)) : (function () { var e = Math.exp(z); return e / (1 + e); })(); }
+    // ASReview "balanced" balancer (successor to v1 dynamic resampling): per-record
+    // sample weights — positives weight 1, negatives nPos/(ratio·nNeg), renormalised
+    // to sum to N. Equivalent to plain class-balancing at ratio=1; ratio>1 upweights
+    // the rare positives further (ASReview tunes this on SYNERGY). Used by every
+    // classifier below so the balance strategy is shared, exactly as in ASReview.
+    function mlSampleWeights(ys, ratio) {
+      var P = 0, Ng = 0, i; for (i = 0; i < ys.length; i++) { if (ys[i] === 1) P++; else Ng++; }
+      var w0 = (ratio > 0 && Ng > 0 && P > 0) ? P / (ratio * Ng) : 1.0;
+      var sumRaw = P * 1.0 + Ng * w0, scale = sumRaw > 0 ? ys.length / sumRaw : 1.0;
+      var sw = new Float64Array(ys.length);
+      for (i = 0; i < ys.length; i++) sw[i] = (ys[i] === 1 ? 1.0 : w0) * scale;
+      return sw;
+    }
+    // Shared trainer. Builds (a) a class-balanced logistic regression and/or (b) a
+    // multinomial Naive Bayes that matches scikit-learn's MultinomialNB on the tf-idf
+    // matrix (ASReview's default ranker): Laplace-smoothed log p(t|inc) − log p(t|exc)
+    // per term, plus the class log-prior, with balanced sample weights folded into the
+    // counts. NB is cheap to refit, which is what makes per-record (continuous) active
+    // learning affordable — the lever that drives WSS@95. ML_MODEL_MODE selects nb / lr
+    // / ens (rank-fused average). Deterministic (zero-init LR, closed-form NB).
+    function mlFit(labelled, V) {
+      var n = V.terms.length, i, j, s;
+      var ys = labelled.map(function (p) { return p[1]; });
+      var ratio = (typeof ML_BALANCE_RATIO !== "undefined") ? ML_BALANCE_RATIO : 1.0;
+      var sw = mlSampleWeights(ys, ratio);
+      var X = labelled.map(function (p) { return mlVector(p[0], V); });
+      var mode = ML_MODEL_MODE || "ens", model = {};
+      if (mode !== "nb") {
+        var w = new Float64Array(n), b = 0, lr = 0.5, l2 = 1e-4, epochs = 300, e;
+        for (e = 0; e < epochs; e++) {
+          for (s = 0; s < X.length; s++) {
+            var x = X[s], dot = b;
+            for (j = 0; j < x.length; j++) dot += w[x[j][0]] * x[j][1];
+            var g = (sigmoid(dot) - ys[s]) * sw[s];
+            for (j = 0; j < x.length; j++) { var ix = x[j][0]; w[ix] -= lr * (g * x[j][1] + l2 * w[ix]); }
+            b -= lr * g;
+          }
+        }
+        model.w = w; model.b = b;
+      }
+      if (mode !== "lr") {
+        var alpha = (typeof ML_NB_ALPHA !== "undefined") ? ML_NB_ALPHA : 1.0;
+        var fc1 = new Float64Array(n), fc0 = new Float64Array(n), t1 = 0, t0 = 0, sw1 = 0, sw0 = 0;
+        for (s = 0; s < X.length; s++) {
+          var xx = X[s], wt = sw[s];
+          if (ys[s] === 1) { sw1 += wt; for (j = 0; j < xx.length; j++) { var v1 = xx[j][1] * wt; if (v1 > 0) { fc1[xx[j][0]] += v1; t1 += v1; } } }
+          else { sw0 += wt; for (j = 0; j < xx.length; j++) { var v0 = xx[j][1] * wt; if (v0 > 0) { fc0[xx[j][0]] += v0; t0 += v0; } } }
+        }
+        var d1 = Math.log(t1 + alpha * n), d0 = Math.log(t0 + alpha * n), dlp = new Float64Array(n);
+        for (j = 0; j < n; j++) dlp[j] = (Math.log(fc1[j] + alpha) - d1) - (Math.log(fc0[j] + alpha) - d0);
+        model.nb = { dlp: dlp, priorDiff: (sw1 > 0 && sw0 > 0) ? Math.log(sw1 / sw0) : 0 };
+      }
+      return model;
+    }
+    function mlPredict(r, model, V) {
+      var x = mlVector(r, V), j, mode = ML_MODEL_MODE || "ens";
+      var lrP = null, nbP = null;
+      if (mode !== "nb" && model.w) { var dot = model.b; for (j = 0; j < x.length; j++) dot += model.w[x[j][0]] * x[j][1]; lrP = sigmoid(dot); }
+      if (mode !== "lr" && model.nb) { var sc = model.nb.priorDiff; for (j = 0; j < x.length; j++) sc += model.nb.dlp[x[j][0]] * x[j][1]; nbP = sigmoid(sc); }
+      if (mode === "lr") return lrP != null ? lrP : 0.5;
+      if (mode === "nb") return nbP != null ? nbP : 0.5;
+      return (lrP != null && nbP != null) ? 0.5 * (lrP + nbP) : (lrP != null ? lrP : (nbP != null ? nbP : 0.5));
+    }
+    // Effective training label using BOTH reviewers (M-5 fix): resolved > agreement
+    // > single decisive label. Conflicts and maybe/undecided contribute no label.
+    function mlLabelDefault(r) {
+      if (r.dup) return null;
+      if (S.mode !== "dual") return r.r1.d === "include" ? 1 : r.r1.d === "exclude" ? 0 : null;
+      if (r.resolved === "include") return 1;
+      if (r.resolved === "exclude") return 0;
+      var a = r.r1.d, b = r.r2.d;
+      if (a === "include" && b === "include") return 1;
+      if (a === "exclude" && b === "exclude") return 0;
+      if (a && b && a !== b) return null;        // unresolved conflict → no signal
+      var one = a || b; return one === "include" ? 1 : one === "exclude" ? 0 : null;
+    }
+    function mlCollectLabelled(recs, labelOf) {
+      var out = [], i, l;
+      for (i = 0; i < recs.length; i++) { if (recs[i].dup) continue; l = labelOf(recs[i]); if (l === 1 || l === 0) out.push([recs[i], l]); }
+      return out;
+    }
+    // Shared trainer used by BOTH the UI and the benchmark simulation, so the
+    // measured numbers describe the shipped code path exactly.
+    function mlTrainOn(recs, labelOf, opts) {
+      opts = opts || {};
+      var labelled = mlCollectLabelled(recs, labelOf);
+      var nPos = labelled.filter(function (p) { return p[1] === 1; }).length, nNeg = labelled.length - nPos;
+      if (nPos < 2 || nNeg < 2) return { ok: false, msg: "Label at least 2 includes and 2 excludes (press i / e) to train." };
+      var V = opts.vocab || mlBuildVocab(recs);
+      if (!V.terms.length) return { ok: false, msg: "Not enough text to build a vocabulary." };
+      return { ok: true, V: V, model: mlFit(labelled, V), pos: nPos, neg: nNeg, labelled: labelled };
+    }
+    // Rank-AUC (Mann–Whitney U with tie-averaged ranks).
+    function aucScore(scores, labels) {
+      var idx = scores.map(function (_, i) { return i; }).sort(function (a, b) { return scores[a] - scores[b]; });
+      var rank = new Array(scores.length), i = 0;
+      while (i < idx.length) {
+        var j = i; while (j + 1 < idx.length && scores[idx[j + 1]] === scores[idx[i]]) j++;
+        var avg = (i + j) / 2 + 1; for (var t = i; t <= j; t++) rank[idx[t]] = avg; i = j + 1;
+      }
+      var sumPos = 0, nPos = 0, nNeg = 0;
+      for (i = 0; i < labels.length; i++) { if (labels[i] === 1) { sumPos += rank[i]; nPos++; } else nNeg++; }
+      if (!nPos || !nNeg) return 0.5;
+      return (sumPos - nPos * (nPos + 1) / 2) / (nPos * nNeg);
+    }
+    // Stratified, deterministic k-fold CV (folds by within-class position, no RNG).
+    // Vocab is built once over the full corpus (transductive, matching the live
+    // ranker); only the labels are held out, so the reported AUC reflects the
+    // classifier's generalisation on THIS review's records.
+    function mlCrossVal(recs, labelOf, k) {
+      var labelled = mlCollectLabelled(recs, labelOf);
+      var pos = labelled.filter(function (p) { return p[1] === 1; });
+      var neg = labelled.filter(function (p) { return p[1] === 0; });
+      if (pos.length < 2 || neg.length < 2) return null;
+      k = Math.max(2, Math.min(k || 5, pos.length, neg.length));
+      var V = mlBuildVocab(recs);
+      if (!V.terms.length) return null;
+      function fold(arr) { var f = [], t; for (t = 0; t < arr.length; t++) { (f[t % k] || (f[t % k] = [])).push(arr[t]); } return f; }
+      var pf = fold(pos), nf = fold(neg), scores = [], labels = [], fi, i;
+      for (fi = 0; fi < k; fi++) {
+        var tr = [], te = [];
+        for (i = 0; i < k; i++) { var src = (pf[i] || []).concat(nf[i] || []); if (i === fi) te = te.concat(src); else tr = tr.concat(src); }
+        if (!tr.length || !te.length) continue;
+        if (!tr.some(function (p) { return p[1] === 1; }) || !tr.some(function (p) { return p[1] === 0; })) continue;
+        var m = mlFit(tr, V);
+        for (i = 0; i < te.length; i++) { scores.push(mlPredict(te[i][0], m, V)); labels.push(te[i][1]); }
+      }
+      if (!scores.length) return null;
+      return { auc: aucScore(scores, labels), n: labelled.length, folds: k, pos: pos.length, neg: neg.length };
+    }
+    // ---- principled target-recall stopping rule (Callaghan & Müller-Hansen 2020,
+    // "Statistical stopping criteria for automated screening in systematic reviews",
+    // Syst Rev 9:273; the `buscar` biased-urn criterion). Given the relevant/irrelevant
+    // sequence screened in ML-rank order, it returns a p-value for H0 = "the recall
+    // target has NOT been reached". Reject (safe to stop) when p < 1−confidence.
+    // This is a real statistical guarantee, replacing the eyeballed "long irrelevant
+    // run" heuristic. Faithful port of buscarR::calculate_h0 (bias=1, exact urn).
+    function _lgamma(x) {
+      var c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+      var y = x, tmp = x + 5.5, ser = 1.000000000190015, j;
+      tmp -= (x + 0.5) * Math.log(tmp);
+      for (j = 0; j < 6; j++) { y += 1; ser += c[j] / y; }
+      return -tmp + Math.log(2.5066282746310005 * ser / x);
+    }
+    function _logChoose(n, k) { return (k < 0 || k > n) ? -Infinity : _lgamma(n + 1) - _lgamma(k + 1) - _lgamma(n - k + 1); }
+    // Hypergeometric CDF P(X<=q): m white (relevant in urn), nbl black, k draws.
+    function _phyper(q, m, nbl, k) {
+      var tot = m + nbl, lo = Math.max(0, k - nbl), hi = Math.min(k, m), x, s = 0, denom;
+      if (q >= hi) return 1; if (q < lo) return 0;
+      denom = _logChoose(tot, k);
+      for (x = lo; x <= q; x++) s += Math.exp(_logChoose(m, x) + _logChoose(nbl, k - x) - denom);
+      return s > 1 ? 1 : s;
+    }
+    // seq = 0/1 labels screened IN RANK ORDER; N = total records (screened+unseen).
+    // Returns the minimum p over all look-back windows (most conservative baseline).
+    // nUse (optional) = consider only the first nUse entries of seq (avoids slicing
+    // when sweeping the criterion over a growing prefix).
+    function mlBuscarP(seq, N, recallTarget, nUse) {
+      recallTarget = recallTarget || 0.95;
+      var n = (nUse == null ? seq.length : Math.min(nUse, seq.length)); if (!n || n >= N) return 1;
+      var rSeen = 0, i; for (i = 0; i < n; i++) rSeen += seq[i] ? 1 : 0;
+      if (rSeen < 1) return 1;
+      var best = 1, kWin = 0, w;
+      for (w = 1; w <= n; w++) {
+        kWin += seq[n - w] ? 1 : 0;                          // relevant in last w (urn draws)
+        var rAl = rSeen - kWin;                              // relevant found before the window
+        var kHat = Math.floor(rSeen / recallTarget - rAl + 1); // min relevant in urn under H0
+        if (kHat <= 0) continue;
+        var urn = N - (n - w), red = urn - kHat;             // urn = window + unseen; black = irrelevant
+        if (red < 0) continue;
+        var p = _phyper(kWin, kHat, red, w);
+        if (p < best) best = p;
+      }
+      return best;
+    }
+    // Live data-driven stopping signal over the ML-ranked order: how many records
+    // the reviewer has screened, how many relevant were found, and the run of
+    // consecutive non-relevant decisions since the last include (ASReview-style:
+    // a long irrelevant run high in the ranking ⇒ safe to stop near 95 % recall).
+    function mlStopping() {
+      var scored = S.records.filter(function (r) { return !r.dup && r.mlScore != null; });
+      scored.sort(function (a, b) { return b.mlScore - a.mlScore; });
+      var screened = 0, found = 0, since = 0, last = 0, i, seq = [];
+      for (i = 0; i < scored.length; i++) {
+        var d = effDecision(scored[i]);
+        if (d === "include" || d === "exclude" || d === "maybe") {
+          screened++; seq.push(d === "include" ? 1 : 0);
+          if (d === "include") { found++; last = screened; since = 0; } else since++;
+        }
+      }
+      // buscar p for H0("<95% recall"); <0.05 ⇒ statistically safe to stop.
+      var buscarP = (screened > 0 && scored.length > screened) ? mlBuscarP(seq, scored.length, 0.95) : 1;
+      return { total: scored.length, screened: screened, found: found, since: since, lastIncludeAt: last, buscarP: buscarP };
+    }
+    function mlTrain() {
+      var res = mlTrainOn(S.records, mlLabelDefault, {});
+      if (!res.ok) return res;
+      ML.model = res.model; ML.V = res.V; ML.trained = true;
+      var ranked = 0;
+      S.records.forEach(function (r) {
+        if (r.dup) { r.mlScore = null; return; }
+        r.mlScore = mlPredict(r, res.model, res.V); ranked++;
+      });
+      // Per-term influence for the explainability panel: logistic-regression weights
+      // when available, else the Naive-Bayes log-ratio log p(t|inc)−log p(t|exc).
+      var termW = res.model.w || (res.model.nb && res.model.nb.dlp) || new Float64Array(res.V.terms.length);
+      var pairs = res.V.terms.map(function (t, i) { return [t.replace(/_/g, " "), termW[i]]; });
+      pairs.sort(function (a, b2) { return b2[1] - a[1]; });
+      ML.topPos = pairs.slice(0, 12).filter(function (p) { return p[1] > 0; });
+      ML.topNeg = pairs.slice(-12).reverse().filter(function (p) { return p[1] < 0; });
+      ML.cv = mlCrossVal(S.records, mlLabelDefault, 5);
+      return {
+        ok: true, inc: res.pos, exc: res.neg, ranked: ranked, cv: ML.cv,
+        msg: "Trained on " + res.pos + " includes / " + res.neg + " excludes (" +
+          (S.mode === "dual" ? "both reviewers" : "R1") + "); ranked " + ranked + " records" +
+          (ML.cv ? "; 5-fold CV AUC " + ML.cv.auc.toFixed(2) : "") + "."
+      };
+    }
+    function onTrain() {
+      var res = mlTrain();
+      $("ml-status").innerHTML = escapeHtml(res.msg);
+      if (res.ok) {
+        var terms = "";
+        if (ML.topPos.length) terms += '<div><strong>Predicts include:</strong> ' + ML.topPos.map(function (p) { return '<span class="ml-term pos">' + escapeHtml(p[0]) + "</span>"; }).join("") + "</div>";
+        if (ML.topNeg.length) terms += '<div style="margin-top:0.3rem"><strong>Predicts exclude:</strong> ' + ML.topNeg.map(function (p) { return '<span class="ml-term neg">' + escapeHtml(p[0]) + "</span>"; }).join("") + "</div>";
+        $("ml-terms").innerHTML = terms;
+        S.sort = "ml"; $("f-sort").value = "ml"; S.cursor = 0;
+        save(); render();
+        renderMlPerf();
+      } else { $("ml-terms").innerHTML = ""; $("ml-perf").innerHTML = ""; }
+    }
+    function renderMlPerf() {
+      var el = $("ml-perf"); if (!el) return;
+      if (!ML.trained) { el.innerHTML = ""; return; }
+      var bits = [];
+      if (ML.cv) bits.push('Held-out quality: <strong>5-fold CV AUC ' + ML.cv.auc.toFixed(2) + '</strong> (' + ML.cv.pos + ' incl / ' + ML.cv.neg + ' excl labelled). 1.0 = perfect ranking, 0.5 = chance.');
+      var st = mlStopping();
+      if (st.screened > 0) {
+        var stop = st.buscarP < 0.05;
+        bits.push('Stopping rule (buscar, 95% target): screened <strong>' + st.screened + '/' + st.total + '</strong> in rank order, found <strong>' + st.found + '</strong> relevant; <strong>' + st.since + '</strong> since the last include. ' +
+          'Confidence ≥95% recall reached: <strong>' + (st.buscarP <= 0 ? '>99.9' : (100 * (1 - st.buscarP)).toFixed(1)) + '%</strong>' +
+          (stop ? ' — <strong>statistically safe to stop</strong> (p&lt;0.05).' : ' — keep screening to reach the 95% confidence threshold.'));
+      } else {
+        bits.push('Stopping signal: screen down the ML ranking; this panel shows the relevant-found curve and the irrelevant run length so you can stop near 95% recall.');
+      }
+      el.innerHTML = bits.map(function (b) { return '<div style="margin-top:0.35rem">' + b + '</div>'; }).join("");
+    }
+    // ---- deterministic active-learning simulation (benchmark harness) ----
+    // Drives the SHIPPED mlBuildVocab / mlFit / mlPredict over a gold-labelled
+    // corpus, mimicking a reviewer who screens the top-ranked batch, reveals the
+    // truth, retrains, and repeats. Returns the recall curve + WSS@95 so the
+    // "matches/beats Rayyan-class tools" claim can be measured, not asserted.
+    function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+    function simulateActiveLearning(opts) {
+      opts = opts || {};
+      var src = opts.records || [];
+      var recs = src.map(function (r) { var rec = normalizeImported(r); rec._gold = r.gold ? 1 : 0; return rec; });
+      var N = recs.length;
+      if (!N) return { ok: false, msg: "no records" };
+      var totalPos = recs.reduce(function (a, r) { return a + r._gold; }, 0);
+      if (totalPos < 2) return { ok: false, msg: "need >=2 relevant" };
+      var batch = opts.batch || 100, seedN = opts.seed || 20, target = opts.target || 0.95;
+      var V = mlBuildVocab(recs);
+      var rng = mulberry32(opts.rngSeed || 1234567);
+      // initial seed: random draw, then force >=1 pos and >=1 neg present.
+      var idx = recs.map(function (_, i) { return i; });
+      for (var s = idx.length - 1; s > 0; s--) { var j = Math.floor(rng() * (s + 1)); var tmp = idx[s]; idx[s] = idx[j]; idx[j] = tmp; }
+      var labelledSet = {}, labelled = [], found = 0, screened = 0, seq = [];
+      function reveal(i) { if (labelledSet[i]) return; labelledSet[i] = 1; labelled.push([recs[i], recs[i]._gold]); seq.push(recs[i]._gold ? 1 : 0); screened++; if (recs[i]._gold) found++; }
+      var k = 0; for (k = 0; k < idx.length && Object.keys(labelledSet).length < seedN; k++) reveal(idx[k]);
+      // ensure both classes
+      if (!labelled.some(function (p) { return p[1] === 1; })) { for (k = 0; k < N; k++) if (recs[k]._gold) { reveal(k); break; } }
+      if (!labelled.some(function (p) { return p[1] === 0; })) { for (k = 0; k < N; k++) if (!recs[k]._gold) { reveal(k); break; } }
+      var curve = [{ screened: screened, found: found }];
+      var guard = 0;
+      // Active-learning cadence. Default = PER-RECORD continuous AL (n_query=1):
+      // retrain after revealing each single record, exactly as ASReview's simulation
+      // does. Kaizen (2026-06-09, full 19-set, multi-seed) found this is the single
+      // biggest WSS@95 lever — per-record vs the older AutoTAR batch-that-grows-10%
+      // lifted all-19 WSS@95 from 0.39 to 0.45 — because growing batches screen the
+      // mid/late pool in near-random order before the next retrain. Each NB refit is
+      // O(labelled·nnz) and cheap, which is what makes per-record affordable. Overrides:
+      //   opts.cadence="auto"  → AutoTAR batch starting at 1, growing ~10%/round (faster, lower WSS);
+      //   opts.cadence="fixed" → reveal a constant opts.batch each round.
+      var cad = opts.cadence || "perrecord";
+      var auto = (cad === "auto");
+      var B = cad === "fixed" ? (batch || 100) : (auto ? (opts.batch0 || 1) : 1);
+      while (screened < N && found < totalPos && guard++ < N + 10) {
+        var nPos = 0, i; for (i = 0; i < labelled.length; i++) if (labelled[i][1] === 1) nPos++;
+        var nNeg = labelled.length - nPos, rest = [];
+        for (i = 0; i < N; i++) if (!labelledSet[i]) rest.push(i);
+        if (nPos >= 1 && nNeg >= 2) {
+          var m = mlFit(labelled, V);
+          // Score each pooled record ONCE, then sort by the cached score. Scoring
+          // inside the comparator would re-predict O(N log N) times per round —
+          // ruinous under continuous (per-record) cadence; this keeps it O(N).
+          var sc = {}; for (i = 0; i < rest.length; i++) sc[rest[i]] = mlPredict(recs[rest[i]], m, V);
+          rest.sort(function (a, b) { return sc[b] - sc[a]; });
+        } // else: keep random shuffle order in `rest`
+        var take = Math.max(1, Math.round(B));
+        for (i = 0; i < take && i < rest.length; i++) reveal(rest[i]);
+        curve.push({ screened: screened, found: found });
+        if (auto) B += Math.ceil(B / 10);
+      }
+      // metrics
+      function screenedAtRecall(rec) {
+        var need = Math.ceil(rec * totalPos);
+        for (var c = 0; c < curve.length; c++) if (curve[c].found >= need) return curve[c].screened;
+        return N;
+      }
+      var s95 = screenedAtRecall(0.95), s100 = screenedAtRecall(1.0);
+      function recallAt(frac) {
+        var lim = Math.ceil(frac * N), best = 0;
+        for (var c = 0; c < curve.length; c++) if (curve[c].screened <= lim) best = curve[c].found;
+        return totalPos ? best / totalPos : 0;
+      }
+      // Buscar stopping rule applied to the actual screening order: the first curve
+      // point at which H0("missed 95% recall") is rejected at 95% confidence (p<0.05),
+      // and the TRUE recall already achieved there. Quantifies the real, defensible
+      // stopping cost — reading past s95 buys statistical certainty, not just luck.
+      var conf = opts.stopConfidence || 0.95, tgt = opts.stopTarget || 0.95, alpha = 1 - conf;
+      var buscarStopAt = N, buscarRecall = 1, buscarP = 1, prevScr = 0, ci;
+      // Evaluate the criterion on a coarse grid of screening depths (≤~200 points) —
+      // ample resolution for the stop-point estimate and keeps the sweep ~O(N) not O(N²).
+      var step = Math.max(1, Math.floor(curve.length / 200));
+      if (opts.buscar) for (ci = 0; ci < curve.length; ci += step) {
+        var scr = curve[ci].screened; if (scr === prevScr && ci) continue; prevScr = scr;
+        var p = mlBuscarP(seq, N, tgt, scr);
+        if (p < alpha) { buscarStopAt = scr; buscarRecall = totalPos ? curve[ci].found / totalPos : 1; buscarP = p; break; }
+      }
+      return {
+        ok: true, N: N, totalPos: totalPos, prevalence: totalPos / N, batch: batch, seed: seedN, curve: curve,
+        screenedAt95: s95, screenedAt100: s100,
+        wss95: 0.95 - s95 / N, wss100: 1 - s100 / N,
+        recallAt10pct: recallAt(0.10), recallAt20pct: recallAt(0.20), recallAt50pct: recallAt(0.50),
+        buscarStopAt: buscarStopAt, buscarRecall: buscarRecall, buscarP: buscarP,
+        buscarWss: 0.95 - buscarStopAt / N
+      };
+    }
+
+    // ================= optional AI assist (default OFF) =================
+    var AI_KEY_LS = "screen-ai-key";
+    function aiUndecidedBatch(cap) {
+      return S.records.filter(function (r) { return !r.dup && !r.r1.d && !r.r2.d; }).slice(0, cap || 200);
+    }
+    function aiPromptText(batch) {
+      return [
+        "# Title/abstract screening task — " + (S.title || "systematic review"),
+        "",
+        "You are a second screener for a systematic review. For EACH record below, decide from the **title and abstract only** whether it should be **included** for full-text review, **excluded**, or **maybe** (genuinely unclear).",
+        "",
+        "## Eligibility cues",
+        "- Include / relevant topics: " + (S.incTerms.join(", ") || "(not specified)"),
+        "- Exclude topics: " + (S.excTerms.join(", ") || "(not specified)"),
+        "- Common exclusion reasons: " + (S.reasons.join("; ") || "(none)"),
+        "",
+        "## Output (STRICT)",
+        "Write a file named `screen-ai-results.json` containing ONLY a JSON array — one object per record, same `id`:",
+        "",
+        '```json',
+        '[{"id":"<id>","suggestion":"include|exclude|maybe","confidence":0.0,"rationale":"one short sentence"}]',
+        '```',
+        "",
+        "Use \"maybe\" with low confidence when unsure rather than guessing. Do not invent records or data.",
+        "",
+        "## Records (" + batch.length + ")",
+        '```json',
+        JSON.stringify(batch.map(function (r) { return { id: r.id, title: r.title, abstract: r.abstract, year: r.year, journal: r.journal }; }), null, 2),
+        '```'
+      ].join("\n");
+    }
+    function aiExportTask() {
+      var batch = aiUndecidedBatch(200);
+      if (!batch.length) { toast("No undecided records to send to AI."); return; }
+      downloadBlob(new Blob([aiPromptText(batch)], { type: "text/markdown;charset=utf-8" }), "screen-ai-task.md");
+      downloadBlob(new Blob([JSON.stringify({
+        task: "screen", title: S.title, include_terms: S.incTerms, exclude_terms: S.excTerms,
+        exclusion_reasons: S.reasons, output_schema: { id: "string", suggestion: "include|exclude|maybe", confidence: "0..1", rationale: "string" },
+        records: batch.map(function (r) { return { id: r.id, title: r.title, abstract: r.abstract, year: r.year, journal: r.journal }; })
+      }, null, 2)], { type: "application/json" }), "screen-ai-batch.json");
+      toast("Exported " + batch.length + " records + prompt. Run screen-ai-task.md in your agent, then Import AI results.");
+    }
+    function applyAiResults(arr) {
+      if (!Array.isArray(arr)) throw new Error("expected a JSON array of {id, suggestion, …}");
+      var byId = {}; S.records.forEach(function (r) { byId[r.id] = r; });
+      var n = 0;
+      arr.forEach(function (o) {
+        if (!o || !o.id) return;
+        var r = byId[o.id]; if (!r) return;
+        if (["include", "exclude", "maybe"].indexOf(o.suggestion) < 0) return;
+        r.aiSuggestion = o.suggestion;
+        r.aiRationale = clean(o.rationale, 400);
+        r.aiConfidence = (typeof o.confidence === "number") ? Math.max(0, Math.min(1, o.confidence)) : null;
+        n++;
+      });
+      return n;
+    }
+    function aiImportResults(file) {
+      var rd = new FileReader();
+      rd.onload = function () {
+        try {
+          var n = applyAiResults(JSON.parse(rd.result));
+          save(); render();
+          toast("Imported " + n + " AI suggestion(s). Review each card and press 'a' to accept.");
+        } catch (e) { toast("Could not import AI results: " + e.message); }
+      };
+      rd.readAsText(file);
+    }
+    function acceptAI() {
+      var r = currentRecord(); if (!r || !r.aiSuggestion) return;
+      activeSlot(r).d = r.aiSuggestion; r.dup = false; r.dupManual = false;
+      save(); render(); autoAdvance();
+    }
+    // BYO-key (fallback): calls the user's own provider account; key never leaves localStorage.
+    function aiKeyGet() { try { return localStorage.getItem(AI_KEY_LS) || ""; } catch (e) { return ""; } }
+    function aiKeySet(v) { try { if (v) localStorage.setItem(AI_KEY_LS, v); else localStorage.removeItem(AI_KEY_LS); } catch (e) {} }
+    function aiParse(text) {
+      var m = String(text || "").match(/\{[\s\S]*\}/);
+      var o = JSON.parse(m ? m[0] : text);
+      return {
+        suggestion: ["include", "exclude", "maybe"].indexOf(o.suggestion) >= 0 ? o.suggestion : "maybe",
+        confidence: (typeof o.confidence === "number") ? o.confidence : null,
+        rationale: clean(o.rationale, 400)
+      };
+    }
+    function aiCallProvider(prov, key, model, rec) {
+      var sys = "You screen records for a systematic review. Include topics: " + (S.incTerms.join(", ") || "n/a") +
+        ". Exclude topics: " + (S.excTerms.join(", ") || "n/a") +
+        ". From the title/abstract only, decide include, exclude, or maybe. Respond ONLY as JSON: {\"suggestion\":\"include|exclude|maybe\",\"confidence\":0..1,\"rationale\":\"one sentence\"}.";
+      var user = "Title: " + rec.title + "\n\nAbstract: " + (rec.abstract || "(none)");
+      if (prov === "openai") {
+        return fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key },
+          body: JSON.stringify({ model: model || "gpt-4o-mini", temperature: 0, response_format: { type: "json_object" },
+            messages: [{ role: "system", content: sys }, { role: "user", content: user }] })
+        }).then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+          .then(function (j) { return aiParse(j.choices[0].message.content); });
+      }
+      if (prov === "anthropic") {
+        return fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST", headers: { "Content-Type": "application/json", "x-api-key": key,
+            "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+          body: JSON.stringify({ model: model || "claude-haiku-4-5-20251001", max_tokens: 300, system: sys,
+            messages: [{ role: "user", content: user }] })
+        }).then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+          .then(function (j) { return aiParse(j.content[0].text); });
+      }
+      var mdl = model || "gemini-1.5-flash";
+      return fetch("https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(mdl) + ":generateContent?key=" + encodeURIComponent(key), {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ systemInstruction: { parts: [{ text: sys }] }, contents: [{ role: "user", parts: [{ text: user }] }] })
+      }).then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(function (j) { return aiParse(j.candidates[0].content.parts[0].text); });
+    }
+    function aiRunByoKey() {
+      var key = $("ai-key").value.trim() || aiKeyGet();
+      if (!key) { toast("Enter an API key first."); return; }
+      aiKeySet(key);
+      var prov = $("ai-provider").value, model = $("ai-model").value.trim();
+      var batch = S.records.filter(function (r) { return !r.dup && !r.r1.d && !r.r2.d && !r.aiSuggestion; }).slice(0, 50);
+      if (!batch.length) { toast("No undecided records without a suggestion."); return; }
+      toast("Calling " + prov + " for " + batch.length + " records…");
+      var i = 0, done = 0;
+      function step() {
+        if (i >= batch.length) { save(); render(); toast("AI done: " + done + "/" + batch.length + " records."); return; }
+        var rec = batch[i++];
+        aiCallProvider(prov, key, model, rec).then(function (res) {
+          rec.aiSuggestion = res.suggestion; rec.aiRationale = res.rationale; rec.aiConfidence = res.confidence;
+          done++; if (done % 5 === 0) { save(); render(); }
+          step();
+        }).catch(function (e) { save(); render(); toast("AI stopped at record " + i + ": " + e.message); });
+      }
+      step();
+    }
+
+    // ---- test hook (deterministic, for behavioural specs) ----
+    window.__almScreenpro = {
+      blankState: blankState,
+      setState: function (s) { S = Object.assign(blankState(), s); S.records = (s.records || []).map(normalizeImported); rescoreAll(); runDedup(); render(); },
+      counts: function () { return computeCounts(S.records); },
+      kappa: function () { return cohensKappa(S.records); },
+      effDecision: effDecision,
+      score: function (r) { var rec = normalizeImported(r); scoreRecord(rec); return rec.score; },
+      jaccard: jaccard, normTitle: normTitle, trigrams: trigrams,
+      parse: function (text, name) { return detectAndParse(text, name); },
+      dedupCount: function () { runDedup(); return S.records.filter(function (r) { return r.dup; }).length; },
+      mlTrain: function () { return mlTrain(); },
+      mlScoreOf: function (id) { for (var i = 0; i < S.records.length; i++) if (S.records[i].id === id) return S.records[i].mlScore; return null; },
+      rctScoreOf: function (id) { for (var i = 0; i < S.records.length; i++) if (S.records[i].id === id) return rctScore(S.records[i]); return null; },
+      mlTopTerms: function () { return { pos: ML.topPos, neg: ML.topNeg }; },
+      mlCrossVal: function () { return mlCrossVal(S.records, mlLabelDefault, 5); },
+      mlStopping: function () { return mlStopping(); },
+      simulateActiveLearning: function (opts) { return simulateActiveLearning(opts); },
+      mlBuscarP: function (seq, N, target) { return mlBuscarP(seq, N, target); },
+      // dedup measurement: blocked vs brute, and candidate-comparison counts.
+      dedupBlocked: function () { return dedupCore(S.records, {}); },
+      dedupBrute: function () { return dedupCore(S.records, { brute: true }); },
+      dupIds: function () { return S.records.filter(function (r) { return r.dup; }).map(function (r) { return r.id; }); },
+      // collaboration: merge an incoming reviewer payload; export current reviewer.
+      mergeReviewer: function (payload, into) { var res = mergeReviewerState(payload, into); runDedup(); return res; },
+      reviewerExport: function () {
+        var who = reviewerSlotName();
+        return { _schema: "sr-reviewer-v1", reviewer: who, decisions: S.records.filter(function (r) { return !r.dup; }).map(function (r) { var s = who === "r2" ? r.r2 : r.r1; return { id: r.id, doi: r.doi, pmid: r.pmid, title: r.title, d: s.d, reason: s.reason, labels: r.labels }; }).filter(function (d) { return d.d; }) };
+      },
+      setMode: function (m, active) { S.mode = m; if (active) S.active = active; },
+      aiPrompt: function () { return aiPromptText(aiUndecidedBatch(200)); },
+      aiApply: function (arr) { var n = applyAiResults(arr); return n; },
+      recordById: function (id) { for (var i = 0; i < S.records.length; i++) if (S.records[i].id === id) return S.records[i]; return null; }
+    };
+
+    // ---- boot ----
+    if (!load()) { S = blankState(); }
+    pushStateToSetup();
+    attach();
+    render();
+    // honest provenance line for the RCT classifier (real held-out metrics)
+    try {
+      var rm = window.SrRctClassifier && SrRctClassifier.meta && SrRctClassifier.meta();
+      var rmEl = $("rct-meta");
+      if (rm && rmEl) rmEl.textContent = "Held-out AUC " + rm.auc + " · sensitivity " + rm.sensitivity + " · specificity " + rm.specificity + " (n=" + (rm.n_train + rm.n_test) + ", " + rm.n_terms + " terms). Offline, transparent weights.";
+    } catch (e) {}
+    try { if (/[?&]import=sr-records-v1/.test(location.search)) importFromSearch(); } catch (e) {}
+  })();
+  </script>
+  <script src="../hub/shared/a11y-landmarks.js"></script>
+</body>
+</html>

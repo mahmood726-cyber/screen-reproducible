@@ -1,0 +1,97 @@
+{
+ "source": "Quick-mode reference (1 seed, 4 small Cohen datasets). Screen values computed with allmeta benchmark/run_headless.mjs (fixed), ASReview values with allmeta benchmark/_embed/asreview_groundtruth.py -- i.e. independently of this repository's harness. De-dup values are the paper values (deterministic).",
+ "values": {
+  "screen_wss95[cohen_antihistamines]": {
+   "value": 0.0113,
+   "decimals": 4
+  },
+  "asreview_nb_wss95[cohen_antihistamines]": {
+   "value": -0.021,
+   "decimals": 4
+  },
+  "asreview_svm_wss95[cohen_antihistamines]": {
+   "value": -0.0145,
+   "decimals": 4
+  },
+  "screen_wss95[cohen_estrogens]": {
+   "value": 0.2734,
+   "decimals": 4
+  },
+  "asreview_nb_wss95[cohen_estrogens]": {
+   "value": 0.3168,
+   "decimals": 4
+  },
+  "asreview_svm_wss95[cohen_estrogens]": {
+   "value": 0.3114,
+   "decimals": 4
+  },
+  "screen_wss95[cohen_nsaids]": {
+   "value": 0.6599,
+   "decimals": 4
+  },
+  "asreview_nb_wss95[cohen_nsaids]": {
+   "value": 0.7159,
+   "decimals": 4
+  },
+  "asreview_svm_wss95[cohen_nsaids]": {
+   "value": 0.721,
+   "decimals": 4
+  },
+  "screen_wss95[cohen_urinaryincontinence]": {
+   "value": 0.4668,
+   "decimals": 4
+  },
+  "asreview_nb_wss95[cohen_urinaryincontinence]": {
+   "value": 0.476,
+   "decimals": 4
+  },
+  "asreview_svm_wss95[cohen_urinaryincontinence]": {
+   "value": 0.4209,
+   "decimals": 4
+  },
+  "dedup_nagtegaal_detected": {
+   "value": 7,
+   "decimals": 0
+  },
+  "dedup_nagtegaal_gold_duplicates": {
+   "value": 11,
+   "decimals": 0
+  },
+  "dedup_nagtegaal_flagged_not_in_gold": {
+   "value": 10,
+   "decimals": 0
+  },
+  "dedup_reformatted_detected": {
+   "value": 183,
+   "decimals": 0
+  },
+  "dedup_reformatted_false_positives": {
+   "value": 3,
+   "decimals": 0
+  },
+  "dedup_reformatted_total_flagged": {
+   "value": 186,
+   "decimals": 0
+  },
+  "dedup_blocked_vs_brute_blocked": {
+   "value": 12,
+   "decimals": 0
+  },
+  "dedup_blocked_vs_brute_brute": {
+   "value": 12,
+   "decimals": 0
+  },
+  "dedup_blocked_vs_brute_brute_only": {
+   "value": 0,
+   "decimals": 0
+  },
+  "dedup_blocked_comparisons[n=2000]": {
+   "value": 14540,
+   "decimals": 0
+  },
+  "dedup_reformatted_precision": {
+   "value": 0.984,
+   "decimals": 3
+  }
+ }
+}

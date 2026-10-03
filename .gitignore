@@ -1,0 +1,11 @@
+# downloaded at run time (not redistributed; see data/README.md)
+data/corpora/cohen_*.csv.gz
+# run outputs
+results/
+outputs/
+__pycache__/
+*.pyc
+.venv/
+venv/
+node_modules/
+PROGRESS.md

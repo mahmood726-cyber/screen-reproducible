@@ -1,0 +1,13 @@
+{
+  "name": "screen-reproducible",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reproducible benchmark of the Screen title-abstract screening app (allmeta). The benchmark harness uses only Node built-ins: no npm dependencies.",
+  "license": "MIT",
+  "type": "module",
+  "engines": { "node": "24.15.0" },
+  "scripts": {
+    "screen": "node bench/run_screen.mjs",
+    "dedup": "node bench/run_dedup.mjs"
+  }
+}

@@ -1,0 +1,361 @@
+{
+ "source": "Values as printed in the F1000Research draft (Table 1, Results text). Each reproduced number is rounded to the stated decimals and must equal the printed value exactly.",
+ "values": {
+  "screen_wss95[cohen_aceinhibitors]": {
+   "value": 0.758,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[cohen_aceinhibitors]": {
+   "value": 0.77,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[cohen_aceinhibitors]": {
+   "value": 0.75,
+   "decimals": 3
+  },
+  "screen_wss95[cohen_adhd]": {
+   "value": 0.524,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[cohen_adhd]": {
+   "value": 0.504,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[cohen_adhd]": {
+   "value": 0.536,
+   "decimals": 3
+  },
+  "screen_wss95[cohen_antihistamines]": {
+   "value": 0.022,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[cohen_antihistamines]": {
+   "value": -0.021,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[cohen_antihistamines]": {
+   "value": -0.015,
+   "decimals": 3
+  },
+  "screen_wss95[cohen_atypicalantipsychotics]": {
+   "value": 0.222,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[cohen_atypicalantipsychotics]": {
+   "value": 0.193,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[cohen_atypicalantipsychotics]": {
+   "value": 0.258,
+   "decimals": 3
+  },
+  "screen_wss95[cohen_betablockers]": {
+   "value": 0.495,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[cohen_betablockers]": {
+   "value": 0.481,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[cohen_betablockers]": {
+   "value": 0.541,
+   "decimals": 3
+  },
+  "screen_wss95[cohen_calciumchannelblockers]": {
+   "value": 0.33,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[cohen_calciumchannelblockers]": {
+   "value": 0.321,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[cohen_calciumchannelblockers]": {
+   "value": 0.338,
+   "decimals": 3
+  },
+  "screen_wss95[cohen_estrogens]": {
+   "value": 0.266,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[cohen_estrogens]": {
+   "value": 0.307,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[cohen_estrogens]": {
+   "value": 0.319,
+   "decimals": 3
+  },
+  "screen_wss95[cohen_nsaids]": {
+   "value": 0.662,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[cohen_nsaids]": {
+   "value": 0.713,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[cohen_nsaids]": {
+   "value": 0.72,
+   "decimals": 3
+  },
+  "screen_wss95[cohen_opiods]": {
+   "value": 0.175,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[cohen_opiods]": {
+   "value": 0.238,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[cohen_opiods]": {
+   "value": 0.269,
+   "decimals": 3
+  },
+  "screen_wss95[cohen_oralhypoglycemics]": {
+   "value": 0.158,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[cohen_oralhypoglycemics]": {
+   "value": 0.166,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[cohen_oralhypoglycemics]": {
+   "value": 0.161,
+   "decimals": 3
+  },
+  "screen_wss95[cohen_protonpumpinhibitors]": {
+   "value": 0.397,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[cohen_protonpumpinhibitors]": {
+   "value": 0.343,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[cohen_protonpumpinhibitors]": {
+   "value": 0.464,
+   "decimals": 3
+  },
+  "screen_wss95[cohen_skeletalmusclerelaxants]": {
+   "value": 0.117,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[cohen_skeletalmusclerelaxants]": {
+   "value": 0.069,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[cohen_skeletalmusclerelaxants]": {
+   "value": 0.128,
+   "decimals": 3
+  },
+  "screen_wss95[cohen_statins]": {
+   "value": 0.469,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[cohen_statins]": {
+   "value": 0.397,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[cohen_statins]": {
+   "value": 0.478,
+   "decimals": 3
+  },
+  "screen_wss95[cohen_triptans]": {
+   "value": 0.521,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[cohen_triptans]": {
+   "value": 0.437,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[cohen_triptans]": {
+   "value": 0.607,
+   "decimals": 3
+  },
+  "screen_wss95[cohen_urinaryincontinence]": {
+   "value": 0.492,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[cohen_urinaryincontinence]": {
+   "value": 0.487,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[cohen_urinaryincontinence]": {
+   "value": 0.421,
+   "decimals": 3
+  },
+  "screen_wss95[appenzeller_herzog_2020]": {
+   "value": 0.621,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[appenzeller_herzog_2020]": {
+   "value": 0.507,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[appenzeller_herzog_2020]": {
+   "value": 0.483,
+   "decimals": 3
+  },
+  "screen_wss95[kwok_2020]": {
+   "value": 0.652,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[kwok_2020]": {
+   "value": 0.691,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[kwok_2020]": {
+   "value": 0.708,
+   "decimals": 3
+  },
+  "screen_wss95[wolters_2018]": {
+   "value": 0.775,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[wolters_2018]": {
+   "value": 0.669,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[wolters_2018]": {
+   "value": 0.828,
+   "decimals": 3
+  },
+  "screen_wss95[bos_2018]": {
+   "value": 0.834,
+   "decimals": 3
+  },
+  "asreview_nb_wss95[bos_2018]": {
+   "value": 0.866,
+   "decimals": 3
+  },
+  "asreview_svm_wss95[bos_2018]": {
+   "value": 0.844,
+   "decimals": 3
+  },
+  "screen_mean_all": {
+   "value": 0.447,
+   "decimals": 3
+  },
+  "screen_median_all": {
+   "value": 0.492,
+   "decimals": 3
+  },
+  "screen_min": {
+   "value": 0.022,
+   "decimals": 3
+  },
+  "screen_max": {
+   "value": 0.834,
+   "decimals": 3
+  },
+  "screen_mean_cohen": {
+   "value": 0.374,
+   "decimals": 3
+  },
+  "screen_mean_synergy": {
+   "value": 0.721,
+   "decimals": 3
+  },
+  "asreview_nb_mean": {
+   "value": 0.428,
+   "decimals": 3
+  },
+  "asreview_svm_mean": {
+   "value": 0.465,
+   "decimals": 3
+  },
+  "wins_vs_nb": {
+   "value": 12,
+   "decimals": 0
+  },
+  "wins_vs_svm": {
+   "value": 4,
+   "decimals": 0
+  },
+  "mean_diff_vs_nb": {
+   "value": 0.018,
+   "decimals": 3
+  },
+  "mean_diff_vs_svm": {
+   "value": -0.018,
+   "decimals": 3
+  },
+  "median_diff_vs_svm": {
+   "value": -0.012,
+   "decimals": 3
+  },
+  "wilcoxon_p_vs_nb": {
+   "value": 0.18,
+   "decimals": 2
+  },
+  "wilcoxon_p_vs_svm": {
+   "value": 0.049,
+   "decimals": 3
+  },
+  "recall_at_10pct_pct": {
+   "value": 54,
+   "decimals": 0
+  },
+  "recall_at_20pct_pct": {
+   "value": 74,
+   "decimals": 0
+  },
+  "recall_at_50pct_pct": {
+   "value": 91,
+   "decimals": 0
+  },
+  "buscar_never_fired": {
+   "value": 14,
+   "decimals": 0
+  },
+  "dedup_nagtegaal_detected": {
+   "value": 7,
+   "decimals": 0
+  },
+  "dedup_nagtegaal_gold_duplicates": {
+   "value": 11,
+   "decimals": 0
+  },
+  "dedup_nagtegaal_flagged_not_in_gold": {
+   "value": 10,
+   "decimals": 0
+  },
+  "dedup_reformatted_detected": {
+   "value": 183,
+   "decimals": 0
+  },
+  "dedup_reformatted_false_positives": {
+   "value": 3,
+   "decimals": 0
+  },
+  "dedup_reformatted_total_flagged": {
+   "value": 186,
+   "decimals": 0
+  },
+  "dedup_reformatted_recall": {
+   "value": 0.915,
+   "decimals": 3
+  },
+  "dedup_reformatted_precision": {
+   "value": 0.984,
+   "decimals": 3
+  },
+  "dedup_reformatted_f1": {
+   "value": 0.948,
+   "decimals": 3
+  },
+  "dedup_blocked_vs_brute_blocked": {
+   "value": 12,
+   "decimals": 0
+  },
+  "dedup_blocked_vs_brute_brute": {
+   "value": 12,
+   "decimals": 0
+  },
+  "dedup_blocked_vs_brute_brute_only": {
+   "value": 0,
+   "decimals": 0
+  },
+  "dedup_blocked_comparisons[n=100000]": {
+   "value": 916991,
+   "decimals": 0
+  }
+ }
+}
