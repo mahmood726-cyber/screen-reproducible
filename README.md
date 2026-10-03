@@ -47,10 +47,11 @@ works), or run `python -m http.server 8080` and go to http://localhost:8080.
 
 | Mode | What runs | 4-core laptop (Windows) | GitHub Actions `ubuntu-latest` |
 |---|---|---|---|
-| `--quick` | 4 small datasets, 1 seed per tool, de-dup up to 2,000 records | ~30 s | see Actions log |
-| full | 19 datasets; Screen 10 seeds; ASReview NB + SVM 3 seeds; de-dup up to 100,000 records | FULL_TIME | see Actions log |
+| `--quick` | 4 small datasets, 1 seed per tool, de-dup up to 2,000 records | ~30 s | ~30 s |
+| full | 19 datasets; Screen 10 seeds; ASReview NB + SVM 3 seeds; de-dup up to 100,000 records | ~80 min | ~32 min |
 
-The full run is CPU-bound and uses every core by default (`--jobs N` to change this).
+The full run is CPU-bound and uses every core by default (`--jobs N` to change this). Most of the
+time is spent in ASReview's SVM on the three largest datasets.
 
 ## Outputs and how they map to the paper
 
@@ -82,7 +83,17 @@ deterministic and are checked.
 - Python 3.13 (tested with 3.13.13) and Node.js 24.15.0. Exact versions of all Python packages are pinned in `requirements.txt` (asreview 2.2, scikit-learn 1.8.0, numpy 2.4.4, scipy 1.17.1, pandas 2.3.3, matplotlib 3.10.9).
 - The benchmark harness uses only Node built-ins, so `npm install` is not needed (`package-lock.json` is empty by design).
 - About 1 GB of RAM per parallel job and about 60 MB of disk. Internet access is needed once, to download the Cohen datasets (the Docker image downloads them at build time).
-- Windows, macOS and Linux. CI runs quick mode on all three for every push, plus a Docker build.
+- Windows, macOS and Linux. CI runs quick mode on all three for every push, plus a Docker build and quick run. A manually dispatched full run executes on Linux, Windows, macOS and in Docker, and a final job checks that all four produce bit-identical results.
+
+## Determinism
+
+Results are bit-identical across machines (checked by `analysis/compare_runs.py`, which compares
+every per-seed value with `==`). Three things make that true:
+- **Screen** ranks with JavaScript's stable `Array.prototype.sort` and seeded PRNGs, and Node is pinned to 24.15.0.
+- **ASReview's SVM** (scikit-learn `LinearSVC`, `random_state=None`) takes its random seed from NumPy's global generator. `bench/run_asreview.py` therefore calls `np.random.seed(seed)` before every simulation. Without this the result depended on what had run earlier in the process: on Opiods, WSS@95 ranged from 0.269 to 0.277.
+- **ASReview ranks** with `np.argsort(-p)`, NumPy's unstable sort, which NumPy 2.x dispatches to CPU-specific SIMD code. Records with exactly tied probabilities were therefore ordered differently on different CPUs. The harness uses `StableMax`, which is the same query strategy with `kind="stable"` (ties broken by record order). This changes ASReview's results only where probabilities tie exactly.
+
+BLAS/OpenMP are also limited to one thread, and `PYTHONHASHSEED=0` is set.
 
 ## Notes on the benchmark
 
