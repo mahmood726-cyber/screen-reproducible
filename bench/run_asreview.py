@@ -12,7 +12,15 @@ intervention the SVM result therefore depends on whatever ran earlier in the pro
 (on Cohen Opiods, WSS@95 moved between 0.269 and 0.277 just by changing the global seed).
 We reset the global generator with np.random.seed(seed) immediately before every
 simulation, so each (dataset, model, seed) result is independent of run order, process
-layout and platform. ASReview's own model settings are not changed.
+layout and platform.
+
+Tie-breaking: ASReview's Max querier ranks with np.argsort(-p), NumPy's default UNSTABLE
+sort. In NumPy 2.x that sort is dispatched to CPU-specific SIMD kernels, so records whose
+predicted probabilities tie exactly come out in an order that depends on the processor
+(on GitHub runners this changed WSS@95 on 4 of 19 datasets, including a Naive Bayes value,
+which involves no randomness). StableMax below is Max with argsort(kind="stable"): ties are
+broken by record order, identically on every CPU. Results differ from stock ASReview only
+where probabilities tie. ASReview's model settings are not changed.
 WSS@95 = 0.95 - (records screened to reach 95% recall)/N, the same definition as Screen's harness.
 
   python bench/run_asreview.py --dataset cohen_adhd --models nb,svm --seeds 42,7,2024 --out results/asreview/cohen_adhd.json
@@ -37,12 +45,19 @@ from sklearn.utils import check_random_state
 ROOT = Path(__file__).resolve().parent.parent
 
 
+class StableMax(Max):
+    """ASReview's Max query strategy with deterministic tie-breaking (record order)."""
+
+    def query(self, p):
+        return np.argsort(-np.asarray(p), kind="stable")
+
+
 def cycle(model):
     if model == "nb":
-        return ActiveLearningCycle(querier=Max(), classifier=NaiveBayes(alpha=3.822), balancer=Balanced(ratio=1.2),
+        return ActiveLearningCycle(querier=StableMax(), classifier=NaiveBayes(alpha=3.822), balancer=Balanced(ratio=1.2),
                                    feature_extractor=Tfidf(stop_words="english"), n_query=1)
     if model == "svm":
-        return ActiveLearningCycle(querier=Max(), classifier=SVM(loss="squared_hinge", C=0.11), balancer=Balanced(ratio=9.8),
+        return ActiveLearningCycle(querier=StableMax(), classifier=SVM(loss="squared_hinge", C=0.11), balancer=Balanced(ratio=9.8),
                                    feature_extractor=Tfidf(ngram_range=(1, 2), sublinear_tf=True, min_df=1, max_df=0.95), n_query=1)
     raise ValueError(model)
 
@@ -91,7 +106,11 @@ def main():
     a = ap.parse_args()
     import asreview
     seeds = [int(s) for s in a.seeds.split(",")]
-    res = {"tool": "asreview", "asreview": asreview.__version__, "seeds": seeds, "perDataset": {}}
+    import platform
+    from numpy._core._multiarray_umath import __cpu_features__ as cpu
+    env = {"python": platform.python_version(), "machine": platform.machine(), "processor": platform.processor(),
+           "numpy": np.__version__, "cpu_simd": sorted(k for k, v in cpu.items() if v and k.startswith(("AVX", "SSE", "FMA", "ASIMD", "SVE", "NEON")))}
+    res = {"tool": "asreview", "asreview": asreview.__version__, "seeds": seeds, "environment": env, "perDataset": {}}
     for idn in a.dataset.split(","):
         row = {}
         for m in a.models.split(","):

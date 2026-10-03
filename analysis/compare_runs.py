@@ -11,7 +11,7 @@ import json
 import sys
 from pathlib import Path
 
-IGNORE = {"seconds", "nb_seconds", "svm_seconds", "blocked_ms", "brute_ms", "node"}
+IGNORE = {"seconds", "nb_seconds", "svm_seconds", "blocked_ms", "brute_ms", "node", "environment"}
 
 
 def flatten(obj, prefix=""):
