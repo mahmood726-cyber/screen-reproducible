@@ -1,16 +1,54 @@
 {
-  "title": "screen-reproducible: reproducible benchmark of the Screen title–abstract screening tool",
+  "title": "Screen: browser-only title–abstract screening with active learning — reproducible benchmark",
   "description": "Frozen copy of Screen, an offline, browser-only title–abstract screening tool from the allmeta collection (commit 421ba13), together with everything needed to re-run its published benchmark: 19 labelled systematic-review screening datasets (15 Cohen 2006, fetched and SHA-256 verified; 4 SYNERGY, CC-BY 4.0) and the Nagtegaal 2019 de-duplication dataset (CC0); a headless harness that runs the app's own code unchanged; the ASReview 2.2 comparator (Naive Bayes and SVM); the de-duplication benchmark; and the analysis that regenerates the article's tables, figures and statistics and checks each number against the published value. One command (python reproduce.py) re-runs everything; a Dockerfile and pinned dependencies make the environment reproducible.",
   "upload_type": "software",
   "license": "MIT",
   "access_right": "open",
-  "creators": [ { "name": "Ahmad, Mahmood" } ],
-  "keywords": ["systematic review", "citation screening", "active learning", "technology-assisted review", "WSS@95", "ASReview", "reproducibility", "benchmark"],
+  "creators": [
+    {
+      "name": "Ahmad, Mahmood"
+    }
+  ],
+  "keywords": [
+    "systematic review",
+    "citation screening",
+    "active learning",
+    "technology-assisted review",
+    "WSS@95",
+    "ASReview",
+    "reproducibility",
+    "benchmark"
+  ],
   "related_identifiers": [
-    { "identifier": "https://github.com/mahmood726-cyber/screen-reproducible", "relation": "isSupplementTo", "scheme": "url" },
-    { "identifier": "10.5281/zenodo.20516880", "relation": "isDerivedFrom", "scheme": "doi" },
-    { "identifier": "10.1197/jamia.M1929", "relation": "references", "scheme": "doi" },
-    { "identifier": "10.34894/HE6NAQ", "relation": "references", "scheme": "doi" },
-    { "identifier": "10.7910/DVN/WMGPGZ", "relation": "references", "scheme": "doi" }
+    {
+      "identifier": "https://github.com/mahmood726-cyber/screen-reproducible",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://github.com/mahmood726-cyber/allmeta",
+      "relation": "isDerivedFrom",
+      "scheme": "url"
+    },
+    {
+      "identifier": "10.5281/zenodo.20516880",
+      "relation": "isDerivedFrom",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1197/jamia.M1929",
+      "relation": "references",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.34894/HE6NAQ",
+      "relation": "references",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.7910/DVN/WMGPGZ",
+      "relation": "references",
+      "scheme": "doi"
+    }
   ]
 }
