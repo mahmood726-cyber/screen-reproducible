@@ -71,10 +71,17 @@ def check_versions(strict):
         print("WARNING: " + msg + " -- results may differ from the paper")
 
 
+# Single-threaded numerics and a fixed hash seed in every worker: removes thread-count- and
+# hash-order-dependent float summation as a source of cross-machine differences.
+DETERMINISTIC_ENV = {"OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1", "MKL_NUM_THREADS": "1",
+                     "VECLIB_MAXIMUM_THREADS": "1", "NUMEXPR_NUM_THREADS": "1", "PYTHONHASHSEED": "0"}
+
+
 def run(cmd, log):
     t0 = time.time()
+    env = {**os.environ, **DETERMINISTIC_ENV}
     with open(log, "w", encoding="utf-8") as f:
-        p = subprocess.run(cmd, cwd=ROOT, stdout=f, stderr=subprocess.STDOUT)
+        p = subprocess.run(cmd, cwd=ROOT, stdout=f, stderr=subprocess.STDOUT, env=env)
     return p.returncode, time.time() - t0
 
 

@@ -9,3 +9,5 @@ __pycache__/
 venv/
 node_modules/
 PROGRESS.md
+synergy_cache.sqlite
+*.sqlite

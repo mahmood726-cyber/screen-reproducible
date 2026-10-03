@@ -5,6 +5,14 @@ Two configurations, built exactly from asreview.models:
   svm = ELAS u4 (ASReview's current default): SVM(squared_hinge, C=0.11), Balanced(ratio=9.8),
         Tfidf(ngram_range=(1,2), sublinear_tf=True, min_df=1, max_df=0.95), Max querier, n_query=1
 Each seed draws 1 relevant + 1 irrelevant prior; priors count as screened.
+
+Determinism: ASReview's SVM is sklearn LinearSVC with random_state=None, so liblinear's
+coordinate-descent shuffle is seeded from NumPy's GLOBAL random generator. Without
+intervention the SVM result therefore depends on whatever ran earlier in the process
+(on Cohen Opiods, WSS@95 moved between 0.269 and 0.277 just by changing the global seed).
+We reset the global generator with np.random.seed(seed) immediately before every
+simulation, so each (dataset, model, seed) result is independent of run order, process
+layout and platform. ASReview's own model settings are not changed.
 WSS@95 = 0.95 - (records screened to reach 95% recall)/N, the same definition as Screen's harness.
 
   python bench/run_asreview.py --dataset cohen_adhd --models nb,svm --seeds 42,7,2024 --out results/asreview/cohen_adhd.json
@@ -62,6 +70,7 @@ def run(idn, model, seeds):
     n, p = len(y), int(y.sum())
     vals = []
     for s in seeds:
+        np.random.seed(s)  # pins LinearSVC's liblinear shuffle (random_state=None -> global RNG)
         r = check_random_state(s)
         inc, exc = np.where(y == 1)[0], np.where(y == 0)[0]
         priors = np.concatenate([r.choice(inc, 1, replace=False), r.choice(exc, 1, replace=False)])

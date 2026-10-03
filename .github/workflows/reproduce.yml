@@ -75,3 +75,39 @@ jobs:
             outputs/full
             results/full
           if-no-files-found: warn
+
+  full-docker:
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'full'
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - run: docker build -t screen-reproducible .
+      - run: |
+          mkdir -p outputs results
+          docker run --rm -v "$PWD/outputs:/work/outputs" -v "$PWD/results:/work/results" screen-reproducible --full
+      - if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: full-docker-outputs
+          path: |
+            outputs/full
+            results/full
+          if-no-files-found: warn
+
+  compare:
+    # The canonical (Docker) run and the native run must be bit-identical.
+    if: always() && github.event_name == 'workflow_dispatch' && inputs.mode == 'full'
+    needs: [full, full-docker]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/download-artifact@v8.0.1
+        with:
+          name: full-docker-outputs
+          path: docker
+      - uses: actions/download-artifact@v8.0.1
+        with:
+          name: full-run-outputs
+          path: native
+      - run: python analysis/compare_runs.py docker/results/full native/results/full
