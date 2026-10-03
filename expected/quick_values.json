@@ -1,5 +1,5 @@
 {
- "source": "Quick-mode reference (1 seed, 4 small Cohen datasets). Screen values computed with allmeta benchmark/run_headless.mjs (fixed), ASReview values with allmeta benchmark/_embed/asreview_groundtruth.py -- i.e. independently of this repository's harness. De-dup values are the paper values (deterministic).",
+ "source": "Quick-mode reference (1 seed, 4 small Cohen datasets). Screen values computed with allmeta benchmark/run_headless.mjs (fixed), ASReview values with allmeta benchmark/_embed/asreview_groundtruth.py plus np.random.seed(seed) before each simulation (the determinism fix) -- i.e. independently of this repository's harness. De-dup values are the paper values (deterministic).",
  "values": {
   "screen_wss95[cohen_antihistamines]": {
    "value": 0.0113,
