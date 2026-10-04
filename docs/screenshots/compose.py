@@ -3,7 +3,7 @@
   python docs/screenshots/compose.py <work-dir> <out-dir>
 
 Each step is one region or a stack of regions from the same page state, cropped tightly (uniform margins
-trimmed) and labelled in a left gutter (A1, A2, ... for panel A of the figure, etc.). Regions keep their relative scale. The final image is
+trimmed) and labelled A, B, C in a left gutter. Regions keep their relative scale. The final image is
 2400-3300 px wide, written as lossless PNG and as uncompressed TIFF whose dpi makes it 170 mm wide (>= 300 dpi).
 Legibility is checked from the font sizes capture.mjs recorded in the page: printed size (pt) of a text of
 f CSS px = f x (final px per CSS px) / (final width px / 170 mm) x 72 / 25.4 x ... (see pt() below).
@@ -28,12 +28,12 @@ LABEL_PX = 84                               # sub-panel label height at final sc
 # step -> list of (label, region[, enlargement]). One region = no label. An enlargement > 1 enlarges that region
 # relative to the others (all regions are captured at 6 device px per CSS px, so the result is still downsampled).
 SPEC = {
-    "step1": [("A1", "s1_toolbar"), ("A2", "s1_card"), ("A3", "s1_progress")],
-    "step2": [("B1", "s2_card"), ("B2", "s2_decide")],
-    "step3": [("C1", "s3_conflicts"), ("C2", "s3_kappa")],
-    "step4": [("D1", "s4_ml"), ("D2", "s4_card")],
-    "step5": [("E", "s5_stopping")],
-    "step6": [("F1", "s6_toolbar"), ("F2", "s6_prisma")],
+    "step1": [("A", "s1_toolbar"), ("B", "s1_card"), ("C", "s1_progress")],
+    "step2": [("A", "s2_card"), ("B", "s2_decide")],
+    "step3": [("A", "s3_conflicts"), ("B", "s3_kappa")],
+    "step4": [("A", "s4_ml"), ("B", "s4_card")],
+    "step5": [("", "s5_stopping")],
+    "step6": [("A", "s6_toolbar"), ("B", "s6_prisma")],
 }
 
 

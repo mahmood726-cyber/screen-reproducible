@@ -9,17 +9,17 @@
   "smallest_text_pt": 8.4,
   "per_panel_body_smallest_pt": [
    [
-    "A1",
+    "A",
     10.9,
     10.4
    ],
    [
-    "A2",
+    "B",
     10.5,
     8.6
    ],
    [
-    "A3",
+    "C",
     8.4,
     8.4
    ]
@@ -36,12 +36,12 @@
   "smallest_text_pt": 9.1,
   "per_panel_body_smallest_pt": [
    [
-    "B1",
+    "A",
     12.3,
     9.1
    ],
    [
-    "B2",
+    "B",
     12.3,
     9.3
    ]
@@ -58,12 +58,12 @@
   "smallest_text_pt": 8.8,
   "per_panel_body_smallest_pt": [
    [
-    "C1",
+    "A",
     11.0,
     10.1
    ],
    [
-    "C2",
+    "B",
     11.0,
     8.8
    ]
@@ -73,19 +73,19 @@
  {
   "step": "step4",
   "width_px": 3300,
-  "height_px": 4228,
-  "aspect_h_over_w": 1.28,
+  "height_px": 3016,
+  "aspect_h_over_w": 0.91,
   "tiff_dpi_at_170mm": 493,
-  "body_text_pt_min_over_panels": 10.6,
+  "body_text_pt_min_over_panels": 9.8,
   "smallest_text_pt": 9.1,
   "per_panel_body_smallest_pt": [
    [
-    "D1",
-    10.6,
+    "A",
+    9.8,
     9.3
    ],
    [
-    "D2",
+    "B",
     11.0,
     9.1
    ]
@@ -102,7 +102,7 @@
   "smallest_text_pt": 16.4,
   "per_panel_body_smallest_pt": [
    [
-    "E",
+    "",
     16.4,
     16.4
    ]
@@ -119,12 +119,12 @@
   "smallest_text_pt": 7.6,
   "per_panel_body_smallest_pt": [
    [
-    "F1",
+    "A",
     10.1,
     10.1
    ],
    [
-    "F2",
+    "B",
     8.3,
     7.6
    ]

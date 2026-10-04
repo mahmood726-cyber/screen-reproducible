@@ -5,8 +5,8 @@
 // labelled sub-panels) and checks legibility from the font sizes recorded here.
 //
 //   python docs/screenshots/make_sample.py work
-//   (serve allmeta at commit 421ba13: python -m http.server 8091, from its repository root)
-//   node docs/screenshots/capture.mjs work http://127.0.0.1:8091
+//   (serve allmeta at commit 421ba13: python -m http.server 8092, from its repository root)
+//   node docs/screenshots/capture.mjs work http://127.0.0.1:8092
 //   python docs/screenshots/compose.py work docs/screenshots
 //
 // Screen is used from the served allmeta checkout (identical to app/screen/index.html in this repository)
@@ -47,11 +47,11 @@ async function region(name, r, pad = 6) {
       const range = document.createRange(); range.selectNodeContents(n); const rr = range.getBoundingClientRect(); if (!inside(rr)) continue;
       let px = parseFloat(cs.fontSize);
       if (el.closest("svg") && el.getScreenCTM) { const m = el.getScreenCTM(); if (m) px = px * Math.hypot(m.a, m.b); }
-      out.push([Math.round(px * 100) / 100, t.length]);
+      out.push([Math.round(px * 100) / 100, t.length, t]);
     }
     return out;
   }, c);
-  meta.regions[name] = { clip: c, fonts };
+  meta.regions[name] = { clip: c, fonts: fonts.map((f) => f.slice(0, 2)), text: fonts.map((f) => f[2]).join(" ") };
 }
 
 await p.goto(BASE + "/screen/index.html"); await p.evaluate(() => localStorage.clear()); await p.reload();
@@ -133,7 +133,9 @@ await p.selectOption("#f-sort", "ml"); await p.waitForTimeout(300);
 meta.mlStatus = await p.textContent("#ml-status"); meta.mlPerf = await p.textContent("#ml-perf");
 { const ml = await rect("#btn-train", { section: true }), perf = await rect("#ml-perf");
   const auc = await p.evaluate(() => { const e = document.querySelector("#ml-perf").firstElementChild; const r = e.getBoundingClientRect(); return r.bottom + scrollY; });
-  await region("s4_ml", { x: ml.x, y: ml.y, w: ml.w, h: auc - ml.y + 4 });
+  // from the "Train & rank" button down (the panel's intro sentence above it is not part of the figure)
+  const btn = await rect("#btn-train");
+  await region("s4_ml", { x: ml.x, y: btn.y - 6, w: ml.w, h: auc - btn.y + 10 });
   const card = await rect(".cardwrap .card"), badges = await rect(".cardwrap .badges");
   await region("s4_card", { x: card.x, y: card.y, w: card.w, h: badges.y + badges.h - card.y + 10 });
 // 5. Stopping support: the held-out quality + stopping-rule text
@@ -158,6 +160,8 @@ await p.goto(BASE + "/prisma-flow/index.html"); await p.waitForTimeout(1500); aw
     const x0 = Math.min(...rs.map((r) => r.left)), x1 = Math.max(...rs.map((r) => r.right)), y0 = Math.min(...rs.map((r) => r.top)), y1 = Math.max(...rs.map((r) => r.bottom));
     return { x: x0 + scrollX, y: y0 + scrollY, w: x1 - x0, h: y1 - y0 }; });
   await region("s6_prisma", boxes, 8); }
+// guard: no figure may show the outdated description of Naive Bayes as "ASReview's default"
+for (const [k, v] of Object.entries(meta.regions)) if (/ASReview.s default/i.test(v.text)) throw new Error(`region ${k} shows "ASReview's default"`);
 writeFileSync(`${D}/regions_meta.json`, JSON.stringify(meta, null, 1));
 console.log(JSON.stringify({ step1: meta.step1, kappa: meta.kappa, counts: meta.counts, mlPerf: meta.mlPerf, prisma: meta.prisma, regions: Object.keys(meta.regions) }, null, 1).slice(0, 2500));
 await b.close();

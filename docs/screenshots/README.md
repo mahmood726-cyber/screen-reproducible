@@ -1,4 +1,4 @@
-# Screenshots for the Operation section (Figure 1, panels A–F = step1–step6)
+# Screenshots for the Operation section (step1–step6)
 
 `step1.png` … `step6.png` were captured from Screen with Google Chrome (headless, Playwright `channel: "chrome"`).
 
@@ -9,8 +9,8 @@
 
 **Layout**
 - Each image is cropped tightly to the parts its caption describes.
-- Panels A–D and F are labelled composites: regions of one page state stacked by `compose.py` and labelled A1, A2, … in each image.
-- Panel E is a single crop.
+- Steps 1–4 and 6 are labelled composites: regions of one page state stacked by `compose.py` and labelled A, B, C in each image.
+- Step 5 is a single crop. Step 4 starts at the "Train & rank" button, so it does not show the panel's outdated description of Naive Bayes as "ASReview's default ranker"; `capture.mjs` refuses to produce any image containing that phrase.
 
 **Output**
 - Final width 2400–3300 px, as lossless PNG.
@@ -29,7 +29,7 @@ To regenerate the images:
 
 ```bash
 python docs/screenshots/make_sample.py work
-node docs/screenshots/capture.mjs work http://127.0.0.1:8091     # allmeta at 421ba13 served on :8091
+node docs/screenshots/capture.mjs work http://127.0.0.1:8092     # allmeta at 421ba13 served on :8092
 python docs/screenshots/compose.py work docs/screenshots
 ```
 
