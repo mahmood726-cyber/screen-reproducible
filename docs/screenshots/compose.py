@@ -1,45 +1,116 @@
-"""Compose step1..step6.png (1400x900) from the 2x captures written by capture.mjs / capture_prisma.mjs.
-Steps 1 and 2 are single viewport screenshots; steps 3-6 place panels of the same page side by side
-(vertical gaps removed) and are labelled "composite" in the image.  usage: python compose.py <work-dir>"""
-import json, sys
+"""Compose Figure 1 (step1..step6) from the high-resolution regions captured by capture.mjs.
+
+  python docs/screenshots/compose.py <work-dir> <out-dir>
+
+Each step is one region or a stack of regions from the same page state, cropped tightly (uniform margins
+trimmed) and labelled in a left gutter (A1, A2, ... for panel A of the figure, etc.). Regions keep their relative scale. The final image is
+2400-3300 px wide, written as lossless PNG and as uncompressed TIFF whose dpi makes it 170 mm wide (>= 300 dpi).
+Legibility is checked from the font sizes capture.mjs recorded in the page: printed size (pt) of a text of
+f CSS px = f x (final px per CSS px) / (final width px / 170 mm) x 72 / 25.4 x ... (see pt() below).
+"""
+import json
+import sys
 from pathlib import Path
+
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib
 
-D = Path(sys.argv[1]); (D / "final").mkdir(exist_ok=True)
-Image.MAX_IMAGE_PIXELS = None
-W, H = 2800, 1800
-fdir = Path(matplotlib.get_data_path()) / "fonts" / "ttf"
-font = ImageFont.truetype(str(fdir / "DejaVuSans.ttf"), 26); fontb = ImageFont.truetype(str(fdir / "DejaVuSans-Bold.ttf"), 34)
-O = lambda f: Image.open(D / f).convert("RGB")
-B = json.load(open(D / "boxes.json")); B6 = json.load(open(D / "boxes6.json"))
-bg = O("step1.png").getpixel((40, 1300))
-def crop(img, box, pad=0): x, y, w, h = box; return img.crop((x - pad, y - pad, x + w + pad, y + h + pad))
-def save(im, name): im.resize((1400, 900), Image.LANCZOS).save(D / "final" / f"{name}.png", optimize=True)
-def canvas(t, n):
-    c = Image.new("RGB", (W, H), bg); d = ImageDraw.Draw(c)
-    d.text((120, 46), t, fill=(40, 60, 70), font=fontb); d.text((W - 120, 58), n, fill=(110, 115, 125), font=font, anchor="ra"); return c
-def put(c, im, x, y, maxw, maxh):
-    if im.width > maxw: im = im.resize((maxw, round(im.height * maxw / im.width)), Image.LANCZOS)
-    if im.height > maxh: im = im.crop((0, 0, im.width, maxh))
-    c.paste(im, (x, y)); return im.height
-save(O("step1.png"), "step1"); save(O("step2.png"), "step2")
-f3, b = O("full3.png"), B["full3"]
-c = canvas("Dual-reviewer mode: conflicts and Cohen\u2019s \u03ba", "composite of panels from one page")
-y = 130; y += put(c, crop(f3, b["reviewers"]), 120, y, 768, H - y - 60) + 40; put(c, crop(f3, b["progress"]), 120, y, 768, H - y - 60)
-y = 130; y += put(c, crop(f3, b["conflicts"]), 944, y, 1756, H - y - 60) + 40; put(c, crop(f3, b["card"]), 944, y, 1756, H - y - 40)
-save(c, "step3")
-f4, b = O("full4.png"), B["full4"]; ml = b["ml"]
-c = canvas("After \u201cTrain & rank\u201d: predictive terms, CV AUC and ML-ranked queue", "composite of panels from one page")
-put(c, crop(f4, (ml[0], ml[1], ml[2], b["mlperf"][1] - ml[1] - 10)), 120, 130, 768, H - 170); put(c, crop(f4, b["card"]), 944, 130, 1756, H - 150)
-save(c, "step4")
-c = canvas("Stopping support (buscar 95%-recall criterion)", "composite: ML panel text enlarged 2\u00d7, Progress panel")
-st = crop(f4, b["mlperf"], pad=12); st = st.resize((st.width * 2, st.height * 2), Image.LANCZOS); h = put(c, st, 120, 150, W - 240, 900)
-put(c, crop(f4, (b["progress"][0] - 42, b["progress"][1] - 80, 768, b["progress"][3] + b["kappa"][3] + 150)), 120, 150 + h + 60, 768, H - 150 - h - 100)
-save(c, "step5")
-c = canvas("Exports and hand-off to the allmeta PRISMA 2020 Flow app", "composite: Screen toolbar (top), PRISMA Flow app (below)")
-tb = crop(O("full6.png"), B6["full6"]["toolbar"]); c.paste(tb, (0, 120))
-ImageDraw.Draw(c).line((0, 120 + tb.height + 14, W, 120 + tb.height + 14), fill=(150, 155, 160), width=3)
-y0 = 120 + tb.height + 30; c.paste(O("step6_prisma_viewport.png").crop((0, 230, 2800, 230 + H - y0)), (0, y0))
-save(c, "step6")
-print("written", D / "final")
+D, OUT = Path(sys.argv[1]), Path(sys.argv[2])
+OUT.mkdir(parents=True, exist_ok=True)
+META = json.loads((D / "regions_meta.json").read_text(encoding="utf-8"))
+DPR = META["dpr"]
+PRINT_IN = 170 / 25.4                       # 170 mm column width, inches
+WMIN, WMAX = 2400, 3300
+FDIR = Path(matplotlib.get_data_path()) / "fonts" / "ttf"
+BOLD = str(FDIR / "DejaVuSans-Bold.ttf")
+LABEL_PX = 84                               # sub-panel label height at final scale (bold sans)
+
+# step -> list of (label, region[, enlargement]). One region = no label. An enlargement > 1 enlarges that region
+# relative to the others (all regions are captured at 6 device px per CSS px, so the result is still downsampled).
+SPEC = {
+    "step1": [("A1", "s1_toolbar"), ("A2", "s1_card"), ("A3", "s1_progress")],
+    "step2": [("B1", "s2_card"), ("B2", "s2_decide")],
+    "step3": [("C1", "s3_conflicts"), ("C2", "s3_kappa")],
+    "step4": [("D1", "s4_ml"), ("D2", "s4_card")],
+    "step5": [("E", "s5_stopping")],
+    "step6": [("F1", "s6_toolbar"), ("F2", "s6_prisma")],
+}
+
+
+def trim(im, tol=10, pad=2 * DPR):
+    """Remove uniform margins (colour of the corners), keep a small pad."""
+    px = im.load(); w, h = im.size
+    bg = px[1, 1]
+    same = lambda c: all(abs(a - b) <= tol for a, b in zip(c, bg))
+    def rowblank(y): return all(same(px[x, y]) for x in range(0, w, 3))
+    def colblank(x): return all(same(px[x, y]) for y in range(0, h, 3))
+    t = 0
+    while t < h - 1 and rowblank(t): t += 1
+    bt = h - 1
+    while bt > t and rowblank(bt): bt -= 1
+    l = 0
+    while l < w - 1 and colblank(l): l += 1
+    r = w - 1
+    while r > l and colblank(r): r -= 1
+    return im.crop((max(0, l - pad), max(0, t - pad), min(w, r + 1 + pad), min(h, bt + 1 + pad)))
+
+
+def body_and_min(fonts):
+    """char-weighted median font size and smallest size among texts of >= 4 characters (CSS px)."""
+    if not fonts: return None, None
+    fs = sorted(fonts); tot = sum(n for _, n in fs); acc = 0; med = fs[-1][0]
+    for f, n in fs:
+        acc += n
+        if acc >= tot / 2: med = f; break
+    mins = [f for f, n in fs if n >= 4]
+    return med, (min(mins) if mins else min(f for f, _ in fs))
+
+
+def pt(css_px, scale, width):
+    """printed size in points of text of css_px when the image (width px, scale final px per device px) is 170 mm wide"""
+    return css_px * DPR * scale / (width / PRINT_IN) * 72
+
+
+report = []
+for step, items in SPEC.items():
+    ims, zoom = [], {}
+    for it in items:
+        lab, name = it[0], it[1]; z = it[2] if len(it) > 2 else 1.0
+        im = trim(Image.open(D / "regions" / f"{name}.png").convert("RGB"))
+        if z != 1.0: im = im.resize((round(im.width * z), round(im.height * z)), Image.LANCZOS)
+        ims.append((lab, im, name)); zoom[name] = z
+    multi = len(ims) > 1
+    gap = 8 * DPR
+    content_w = max(im.width for _, im, _ in ims)
+    # the scale to the final width depends on the gutter, which depends on the label size: two passes
+    gut = 0
+    for _ in range(2):
+        width_native = gut + content_w + 2 * gap
+        scale = WMAX / width_native if width_native > WMAX else (WMIN / width_native if width_native < WMIN else 1.0)
+        label_native = round(LABEL_PX / scale)
+        gut = round(label_native * 1.75) if multi else 0
+    H = gap + sum(im.height + gap for _, im, _ in ims)
+    canvas = Image.new("RGB", (width_native, H), "white"); d = ImageDraw.Draw(canvas)
+    font = ImageFont.truetype(BOLD, label_native) if multi else None
+    y = gap
+    for lab, im, _ in ims:
+        x = gap + gut
+        if multi:
+            d.text((gap, y + 2), lab, fill=(20, 24, 30), font=font)
+        canvas.paste(im, (x, y))
+        d.rectangle((x - 2, y - 2, x + im.width + 1, y + im.height + 1), outline=(190, 190, 190), width=max(2, round(2 / scale)))
+        y += im.height + gap
+    final = canvas.resize((round(width_native * scale), round(H * scale)), Image.LANCZOS) if scale != 1 else canvas
+    W, Hf = final.size
+    dpi = W / PRINT_IN
+    final.save(OUT / f"{step}.png", optimize=True)
+    final.save(OUT / f"{step}.tif", compression=None, dpi=(dpi, dpi))
+    per = []
+    for lab, _, name in ims:
+        b_, m_ = body_and_min(META["regions"][name]["fonts"])
+        z = zoom[name]; per.append((lab, round(pt(b_ * z, scale, W), 1), round(pt(m_ * z, scale, W), 1)))
+    report.append({"step": step, "width_px": W, "height_px": Hf, "aspect_h_over_w": round(Hf / W, 2), "tiff_dpi_at_170mm": round(dpi),
+                   "body_text_pt_min_over_panels": min(x[1] for x in per), "smallest_text_pt": min(x[2] for x in per),
+                   "per_panel_body_smallest_pt": per, "label_pt": round(LABEL_PX / dpi * 72, 1) if multi else None})
+    print(report[-1])
+(OUT / "legibility.json").write_text(json.dumps(report, indent=1), encoding="utf-8")

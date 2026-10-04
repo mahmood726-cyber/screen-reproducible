@@ -1,0 +1,134 @@
+[
+ {
+  "step": "step1",
+  "width_px": 3300,
+  "height_px": 3591,
+  "aspect_h_over_w": 1.09,
+  "tiff_dpi_at_170mm": 493,
+  "body_text_pt_min_over_panels": 8.4,
+  "smallest_text_pt": 8.4,
+  "per_panel_body_smallest_pt": [
+   [
+    "A1",
+    10.9,
+    10.4
+   ],
+   [
+    "A2",
+    10.5,
+    8.6
+   ],
+   [
+    "A3",
+    8.4,
+    8.4
+   ]
+  ],
+  "label_pt": 12.3
+ },
+ {
+  "step": "step2",
+  "width_px": 3300,
+  "height_px": 3187,
+  "aspect_h_over_w": 0.97,
+  "tiff_dpi_at_170mm": 493,
+  "body_text_pt_min_over_panels": 12.3,
+  "smallest_text_pt": 9.1,
+  "per_panel_body_smallest_pt": [
+   [
+    "B1",
+    12.3,
+    9.1
+   ],
+   [
+    "B2",
+    12.3,
+    9.3
+   ]
+  ],
+  "label_pt": 12.3
+ },
+ {
+  "step": "step3",
+  "width_px": 3300,
+  "height_px": 3074,
+  "aspect_h_over_w": 0.93,
+  "tiff_dpi_at_170mm": 493,
+  "body_text_pt_min_over_panels": 11.0,
+  "smallest_text_pt": 8.8,
+  "per_panel_body_smallest_pt": [
+   [
+    "C1",
+    11.0,
+    10.1
+   ],
+   [
+    "C2",
+    11.0,
+    8.8
+   ]
+  ],
+  "label_pt": 12.3
+ },
+ {
+  "step": "step4",
+  "width_px": 3300,
+  "height_px": 4228,
+  "aspect_h_over_w": 1.28,
+  "tiff_dpi_at_170mm": 493,
+  "body_text_pt_min_over_panels": 10.6,
+  "smallest_text_pt": 9.1,
+  "per_panel_body_smallest_pt": [
+   [
+    "D1",
+    10.6,
+    9.3
+   ],
+   [
+    "D2",
+    11.0,
+    9.1
+   ]
+  ],
+  "label_pt": 12.3
+ },
+ {
+  "step": "step5",
+  "width_px": 2400,
+  "height_px": 847,
+  "aspect_h_over_w": 0.35,
+  "tiff_dpi_at_170mm": 359,
+  "body_text_pt_min_over_panels": 16.4,
+  "smallest_text_pt": 16.4,
+  "per_panel_body_smallest_pt": [
+   [
+    "E",
+    16.4,
+    16.4
+   ]
+  ],
+  "label_pt": null
+ },
+ {
+  "step": "step6",
+  "width_px": 3300,
+  "height_px": 3023,
+  "aspect_h_over_w": 0.92,
+  "tiff_dpi_at_170mm": 493,
+  "body_text_pt_min_over_panels": 8.3,
+  "smallest_text_pt": 7.6,
+  "per_panel_body_smallest_pt": [
+   [
+    "F1",
+    10.1,
+    10.1
+   ],
+   [
+    "F2",
+    8.3,
+    7.6
+   ]
+  ],
+  "label_pt": 12.3
+ }
+]

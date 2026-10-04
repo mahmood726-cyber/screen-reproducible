@@ -1,41 +1,72 @@
-// Screenshots of Screen (usage: node capture.mjs <work-dir with wilson_sample.csv + gold.json> <out-dir>)
-// Needs Playwright 1.59.1 and an installed Google Chrome (channel "chrome").
-// Screenshots of Screen for the paper's Operation section (Chrome headless, 1400x900, light theme).
+// Figure 1 screenshots of Screen, high resolution (Playwright + installed Google Chrome, headless).
+// Viewport 1001 x 900 CSS px (the narrowest width that keeps Screen's two-column layout, so text is large relative
+// to each panel), light theme, device scale factor 6: every region is captured as a page clip at
+// 6 device pixels per CSS pixel, so no image is ever enlarged. compose.py lays the regions out (tight crops,
+// labelled sub-panels) and checks legibility from the font sizes recorded here.
+//
+//   python docs/screenshots/make_sample.py work
+//   (serve allmeta at commit 421ba13: python -m http.server 8091, from its repository root)
+//   node docs/screenshots/capture.mjs work http://127.0.0.1:8091
+//   python docs/screenshots/compose.py work docs/screenshots
+//
+// Screen is used from the served allmeta checkout (identical to app/screen/index.html in this repository)
+// because step 6 hands counts to the PRISMA Flow app through the browser's localStorage, which needs both
+// apps on one origin.
 import { chromium } from "playwright";
-import { readFileSync, writeFileSync } from "fs";
-const [D, OUT] = [process.argv[2], process.argv[3]];
-import { pathToFileURL, fileURLToPath } from "url";
-import { dirname, join } from "path";
-const APP = pathToFileURL(join(dirname(fileURLToPath(import.meta.url)), "..", "..", "app", "screen", "index.html")).href;
+import { readFileSync, writeFileSync, mkdirSync } from "fs";
+const [D, BASE] = [process.argv[2], process.argv[3]];
+const OUT = `${D}/regions`; mkdirSync(OUT, { recursive: true });
+const DPR = 6;
 const gold = JSON.parse(readFileSync(D + "/gold.json", "utf8"));
 const b = await chromium.launch({ channel: "chrome" });
-const ctx = await b.newContext({ viewport: { width: 1400, height: 900 }, colorScheme: "light", deviceScaleFactor: 2, acceptDownloads: true });
+const ctx = await b.newContext({ viewport: { width: 1001, height: 900 }, colorScheme: "light", deviceScaleFactor: DPR, acceptDownloads: true });
 const p = await ctx.newPage();
-const boxes = {};
-async function fullWithBoxes(name, sels) {
-  await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(250);
-  await p.screenshot({ path: `${OUT}/${name}.png`, fullPage: true });
-  boxes[name] = await p.evaluate((sels) => Object.fromEntries(Object.entries(sels).map(([k, s]) => {
-    let e = document.querySelector(s.css); for (let i = 0; i < (s.up || 0); i++) e = e.parentElement; if (s.section) e = e.closest("section");
-    const r = e.getBoundingClientRect(); return [k, [r.left + scrollX, r.top + scrollY, r.width, r.height].map((v) => Math.round(v * 2))];
-  })), sels);
+const meta = { dpr: DPR, viewport: [1001, 900], regions: {} };
+const hideOverlays = () => p.addStyleTag({ content: "#hub-back{display:none!important} .toolbar{position:static!important} .toast,#toast{display:none!important}" });
+
+// page-coordinate rectangle of an element (optionally its N-th ancestor / closest section)
+const rect = (sel, opt = {}) => p.evaluate(([sel, opt]) => {
+  let e = document.querySelector(sel); if (!e) throw new Error("missing " + sel);
+  if (opt.section) e = e.closest("section");
+  for (let i = 0; i < (opt.up || 0); i++) e = e.parentElement;
+  const r = e.getBoundingClientRect(); return { x: r.left + scrollX, y: r.top + scrollY, w: r.width, h: r.height };
+}, [sel, opt]);
+const union = (...rs) => { const x = Math.min(...rs.map((r) => r.x)), y = Math.min(...rs.map((r) => r.y));
+  return { x, y, w: Math.max(...rs.map((r) => r.x + r.w)) - x, h: Math.max(...rs.map((r) => r.y + r.h)) - y }; };
+// capture one region (CSS px, page coordinates) and record the font sizes of the text inside it
+async function region(name, r, pad = 6) {
+  const c = { x: Math.max(0, Math.floor(r.x - pad)), y: Math.max(0, Math.floor(r.y - pad)), width: Math.ceil(r.w + 2 * pad), height: Math.ceil(r.h + 2 * pad) };
+  await p.screenshot({ path: `${OUT}/${name}.png`, clip: c, fullPage: true });
+  const fonts = await p.evaluate((c) => {
+    const out = [];
+    const inside = (rr) => rr.width > 0 && rr.height > 0 && rr.left + scrollX >= c.x - 1 && rr.right + scrollX <= c.x + c.width + 1 && rr.top + scrollY >= c.y - 1 && rr.bottom + scrollY <= c.y + c.height + 1;
+    const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let n = tw.nextNode(); n; n = tw.nextNode()) {
+      const t = n.textContent.trim(); if (t.length < 2) continue;
+      const el = n.parentElement; const cs = getComputedStyle(el); if (cs.visibility === "hidden" || cs.display === "none") continue;
+      const range = document.createRange(); range.selectNodeContents(n); const rr = range.getBoundingClientRect(); if (!inside(rr)) continue;
+      let px = parseFloat(cs.fontSize);
+      if (el.closest("svg") && el.getScreenCTM) { const m = el.getScreenCTM(); if (m) px = px * Math.hypot(m.a, m.b); }
+      out.push([Math.round(px * 100) / 100, t.length]);
+    }
+    return out;
+  }, c);
+  meta.regions[name] = { clip: c, fonts };
 }
 
-const log = {};
-await p.goto(APP); await p.evaluate(() => localStorage.clear()); await p.reload();
-const collapse = () => p.evaluate(() => { const d = document.querySelector("details.alm-task"); if (d) d.open = false; });
-const top = async () => { await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(350); };
-const el = async (sel, name) => { await p.locator(sel).first().scrollIntoViewIfNeeded(); await p.waitForTimeout(250); await p.locator(sel).first().screenshot({ path: `${OUT}/${name}.png` }); };
-await collapse();
+await p.goto(BASE + "/screen/index.html"); await p.evaluate(() => localStorage.clear()); await p.reload();
+await hideOverlays();
+await p.evaluate(() => { const d = document.querySelector("details.alm-task"); if (d) d.open = false; });
 
 // 1. Import via the real file input + re-run de-duplication, then view the flagged duplicates
-await p.setInputFiles("#file-import", D + "/wilson_sample.csv");
-await p.waitForTimeout(500);
-log.importToast = await p.textContent(".toast, #toast").catch(() => null);
-await p.click("#btn-dedup");
-await p.selectOption("#f-filter", "duplicate");
-await top(); await p.screenshot({ path: `${OUT}/step1.png` });
-log.afterImport = await p.evaluate(() => window.__almScreenpro.counts());
+await p.setInputFiles("#file-import", D + "/wilson_sample.csv"); await p.waitForTimeout(500);
+await p.click("#btn-dedup"); await p.selectOption("#f-filter", "duplicate"); await p.waitForTimeout(300);
+{ const imp = await rect("#btn-import"), dd = await rect("#btn-dedup");
+  await region("s1_toolbar", union(imp, dd));
+  const card = await rect(".cardwrap"), badges = await rect(".cardwrap .badges");
+  await region("s1_card", { x: card.x, y: card.y, w: card.w, h: badges.y + badges.h - card.y + 6 });
+  await region("s1_progress", await rect("#stats", { section: true })); }
+meta.step1 = await p.evaluate(() => window.__almScreenpro.counts());
 
 // 2. Review title + include/exclude terms; keyboard decisions
 await p.selectOption("#f-filter", "all");
@@ -47,13 +78,16 @@ await p.selectOption("#f-sort", "relevance");
 await p.evaluate(() => document.activeElement && document.activeElement.blur());
 await p.keyboard.press("i");          // include the top-scoring record
 await p.keyboard.press("3");          // exclude the next one with reason 3 ("Wrong comparator")
-await top(); await p.screenshot({ path: `${OUT}/step2.png` });
+await p.waitForTimeout(300);
+{ const card = await rect(".cardwrap .card"), abs = await rect(".cardwrap .abstract");
+  await region("s2_card", { x: card.x, y: card.y, w: card.w, h: abs.y + 5 * 24.3 + 14 - card.y });   // header + first five abstract lines
+  await region("s2_decide", union(await rect(".cardwrap .decbtns"), await rect(".cardwrap .chips"))); }
+meta.step2 = await p.evaluate(() => ({ title: document.querySelector(".cardwrap .ctitle").textContent }));
 
-// 3-5. Realistic ranked screening: reviewer 1 screens 20 random records, then repeatedly
-// retrains and screens the 10 top-ranked undecided records (decisions = the dataset's gold
-// labels). Reviewer 2 independently screens the first 70 of those records.
+// 3-5. Realistic ranked screening (reviewer 1: 20 random records, then retrain + 10 top-ranked per round, gold
+// labels as decisions; reviewer 2 screens the first 70 of those and disagrees on 5). Same as the paper's figure.
 const csv = readFileSync(D + "/wilson_sample.csv", "utf8");
-log.loop = await p.evaluate(([text, gold]) => {
+meta.loop = await p.evaluate(([text, gold]) => {
   const api = window.__almScreenpro;
   const recs = api.parse(text, "wilson_sample.csv");
   const base = { title: "Therapies for Wilson disease", incTerms: ["Wilson disease", "penicillamine", "trientine", "zinc", "chelation", "hepatolenticular"],
@@ -65,14 +99,13 @@ log.loop = await p.evaluate(([text, gold]) => {
   const rounds = [];
   for (let round = 0; round < 30; round++) {
     api.setState({ ...base, records: recs });
-    const t = api.mlTrain();
+    api.mlTrain();
     const st = api.mlStopping();
     rounds.push({ screened: st.screened, found: st.found, buscarP: +st.buscarP.toFixed(4) });
     if (st.buscarP < 0.05) break;
     const und = live.filter((r) => !r.r1 || !r.r1.d).map((r) => [r, api.mlScoreOf(r.id)]).sort((a, b) => b[1] - a[1]);
     und.slice(0, 10).forEach(([r]) => decide(r));
   }
-  // reviewer 2 screens the first 70 records reviewer 1 screened; disagrees on 5
   const byId = Object.fromEntries(live.map((r) => [r.id, r]));
   let flips = 0;
   order.slice(0, 70).forEach((id, k) => {
@@ -82,47 +115,49 @@ log.loop = await p.evaluate(([text, gold]) => {
     byId[id].r2 = { d, reason: "" };
   });
   api.setState({ ...base, mode: "dual", active: "r1", records: recs });
-  return { rounds, decidedR1: order.length, foundTotal: Object.values(gold).filter(Boolean).length };
+  return { rounds, decidedR1: order.length };
 }, [csv, gold]);
-// sync the visible controls with the loaded project (dual mode, terms) through the real UI
 await p.check("#f-dual");
-await p.selectOption("#f-filter", "conflict");
-await p.waitForTimeout(400);
-log.kappa = await p.evaluate(() => window.__almScreenpro.kappa());
-log.counts = await p.evaluate(() => window.__almScreenpro.counts());
-await el("#conflict-panel", "step3_right");
-await el("#stats", "step3_left_stats"); await el("#kappa", "step3_left_kappa");
-await p.locator("#stats").first().locator("xpath=ancestor::section[1]").screenshot({ path: `${OUT}/step3_left.png` });
-await p.locator("#f-dual").locator("xpath=ancestor::section[1]").screenshot({ path: `${OUT}/step3_reviewers.png` });
-await p.locator(".cardwrap").first().screenshot({ path: `${OUT}/step3_card.png` });
-await fullWithBoxes("full3", { reviewers: { css: "#f-dual", section: 1 }, progress: { css: "#stats", section: 1 }, conflicts: { css: "#conflict-panel" }, card: { css: ".cardwrap" } });
-await top(); await p.screenshot({ path: `${OUT}/step3_top.png` });
+await p.selectOption("#f-filter", "conflict"); await p.waitForTimeout(400);
+meta.kappa = await p.evaluate(() => window.__almScreenpro.kappa());
+meta.counts = await p.evaluate(() => window.__almScreenpro.counts());
+await region("s3_conflicts", await rect("#conflict-panel"));
+{ const panel = await rect("#stats", { section: true }), kap = await rect("#kappa");
+  const tiles = await p.evaluate(() => { const t = [...document.querySelectorAll("#stats > *")].slice(-2).map((e) => e.getBoundingClientRect()); return Math.min(...t.map((r) => r.top)) + scrollY; });
+  await region("s3_kappa", { x: panel.x, y: tiles, w: panel.w, h: kap.y + kap.h - tiles + 18 }, 3); }
 
 // 4. Train & rank (button click), sort by ML relevance
 await p.selectOption("#f-filter", "undecided");
-await p.click("#btn-train");
-await p.waitForTimeout(600);
-await p.selectOption("#f-sort", "ml");
-await p.waitForTimeout(300);
-log.mlStatus = await p.textContent("#ml-status");
-log.mlPerf = await p.textContent("#ml-perf");
-log.topTerms = await p.evaluate(() => window.__almScreenpro.mlTopTerms());
-await p.locator("#btn-train").locator("xpath=ancestor::section[1]").screenshot({ path: `${OUT}/step4_left.png` });
-await fullWithBoxes("full4", { ml: { css: "#btn-train", section: 1 }, mlterms: { css: "#ml-terms" }, mlperf: { css: "#ml-perf" }, mlstatus: { css: "#ml-status" }, card: { css: ".cardwrap" }, progress: { css: "#stats" }, kappa: { css: "#kappa" } });
-await top(); await p.screenshot({ path: `${OUT}/step4_top.png` });
-await p.locator(".cardwrap").first().screenshot({ path: `${OUT}/step4_right.png` });
+await p.click("#btn-train"); await p.waitForTimeout(600);
+await p.selectOption("#f-sort", "ml"); await p.waitForTimeout(300);
+meta.mlStatus = await p.textContent("#ml-status"); meta.mlPerf = await p.textContent("#ml-perf");
+{ const ml = await rect("#btn-train", { section: true }), perf = await rect("#ml-perf");
+  const auc = await p.evaluate(() => { const e = document.querySelector("#ml-perf").firstElementChild; const r = e.getBoundingClientRect(); return r.bottom + scrollY; });
+  await region("s4_ml", { x: ml.x, y: ml.y, w: ml.w, h: auc - ml.y + 4 });
+  const card = await rect(".cardwrap .card"), badges = await rect(".cardwrap .badges");
+  await region("s4_card", { x: card.x, y: card.y, w: card.w, h: badges.y + badges.h - card.y + 10 });
+// 5. Stopping support: the held-out quality + stopping-rule text
+  await region("s5_stopping", perf, 3); }
 
-// 6. Exports + send counts to PRISMA Flow
-await top();
+// 6. Exports + hand-off to the PRISMA Flow app (same origin, via localStorage)
+await p.evaluate(() => window.scrollTo(0, 0));
 const [dl] = await Promise.all([p.waitForEvent("download"), p.click("#btn-export-ris")]);
-log.download = dl.suggestedFilename();
-const [dj] = await Promise.all([p.waitForEvent("download"), p.click("#btn-export-json")]);
-await dj.saveAs(`${OUT}/project.json`);
-await p.click("#btn-prisma");
-await p.waitForTimeout(200);
-await p.screenshot({ path: `${OUT}/step6.png` });
-log.prisma = JSON.parse(await p.evaluate(() => localStorage.getItem("prisma-flow-v1")));
-writeFileSync(`${OUT}/boxes.json`, JSON.stringify(boxes, null, 1));
-writeFileSync(`${OUT}/shots_log.json`, JSON.stringify(log, null, 1));
-console.log(JSON.stringify(log, null, 1).slice(0, 3000));
+meta.download = dl.suggestedFilename();
+// the toolbar fits on one row only from about 1150 px; capture it at 1400 px (its buttons do not change size)
+await p.setViewportSize({ width: 1400, height: 900 }); await p.waitForTimeout(300);
+{ const a = await rect("#btn-export-json"), z = await rect("#btn-prisma"); await region("s6_toolbar", union(a, z)); }
+await p.click("#btn-prisma"); await p.waitForTimeout(300);
+meta.prisma = JSON.parse(await p.evaluate(() => localStorage.getItem("prisma-flow-v1")));
+// PRISMA Flow scales its diagram to the window; a wider window makes the diagram the widest region, so it fills
+// the figure width (its text size relative to the diagram is fixed by the app: 12 SVG units)
+await p.setViewportSize({ width: 1400, height: 900 });
+await p.goto(BASE + "/prisma-flow/index.html"); await p.waitForTimeout(1500); await hideOverlays();
+{ // the diagram's boxes (the IDENTIFICATION / SCREENING stage labels on the left are cropped away)
+  const boxes = await p.evaluate(() => { const s = document.querySelector("svg"), sr = s.getBoundingClientRect();
+    const rs = [...s.querySelectorAll("rect")].map((r) => r.getBoundingClientRect()).filter((r) => r.width > 60 && r.height > 20 && r.width < 0.6 * sr.width);
+    const x0 = Math.min(...rs.map((r) => r.left)), x1 = Math.max(...rs.map((r) => r.right)), y0 = Math.min(...rs.map((r) => r.top)), y1 = Math.max(...rs.map((r) => r.bottom));
+    return { x: x0 + scrollX, y: y0 + scrollY, w: x1 - x0, h: y1 - y0 }; });
+  await region("s6_prisma", boxes, 8); }
+writeFileSync(`${D}/regions_meta.json`, JSON.stringify(meta, null, 1));
+console.log(JSON.stringify({ step1: meta.step1, kappa: meta.kappa, counts: meta.counts, mlPerf: meta.mlPerf, prisma: meta.prisma, regions: Object.keys(meta.regions) }, null, 1).slice(0, 2500));
 await b.close();
