@@ -1,0 +1,21 @@
+{
+ "n_datasets": 4,
+ "screen_mean_all": 0.35285078094640426,
+ "screen_median_all": 0.3700945685414173,
+ "screen_min": 0.011290322580645107,
+ "screen_max": 0.6599236641221373,
+ "screen_mean_cohen": 0.35285078094640426,
+ "screen_mean_synergy": NaN,
+ "recall_at_10pct_pct": 29.474085365853657,
+ "recall_at_20pct_pct": 61.08993902439024,
+ "recall_at_50pct_pct": 90.01524390243902,
+ "buscar_never_fired": 4,
+ "asreview_nb_mean": 0.3719443189578905,
+ "wins_vs_nb": 1,
+ "mean_diff_vs_nb": -0.019093538011486264,
+ "median_diff_vs_nb": -0.026326286398085347,
+ "asreview_svm_mean": 0.3597093232726581,
+ "wins_vs_svm": 2,
+ "mean_diff_vs_svm": -0.006858542326253811,
+ "median_diff_vs_svm": -0.006118513323983166
+}

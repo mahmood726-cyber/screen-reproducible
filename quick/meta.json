@@ -1,0 +1,36 @@
+{
+ "mode": "quick",
+ "all_ok": true,
+ "when": "2026-10-04 11:36 UTC",
+ "sha": "d7be2de35379f4ed4c3a10a10f41b835fdabf37d",
+ "run_id": "37199121728",
+ "run_url": "https://github.com/mahmood726-cyber/screen-reproducible/actions/runs/37199121728",
+ "platforms": [
+  {
+   "platform": "Docker (canonical)",
+   "artifact": "quick-docker",
+   "ok": true,
+   "summary": "23/23 numbers reproduced"
+  },
+  {
+   "platform": "Linux",
+   "artifact": "quick-ubuntu-latest",
+   "ok": true,
+   "summary": "23/23 numbers reproduced"
+  },
+  {
+   "platform": "Windows",
+   "artifact": "quick-windows-latest",
+   "ok": true,
+   "summary": "23/23 numbers reproduced"
+  },
+  {
+   "platform": "macOS",
+   "artifact": "quick-macos-latest",
+   "ok": true,
+   "summary": "23/23 numbers reproduced"
+  }
+ ],
+ "compare": "",
+ "mode_note": "Quick run (4 small datasets, 1 seed), run on every push."
+}
