@@ -1,0 +1,36 @@
+{
+ "mode": "full",
+ "all_ok": true,
+ "when": "2026-10-04 12:10 UTC",
+ "sha": "d7be2de35379f4ed4c3a10a10f41b835fdabf37d",
+ "run_id": "37199331989",
+ "run_url": "https://github.com/mahmood726-cyber/screen-reproducible/actions/runs/37199331989",
+ "platforms": [
+  {
+   "platform": "Docker (canonical)",
+   "artifact": "full-docker-outputs",
+   "ok": true,
+   "summary": "92/92 numbers reproduced"
+  },
+  {
+   "platform": "Linux",
+   "artifact": "full-run-outputs-ubuntu-latest",
+   "ok": true,
+   "summary": "92/92 numbers reproduced"
+  },
+  {
+   "platform": "Windows",
+   "artifact": "full-run-outputs-windows-latest",
+   "ok": true,
+   "summary": "92/92 numbers reproduced"
+  },
+  {
+   "platform": "macOS",
+   "artifact": "full-run-outputs-macos-latest",
+   "ok": true,
+   "summary": "92/92 numbers reproduced"
+  }
+ ],
+ "compare": "success",
+ "mode_note": "Full run: every number in the paper (started from Actions -> Run workflow, mode full)."
+}
