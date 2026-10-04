@@ -3,7 +3,8 @@
 [![reproduce](https://github.com/mahmood726-cyber/screen-reproducible/actions/workflows/reproduce.yml/badge.svg)](https://github.com/mahmood726-cyber/screen-reproducible/actions/workflows/reproduce.yml)
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/mahmood726-cyber/screen-reproducible?quickstart=1)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-<!-- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX)  add after the first Zenodo release -->
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23132680.svg)](https://doi.org/10.5281/zenodo.23132680)
+[![Latest verified run](https://img.shields.io/badge/latest%20verified%20run-results%20page-2c5e8a)](https://mahmood726-cyber.github.io/screen-reproducible/)
 
 **Screen** is an offline, browser-only tool for title–abstract screening in systematic
 reviews. It has keyboard screening, dual review with Cohen's κ, de-duplication, Naive Bayes
@@ -17,7 +18,45 @@ contains:
 - the ASReview 2.2 comparator (Naive Bayes and its current SVM default)
 - the analysis that regenerates every table, figure and statistic, and checks each number against the paper
 
-## Quick start
+## Reproduce in one click
+
+There are three ways in, from no effort to a full independent re-run.
+
+**1. See the latest verified runs (nothing to run).**
+
+The [results page](https://mahmood726-cyber.github.io/screen-reproducible/) is published by CI. It has two parts:
+- **Latest full run:** every number in the paper.
+- **Latest quick run:** run on every push.
+
+Each shows the PASS/FAIL table, the result on each of Docker, Linux, Windows and macOS, and, for full runs, the bit-identity check.
+
+**2. Open in GitHub Codespaces (one click).**
+
+Click the *Open in GitHub Codespaces* badge above, then *Create codespace*.
+- The pinned environment is built from this repository's `Dockerfile`: Python 3.13.13, Node 24.15.0 and the pinned packages, including ASReview 2.2.
+- The datasets are then fetched and checked, and the quick reproduction runs automatically. Its log ends with `QUICK RUN: ALL PASS`, and the report is in `outputs/quick/reproduction_report.md`.
+- For the full run, type `python reproduce.py` in the terminal. It takes about 30–80 minutes, depending on cores, and writes `outputs/full/`.
+
+Limits:
+- You need to be signed in to GitHub.
+- The codespace runs on your own Codespaces allowance. Personal accounts get a free monthly quota of core-hours and storage (see GitHub's billing page); this configuration requests a 4-core machine, so it uses that quota twice as fast as a 2-core one.
+- The first build takes a few minutes.
+- `codespaces-check` in Actions builds the same devcontainer and runs its automatic quick run on every relevant change.
+
+**3. Re-run the CI yourself (one click in a fork).**
+
+Only maintainers can trigger workflows on this repository, so use your own copy:
+1. Click **Fork**.
+2. In your fork, open the **Actions** tab and click *I understand my workflows, go ahead and enable them*. GitHub disables workflows in new forks.
+3. Choose **reproduce**, then **Run workflow**, with mode **full** (the default).
+
+That runs every number in the paper on Docker, Linux, Windows and macOS (about 20–40 minutes per platform, in parallel), followed by the bit-identity check. Actions are free on public repositories.
+- Each job's **summary** shows its PASS/FAIL report.
+- **Artifacts** hold `reproduction-report-full-<platform>` and the complete outputs.
+- Mode **quick** is the short smoke run.
+- Publishing to Pages happens only on this repository, so it is skipped in forks.
+
+**On your own machine:**
 
 ```bash
 git clone https://github.com/mahmood726-cyber/screen-reproducible && cd screen-reproducible
@@ -25,13 +64,15 @@ python -m pip install -r requirements.txt
 python reproduce.py --quick        # about 1 minute; full run: python reproduce.py
 ```
 
-You need Python 3.13 and Node.js 24.15.0 on your PATH. Alternatively, use Docker
-(`docker build -t screen-reproducible . && docker run --rm screen-reproducible --full`)
-or click **Open in GitHub Codespaces**. `make quick` and `make reproduce` do the same as the
-two `reproduce.py` commands.
+You need Python 3.13 and Node.js 24.15.0 on your PATH. Alternatively, use Docker:
 
-**Using the app:** open `app/screen/index.html` in a browser (double-clicking the file
-works), or run `python -m http.server 8080` and go to http://localhost:8080.
+```bash
+docker build -t screen-reproducible . && docker run --rm screen-reproducible --full
+```
+
+`make quick` and `make reproduce` do the same as the two `reproduce.py` commands.
+
+**Using the app:** open `app/screen/index.html` in a browser (double-clicking the file works), or run `python -m http.server 8080` and go to http://localhost:8080.
 
 ## What `reproduce.py` does
 
@@ -104,13 +145,12 @@ BLAS/OpenMP are also limited to one thread, and `PYTHONHASHSEED=0` is set.
 
 ## How to cite
 
-Please cite the article (reference to be added on publication), this repository (`CITATION.cff`;
-Zenodo DOI to be added after the first release), and the original dataset authors listed in
-[data/README.md](data/README.md).
+Please cite:
+- the article (reference to be added on publication);
+- this repository, v1.0.0, doi:[10.5281/zenodo.23132680](https://doi.org/10.5281/zenodo.23132680) (see `CITATION.cff`);
+- the original dataset authors listed in [data/README.md](data/README.md).
 
-Releases are archived on Zenodo through the GitHub–Zenodo integration. `.zenodo.json` holds
-the metadata, so publishing a GitHub release mints a DOI once the repository has been
-switched on at https://zenodo.org/account/settings/github/.
+Releases are archived on Zenodo through the GitHub–Zenodo integration (metadata in `.zenodo.json`).
 
 ## Licence
 

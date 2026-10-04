@@ -1,0 +1,30 @@
+name: codespaces-check
+
+# Builds .devcontainer/devcontainer.json with the Dev Containers CLI (the same configuration GitHub
+# Codespaces uses) and runs its postCreateCommand, i.e. the automatic quick reproduction a reader gets
+# from the "Open in GitHub Codespaces" badge. Fails unless that quick run reproduces every number.
+on:
+  push:
+    paths: [".devcontainer/**", "Dockerfile", "docker_entry.py", "reproduce.py", "requirements.txt", "package*.json", "bench/**", "analysis/**", "expected/**", "app/**", "data/**", ".github/workflows/devcontainer.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  devcontainer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: devcontainers/ci@v0.3
+        with:
+          push: never
+          runCmd: |
+            set -e
+            f=outputs/quick/reproduction_report.md
+            test -f "$f"
+            head -3 "$f"
+            n=$(grep -oE '^[0-9]+/[0-9]+ numbers reproduced' "$f")
+            a=${n%%/*}; b=${n#*/}; b=${b%% *}
+            test "$a" = "$b" && echo "Codespaces quick run: $n (ALL PASS)"

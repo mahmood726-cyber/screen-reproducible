@@ -1,12 +1,18 @@
 name: reproduce
 
+# push / pull_request: quick run on Linux, Windows, macOS and Docker.
+# workflow_dispatch (Actions -> reproduce -> Run workflow; in a fork, after enabling Actions):
+#   mode=full  every number in the paper on all four platforms (about 20-40 min per platform) + bit-identity check
+#   mode=quick the quick run only
+# Each run writes its PASS/FAIL report to the job summary and as an artefact (reproduction-report-*); on this
+# repository's main branch the latest quick and latest full reports are published to GitHub Pages.
 on:
   push:
   pull_request:
   workflow_dispatch:
     inputs:
       mode:
-        description: "full = every number in the paper (about 1-2 h); quick = smoke run"
+        description: "full = every number in the paper (about 20-40 min per platform); quick = smoke run"
         type: choice
         options: [full, quick]
         default: full
@@ -34,6 +40,21 @@ jobs:
           node-version-file: .nvmrc
       - run: python -m pip install -r requirements.txt
       - run: python reproduce.py --quick
+      - name: PASS/FAIL report to the job summary
+        if: always()
+        shell: bash
+        run: |
+          f=outputs/quick/reproduction_report.md
+          if [ -f "$f" ]; then { echo "## ${{ matrix.os }}: quick run"; tail -n +2 "$f"; } >> "$GITHUB_STEP_SUMMARY"; else echo "## ${{ matrix.os }}: quick run produced no report" >> "$GITHUB_STEP_SUMMARY"; fi
+      - if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: reproduction-report-quick-${{ matrix.os }}
+          path: |
+            outputs/quick/reproduction_report.md
+            outputs/quick/reproduction_report.json
+            outputs/quick/stats.json
+          if-no-files-found: warn
       - if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
@@ -44,13 +65,35 @@ jobs:
           if-no-files-found: warn
 
   docker:
-    if: github.event_name != 'workflow_dispatch'
+    if: github.event_name != 'workflow_dispatch' || inputs.mode == 'quick'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7.0.1
       - run: docker build -t screen-reproducible .
-      - run: mkdir -p outputs && docker run --rm -v "$PWD/outputs:/work/outputs" screen-reproducible --quick
+      - run: mkdir -p outputs results && docker run --rm -v "$PWD/outputs:/work/outputs" -v "$PWD/results:/work/results" screen-reproducible --quick
+      - name: PASS/FAIL report to the job summary
+        if: always()
+        run: |
+          f=outputs/quick/reproduction_report.md
+          if [ -f "$f" ]; then { echo "## Docker (canonical): quick run"; tail -n +2 "$f"; } >> "$GITHUB_STEP_SUMMARY"; else echo "## Docker: quick run produced no report" >> "$GITHUB_STEP_SUMMARY"; fi
+      - if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: reproduction-report-quick-docker
+          path: |
+            outputs/quick/reproduction_report.md
+            outputs/quick/reproduction_report.json
+            outputs/quick/stats.json
+          if-no-files-found: warn
+      - if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: quick-docker
+          path: |
+            outputs/quick
+            results/quick
+          if-no-files-found: warn
 
   full:
     if: github.event_name == 'workflow_dispatch' && inputs.mode == 'full'
@@ -71,6 +114,21 @@ jobs:
           node-version-file: .nvmrc
       - run: python -m pip install -r requirements.txt
       - run: python reproduce.py
+      - name: PASS/FAIL report to the job summary
+        if: always()
+        shell: bash
+        run: |
+          f=outputs/full/reproduction_report.md
+          if [ -f "$f" ]; then { echo "## ${{ matrix.os }}: full run"; tail -n +2 "$f"; } >> "$GITHUB_STEP_SUMMARY"; else echo "## ${{ matrix.os }}: full run produced no report" >> "$GITHUB_STEP_SUMMARY"; fi
+      - if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: reproduction-report-full-${{ matrix.os }}
+          path: |
+            outputs/full/reproduction_report.md
+            outputs/full/reproduction_report.json
+            outputs/full/stats.json
+          if-no-files-found: warn
       - if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
@@ -90,6 +148,20 @@ jobs:
       - run: |
           mkdir -p outputs results
           docker run --rm -v "$PWD/outputs:/work/outputs" -v "$PWD/results:/work/results" screen-reproducible --full
+      - name: PASS/FAIL report to the job summary
+        if: always()
+        run: |
+          f=outputs/full/reproduction_report.md
+          if [ -f "$f" ]; then { echo "## Docker (canonical): full run"; tail -n +2 "$f"; } >> "$GITHUB_STEP_SUMMARY"; else echo "## Docker: full run produced no report" >> "$GITHUB_STEP_SUMMARY"; fi
+      - if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: reproduction-report-full-docker
+          path: |
+            outputs/full/reproduction_report.md
+            outputs/full/reproduction_report.json
+            outputs/full/stats.json
+          if-no-files-found: warn
       - if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
@@ -109,6 +181,59 @@ jobs:
       - uses: actions/download-artifact@v8.0.1
         with:
           path: runs
-      - run: |
+      - shell: bash
+        run: |
+          set -o pipefail
           ls runs
-          python analysis/compare_runs.py runs/full-docker-outputs/results/full runs/full-run-outputs-ubuntu-latest/results/full runs/full-run-outputs-windows-latest/results/full runs/full-run-outputs-macos-latest/results/full
+          { echo '## Cross-platform comparison'; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          python analysis/compare_runs.py runs/full-docker-outputs/results/full runs/full-run-outputs-ubuntu-latest/results/full runs/full-run-outputs-windows-latest/results/full runs/full-run-outputs-macos-latest/results/full | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+  publish:
+    # Live results page: https://mahmood726-cyber.github.io/screen-reproducible/ (latest full run and latest quick run).
+    # Only on this repository's main branch (forks and pull requests skip it).
+    if: always() && github.repository_owner == 'mahmood726-cyber' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: [quick, docker, full, full-docker, compare]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: publish-results
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/download-artifact@v8.0.1
+        with:
+          path: runs
+      - name: Update the gh-pages branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FULL: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'full' }}
+        run: |
+          url="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code --heads "$url" gh-pages >/dev/null; then
+            git clone --quiet --depth 1 --branch gh-pages "$url" pub
+          else
+            mkdir pub && git -C pub init --quiet -b gh-pages && git -C pub remote add origin "$url"
+          fi
+          if [ "$FULL" = "true" ]; then
+            args=(--mode full --canonical full-docker-outputs --platform "Docker (canonical)=full-docker-outputs"
+                  --platform "Linux=full-run-outputs-ubuntu-latest" --platform "Windows=full-run-outputs-windows-latest"
+                  --platform "macOS=full-run-outputs-macos-latest" --compare "${{ needs.compare.result }}"
+                  --mode-note "Full run: every number in the paper (started from Actions -> Run workflow, mode full).")
+          else
+            args=(--mode quick --canonical quick-docker --platform "Docker (canonical)=quick-docker"
+                  --platform "Linux=quick-ubuntu-latest" --platform "Windows=quick-windows-latest" --platform "macOS=quick-macos-latest"
+                  --mode-note "Quick run (4 small datasets, 1 seed), run on every push.")
+          fi
+          python3 ci/build_site.py --runs runs --site pub "${args[@]}" \
+            --title "Screen: reproducible benchmark" \
+            --repo "$GITHUB_REPOSITORY" --sha "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID" \
+            --links "Paper archive (Zenodo)=https://doi.org/10.5281/zenodo.23132680" \
+            --links "Live app=https://mahmood726-cyber.github.io/allmeta/screen/"
+          cd pub
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit --quiet -m "Results of run ${GITHUB_RUN_ID} (${GITHUB_SHA::7})" && git push --quiet origin gh-pages
+          echo "Published: https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" >> "$GITHUB_STEP_SUMMARY"
