@@ -1,0 +1,70 @@
+{
+ "tool": "screen-dedup",
+ "appSha256": "dcc88d528ad0ad9404a06c9615ca29ad643d5c70ebbc359607a544679ef8ed33",
+ "node": "v24.15.0",
+ "nagtegaal": {
+  "records": 2019,
+  "gold_duplicates": 11,
+  "detected": 7,
+  "recall": 0.6364,
+  "total_flagged": 17,
+  "flagged_not_in_gold": 10
+ },
+ "reformatted": {
+  "originals": 1170,
+  "injected": 200,
+  "detected": 183,
+  "missed": 17,
+  "recall": 0.915,
+  "total_flagged": 186,
+  "false_positives": 3,
+  "precision": 0.9839,
+  "f1": 0.9482
+ },
+ "blocked_vs_brute": {
+  "records": 1500,
+  "blocked": 12,
+  "brute": 12,
+  "in_both": 12,
+  "blocked_only": 0,
+  "brute_only": 0
+ },
+ "scaling": [
+  {
+   "n": 2000,
+   "blocked_comparisons": 14540,
+   "blocked_merges": 181,
+   "all_pairs": 1999000,
+   "brute_comparisons": 1818362,
+   "blocked_ms": 226,
+   "brute_ms": 8160
+  },
+  {
+   "n": 10000,
+   "blocked_comparisons": 84092,
+   "blocked_merges": 909,
+   "all_pairs": 49995000,
+   "brute_comparisons": 45455454,
+   "blocked_ms": 1474,
+   "brute_ms": 178678
+  },
+  {
+   "n": 50000,
+   "blocked_comparisons": 724102,
+   "blocked_merges": 4545,
+   "all_pairs": 1249975000,
+   "brute_comparisons": null,
+   "blocked_ms": 12513,
+   "brute_ms": null
+  },
+  {
+   "n": 100000,
+   "blocked_comparisons": 916991,
+   "blocked_merges": 9090,
+   "all_pairs": 4999950000,
+   "brute_comparisons": null,
+   "blocked_ms": 19244,
+   "brute_ms": null
+  }
+ ]
+}

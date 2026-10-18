@@ -1,373 +1,1118 @@
 {
- "source": "Values printed in the F1000Research article. They are the canonical results: the Docker run at commit 7712c15 (bit-identical to native Linux runs), each rounded to the stated decimals. A reproduced number passes only if it rounds to exactly this value.",
+ "source": "Exact extraction of the numbers printed in the F1000Research manuscript (text version v10, sha256 cd9eb0b1282652021b1c52109e59dc7c171fe4b5bff2b084eb58acb9f24df743), parsed from the text by a script, each at its printed number of decimals, with the place it is printed. These are the protocol v1.0.0 results (canonical Docker run, commit 7712c15; bit-identical to native Linux, Windows and macOS runs). A reproduced number passes only if it rounds to exactly the printed value. Entries with printed=false are not in the paper; they are canonical v1.0.0 values kept as regression checks. printed_not_checked lists printed numbers this archive cannot regenerate, with the reason.",
+ "protocol": "v1.0.0",
  "values": {
+  "records[cohen_aceinhibitors]": {
+   "value": 2544,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen ACE inhibitors"
+  },
+  "relevant[cohen_aceinhibitors]": {
+   "value": 41,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen ACE inhibitors"
+  },
+  "prevalence_pct[cohen_aceinhibitors]": {
+   "value": 1.6,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Cohen ACE inhibitors"
+  },
   "screen_wss95[cohen_aceinhibitors]": {
    "value": 0.758,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen ACE inhibitors"
+  },
+  "screen_wss95_sd[cohen_aceinhibitors]": {
+   "value": 0.003,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen ACE inhibitors"
   },
   "asreview_nb_wss95[cohen_aceinhibitors]": {
    "value": 0.77,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen ACE inhibitors"
   },
   "asreview_svm_wss95[cohen_aceinhibitors]": {
    "value": 0.75,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen ACE inhibitors"
+  },
+  "records[cohen_adhd]": {
+   "value": 851,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen ADHD"
+  },
+  "relevant[cohen_adhd]": {
+   "value": 20,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen ADHD"
+  },
+  "prevalence_pct[cohen_adhd]": {
+   "value": 2.4,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Cohen ADHD"
   },
   "screen_wss95[cohen_adhd]": {
    "value": 0.524,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen ADHD"
+  },
+  "screen_wss95_sd[cohen_adhd]": {
+   "value": 0.002,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen ADHD"
   },
   "asreview_nb_wss95[cohen_adhd]": {
    "value": 0.504,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen ADHD"
   },
   "asreview_svm_wss95[cohen_adhd]": {
    "value": 0.536,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen ADHD"
+  },
+  "records[cohen_antihistamines]": {
+   "value": 310,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Antihistamines"
+  },
+  "relevant[cohen_antihistamines]": {
+   "value": 16,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Antihistamines"
+  },
+  "prevalence_pct[cohen_antihistamines]": {
+   "value": 5.2,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Cohen Antihistamines"
   },
   "screen_wss95[cohen_antihistamines]": {
    "value": 0.022,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Antihistamines"
+  },
+  "screen_wss95_sd[cohen_antihistamines]": {
+   "value": 0.046,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Antihistamines"
   },
   "asreview_nb_wss95[cohen_antihistamines]": {
    "value": -0.021,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Antihistamines"
   },
   "asreview_svm_wss95[cohen_antihistamines]": {
    "value": -0.015,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Antihistamines"
+  },
+  "records[cohen_atypicalantipsychotics]": {
+   "value": 1120,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Atypical antipsychotics"
+  },
+  "relevant[cohen_atypicalantipsychotics]": {
+   "value": 146,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Atypical antipsychotics"
+  },
+  "prevalence_pct[cohen_atypicalantipsychotics]": {
+   "value": 13.0,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Cohen Atypical antipsychotics"
   },
   "screen_wss95[cohen_atypicalantipsychotics]": {
    "value": 0.222,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Atypical antipsychotics"
+  },
+  "screen_wss95_sd[cohen_atypicalantipsychotics]": {
+   "value": 0.01,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Atypical antipsychotics"
   },
   "asreview_nb_wss95[cohen_atypicalantipsychotics]": {
    "value": 0.193,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Atypical antipsychotics"
   },
   "asreview_svm_wss95[cohen_atypicalantipsychotics]": {
    "value": 0.258,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Atypical antipsychotics"
+  },
+  "records[cohen_betablockers]": {
+   "value": 2072,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Beta blockers"
+  },
+  "relevant[cohen_betablockers]": {
+   "value": 42,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Beta blockers"
+  },
+  "prevalence_pct[cohen_betablockers]": {
+   "value": 2.0,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Cohen Beta blockers"
   },
   "screen_wss95[cohen_betablockers]": {
    "value": 0.495,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Beta blockers"
+  },
+  "screen_wss95_sd[cohen_betablockers]": {
+   "value": 0.006,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Beta blockers"
   },
   "asreview_nb_wss95[cohen_betablockers]": {
    "value": 0.481,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Beta blockers"
   },
   "asreview_svm_wss95[cohen_betablockers]": {
    "value": 0.541,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Beta blockers"
+  },
+  "records[cohen_calciumchannelblockers]": {
+   "value": 1218,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Calcium channel blockers"
+  },
+  "relevant[cohen_calciumchannelblockers]": {
+   "value": 100,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Calcium channel blockers"
+  },
+  "prevalence_pct[cohen_calciumchannelblockers]": {
+   "value": 8.2,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Cohen Calcium channel blockers"
   },
   "screen_wss95[cohen_calciumchannelblockers]": {
    "value": 0.33,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Calcium channel blockers"
+  },
+  "screen_wss95_sd[cohen_calciumchannelblockers]": {
+   "value": 0.035,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Calcium channel blockers"
   },
   "asreview_nb_wss95[cohen_calciumchannelblockers]": {
    "value": 0.321,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Calcium channel blockers"
   },
   "asreview_svm_wss95[cohen_calciumchannelblockers]": {
    "value": 0.338,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Calcium channel blockers"
+  },
+  "records[cohen_estrogens]": {
+   "value": 368,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Estrogens"
+  },
+  "relevant[cohen_estrogens]": {
+   "value": 80,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Estrogens"
+  },
+  "prevalence_pct[cohen_estrogens]": {
+   "value": 21.7,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Cohen Estrogens"
   },
   "screen_wss95[cohen_estrogens]": {
    "value": 0.265,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Estrogens"
+  },
+  "screen_wss95_sd[cohen_estrogens]": {
+   "value": 0.006,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Estrogens"
   },
   "asreview_nb_wss95[cohen_estrogens]": {
    "value": 0.307,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Estrogens"
   },
   "asreview_svm_wss95[cohen_estrogens]": {
    "value": 0.319,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Estrogens"
+  },
+  "records[cohen_nsaids]": {
+   "value": 393,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen NSAIDs"
+  },
+  "relevant[cohen_nsaids]": {
+   "value": 41,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen NSAIDs"
+  },
+  "prevalence_pct[cohen_nsaids]": {
+   "value": 10.4,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Cohen NSAIDs"
   },
   "screen_wss95[cohen_nsaids]": {
    "value": 0.662,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen NSAIDs"
+  },
+  "screen_wss95_sd[cohen_nsaids]": {
+   "value": 0.012,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen NSAIDs"
   },
   "asreview_nb_wss95[cohen_nsaids]": {
    "value": 0.713,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen NSAIDs"
   },
   "asreview_svm_wss95[cohen_nsaids]": {
    "value": 0.72,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen NSAIDs"
+  },
+  "records[cohen_opiods]": {
+   "value": 1915,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Opioids"
+  },
+  "relevant[cohen_opiods]": {
+   "value": 15,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Opioids"
+  },
+  "prevalence_pct[cohen_opiods]": {
+   "value": 0.8,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Cohen Opioids"
   },
   "screen_wss95[cohen_opiods]": {
    "value": 0.175,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Opioids"
+  },
+  "screen_wss95_sd[cohen_opiods]": {
+   "value": 0.001,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Opioids"
   },
   "asreview_nb_wss95[cohen_opiods]": {
    "value": 0.238,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Opioids"
   },
   "asreview_svm_wss95[cohen_opiods]": {
    "value": 0.28,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Opioids"
+  },
+  "records[cohen_oralhypoglycemics]": {
+   "value": 503,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Oral hypoglycemics"
+  },
+  "relevant[cohen_oralhypoglycemics]": {
+   "value": 136,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Oral hypoglycemics"
+  },
+  "prevalence_pct[cohen_oralhypoglycemics]": {
+   "value": 27.0,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Cohen Oral hypoglycemics"
   },
   "screen_wss95[cohen_oralhypoglycemics]": {
    "value": 0.158,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Oral hypoglycemics"
+  },
+  "screen_wss95_sd[cohen_oralhypoglycemics]": {
+   "value": 0.009,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Oral hypoglycemics"
   },
   "asreview_nb_wss95[cohen_oralhypoglycemics]": {
    "value": 0.166,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Oral hypoglycemics"
   },
   "asreview_svm_wss95[cohen_oralhypoglycemics]": {
    "value": 0.161,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Oral hypoglycemics"
+  },
+  "records[cohen_protonpumpinhibitors]": {
+   "value": 1333,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Proton pump inhibitors"
+  },
+  "relevant[cohen_protonpumpinhibitors]": {
+   "value": 51,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Proton pump inhibitors"
+  },
+  "prevalence_pct[cohen_protonpumpinhibitors]": {
+   "value": 3.8,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Cohen Proton pump inhibitors"
   },
   "screen_wss95[cohen_protonpumpinhibitors]": {
    "value": 0.397,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Proton pump inhibitors"
+  },
+  "screen_wss95_sd[cohen_protonpumpinhibitors]": {
+   "value": 0.071,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Proton pump inhibitors"
   },
   "asreview_nb_wss95[cohen_protonpumpinhibitors]": {
    "value": 0.343,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Proton pump inhibitors"
   },
   "asreview_svm_wss95[cohen_protonpumpinhibitors]": {
    "value": 0.464,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Proton pump inhibitors"
+  },
+  "records[cohen_skeletalmusclerelaxants]": {
+   "value": 1643,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Skeletal muscle relaxants"
+  },
+  "relevant[cohen_skeletalmusclerelaxants]": {
+   "value": 9,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Skeletal muscle relaxants"
+  },
+  "prevalence_pct[cohen_skeletalmusclerelaxants]": {
+   "value": 0.5,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Cohen Skeletal muscle relaxants"
   },
   "screen_wss95[cohen_skeletalmusclerelaxants]": {
    "value": 0.117,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Skeletal muscle relaxants"
+  },
+  "screen_wss95_sd[cohen_skeletalmusclerelaxants]": {
+   "value": 0.001,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Skeletal muscle relaxants"
   },
   "asreview_nb_wss95[cohen_skeletalmusclerelaxants]": {
    "value": 0.069,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Skeletal muscle relaxants"
   },
   "asreview_svm_wss95[cohen_skeletalmusclerelaxants]": {
    "value": 0.135,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Skeletal muscle relaxants"
+  },
+  "records[cohen_statins]": {
+   "value": 3465,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Statins"
+  },
+  "relevant[cohen_statins]": {
+   "value": 85,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Statins"
+  },
+  "prevalence_pct[cohen_statins]": {
+   "value": 2.5,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Cohen Statins"
   },
   "screen_wss95[cohen_statins]": {
    "value": 0.469,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Statins"
+  },
+  "screen_wss95_sd[cohen_statins]": {
+   "value": 0.011,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Statins"
   },
   "asreview_nb_wss95[cohen_statins]": {
    "value": 0.397,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Statins"
   },
   "asreview_svm_wss95[cohen_statins]": {
    "value": 0.478,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Statins"
+  },
+  "records[cohen_triptans]": {
+   "value": 671,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Triptans"
+  },
+  "relevant[cohen_triptans]": {
+   "value": 24,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Triptans"
+  },
+  "prevalence_pct[cohen_triptans]": {
+   "value": 3.6,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Cohen Triptans"
   },
   "screen_wss95[cohen_triptans]": {
    "value": 0.521,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Triptans"
+  },
+  "screen_wss95_sd[cohen_triptans]": {
+   "value": 0.036,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Triptans"
   },
   "asreview_nb_wss95[cohen_triptans]": {
    "value": 0.437,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Triptans"
   },
   "asreview_svm_wss95[cohen_triptans]": {
    "value": 0.607,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Triptans"
+  },
+  "records[cohen_urinaryincontinence]": {
+   "value": 327,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Urinary incontinence"
+  },
+  "relevant[cohen_urinaryincontinence]": {
+   "value": 40,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Cohen Urinary incontinence"
+  },
+  "prevalence_pct[cohen_urinaryincontinence]": {
+   "value": 12.2,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Cohen Urinary incontinence"
   },
   "screen_wss95[cohen_urinaryincontinence]": {
    "value": 0.493,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Urinary incontinence"
+  },
+  "screen_wss95_sd[cohen_urinaryincontinence]": {
+   "value": 0.017,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Urinary incontinence"
   },
   "asreview_nb_wss95[cohen_urinaryincontinence]": {
    "value": 0.487,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Urinary incontinence"
   },
   "asreview_svm_wss95[cohen_urinaryincontinence]": {
    "value": 0.421,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Cohen Urinary incontinence"
+  },
+  "records[appenzeller_herzog_2020]": {
+   "value": 3453,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Appenzeller-Herzog 2020"
+  },
+  "relevant[appenzeller_herzog_2020]": {
+   "value": 29,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Appenzeller-Herzog 2020"
+  },
+  "prevalence_pct[appenzeller_herzog_2020]": {
+   "value": 0.8,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Appenzeller-Herzog 2020"
   },
   "screen_wss95[appenzeller_herzog_2020]": {
    "value": 0.621,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Appenzeller-Herzog 2020"
+  },
+  "screen_wss95_sd[appenzeller_herzog_2020]": {
+   "value": 0.073,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Appenzeller-Herzog 2020"
   },
   "asreview_nb_wss95[appenzeller_herzog_2020]": {
    "value": 0.507,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Appenzeller-Herzog 2020"
   },
   "asreview_svm_wss95[appenzeller_herzog_2020]": {
    "value": 0.476,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Appenzeller-Herzog 2020"
+  },
+  "records[kwok_2020]": {
+   "value": 2481,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Kwok 2020"
+  },
+  "relevant[kwok_2020]": {
+   "value": 120,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Kwok 2020"
+  },
+  "prevalence_pct[kwok_2020]": {
+   "value": 4.8,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Kwok 2020"
   },
   "screen_wss95[kwok_2020]": {
    "value": 0.652,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Kwok 2020"
+  },
+  "screen_wss95_sd[kwok_2020]": {
+   "value": 0.032,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Kwok 2020"
   },
   "asreview_nb_wss95[kwok_2020]": {
    "value": 0.691,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Kwok 2020"
   },
   "asreview_svm_wss95[kwok_2020]": {
    "value": 0.708,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Kwok 2020"
+  },
+  "records[wolters_2018]": {
+   "value": 5019,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Wolters 2018"
+  },
+  "relevant[wolters_2018]": {
+   "value": 19,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Wolters 2018"
+  },
+  "prevalence_pct[wolters_2018]": {
+   "value": 0.4,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Wolters 2018"
   },
   "screen_wss95[wolters_2018]": {
    "value": 0.775,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Wolters 2018"
+  },
+  "screen_wss95_sd[wolters_2018]": {
+   "value": 0.002,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Wolters 2018"
   },
   "asreview_nb_wss95[wolters_2018]": {
    "value": 0.669,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Wolters 2018"
   },
   "asreview_svm_wss95[wolters_2018]": {
    "value": 0.828,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Wolters 2018"
+  },
+  "records[bos_2018]": {
+   "value": 5746,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Bos 2018"
+  },
+  "relevant[bos_2018]": {
+   "value": 11,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 1, Bos 2018"
+  },
+  "prevalence_pct[bos_2018]": {
+   "value": 0.2,
+   "decimals": 1,
+   "printed": true,
+   "where": "Table 1, Bos 2018"
   },
   "screen_wss95[bos_2018]": {
    "value": 0.834,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Bos 2018"
+  },
+  "screen_wss95_sd[bos_2018]": {
+   "value": 0.001,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Bos 2018"
   },
   "asreview_nb_wss95[bos_2018]": {
    "value": 0.866,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Bos 2018"
   },
   "asreview_svm_wss95[bos_2018]": {
    "value": 0.844,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, Bos 2018"
   },
   "screen_mean_all": {
    "value": 0.447,
-   "decimals": 3
-  },
-  "screen_median_all": {
-   "value": 0.493,
-   "decimals": 3
-  },
-  "screen_min": {
-   "value": 0.022,
-   "decimals": 3
-  },
-  "screen_max": {
-   "value": 0.834,
-   "decimals": 3
-  },
-  "screen_mean_cohen": {
-   "value": 0.374,
-   "decimals": 3
-  },
-  "screen_mean_synergy": {
-   "value": 0.721,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, mean row; Abstract, Results; Results para 1"
   },
   "asreview_nb_mean": {
    "value": 0.428,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, mean row; Results para 2"
   },
   "asreview_svm_mean": {
    "value": 0.466,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 1, mean row; Results para 2"
   },
-  "wins_vs_nb": {
-   "value": 12,
-   "decimals": 0
+  "screen_min": {
+   "value": 0.022,
+   "decimals": 3,
+   "printed": true,
+   "where": "Abstract, Results"
   },
-  "wins_vs_svm": {
-   "value": 4,
-   "decimals": 0
+  "screen_max": {
+   "value": 0.834,
+   "decimals": 3,
+   "printed": true,
+   "where": "Abstract, Results"
   },
   "mean_diff_vs_nb": {
    "value": 0.018,
-   "decimals": 3
+   "decimals": 3,
+   "printed": true,
+   "where": "Abstract, Results"
+  },
+  "wilcoxon_p_vs_nb": {
+   "value": 0.18,
+   "decimals": 2,
+   "printed": true,
+   "where": "Abstract, Results; Results para 2"
   },
   "mean_diff_vs_svm": {
    "value": -0.019,
-   "decimals": 3
-  },
-  "median_diff_vs_svm": {
-   "value": -0.018,
-   "decimals": 3
-  },
-  "wilcoxon_p_vs_nb": {
-   "value": 0.1819,
-   "decimals": 4
+   "decimals": 3,
+   "printed": true,
+   "where": "Abstract, Results; Results para 2"
   },
   "wilcoxon_p_vs_svm": {
-   "value": 0.0494,
-   "decimals": 4
+   "value": 0.049,
+   "decimals": 3,
+   "printed": true,
+   "where": "Abstract, Results; Results para 2"
+  },
+  "n_datasets": {
+   "value": 19,
+   "decimals": 0,
+   "printed": true,
+   "where": "Abstract, Methods"
+  },
+  "screen_seeds": {
+   "value": 10,
+   "decimals": 0,
+   "printed": true,
+   "where": "Abstract, Methods"
+  },
+  "records_min": {
+   "value": 310,
+   "decimals": 0,
+   "printed": true,
+   "where": "Methods, Benchmark"
+  },
+  "records_max": {
+   "value": 5746,
+   "decimals": 0,
+   "printed": true,
+   "where": "Methods, Benchmark"
+  },
+  "prevalence_min_pct": {
+   "value": 0.2,
+   "decimals": 1,
+   "printed": true,
+   "where": "Methods, Benchmark"
+  },
+  "prevalence_max_pct": {
+   "value": 27,
+   "decimals": 0,
+   "printed": true,
+   "where": "Methods, Benchmark"
+  },
+  "asreview_seeds": {
+   "value": 3,
+   "decimals": 0,
+   "printed": true,
+   "where": "Methods, Benchmark ('three seeds'); Table 1 caption"
+  },
+  "screen_median_all": {
+   "value": 0.493,
+   "decimals": 3,
+   "printed": true,
+   "where": "Results para 1"
+  },
+  "screen_mean_cohen": {
+   "value": 0.374,
+   "decimals": 3,
+   "printed": true,
+   "where": "Results para 1"
+  },
+  "screen_mean_synergy": {
+   "value": 0.721,
+   "decimals": 3,
+   "printed": true,
+   "where": "Results para 1"
   },
   "recall_at_10pct_pct": {
    "value": 54,
-   "decimals": 0
+   "decimals": 0,
+   "printed": true,
+   "where": "Results para 1 (Figure 9)"
   },
   "recall_at_20pct_pct": {
    "value": 74,
-   "decimals": 0
+   "decimals": 0,
+   "printed": true,
+   "where": "Results para 1 (Figure 9)"
   },
   "recall_at_50pct_pct": {
    "value": 91,
-   "decimals": 0
+   "decimals": 0,
+   "printed": true,
+   "where": "Results para 1 (Figure 9)"
   },
-  "buscar_never_fired": {
-   "value": 14,
-   "decimals": 0
-  },
-  "dedup_nagtegaal_detected": {
-   "value": 7,
-   "decimals": 0
-  },
-  "dedup_nagtegaal_gold_duplicates": {
-   "value": 11,
-   "decimals": 0
-  },
-  "dedup_nagtegaal_flagged_not_in_gold": {
-   "value": 10,
-   "decimals": 0
-  },
-  "dedup_reformatted_detected": {
-   "value": 183,
-   "decimals": 0
-  },
-  "dedup_reformatted_false_positives": {
-   "value": 3,
-   "decimals": 0
-  },
-  "dedup_reformatted_total_flagged": {
-   "value": 186,
-   "decimals": 0
-  },
-  "dedup_reformatted_recall": {
-   "value": 0.915,
-   "decimals": 3
-  },
-  "dedup_reformatted_precision": {
-   "value": 0.984,
-   "decimals": 3
-  },
-  "dedup_reformatted_f1": {
-   "value": 0.948,
-   "decimals": 3
-  },
-  "dedup_blocked_vs_brute_blocked": {
+  "wins_vs_nb": {
    "value": 12,
-   "decimals": 0
-  },
-  "dedup_blocked_vs_brute_brute": {
-   "value": 12,
-   "decimals": 0
-  },
-  "dedup_blocked_vs_brute_brute_only": {
-   "value": 0,
-   "decimals": 0
-  },
-  "dedup_blocked_comparisons[n=100000]": {
-   "value": 916991,
-   "decimals": 0
+   "decimals": 0,
+   "printed": true,
+   "where": "Results para 2"
   },
   "wilcoxon_W_vs_nb": {
    "value": 61,
-   "decimals": 0
+   "decimals": 0,
+   "printed": true,
+   "where": "Results para 2"
+  },
+  "wins_vs_svm": {
+   "value": 4,
+   "decimals": 0,
+   "printed": true,
+   "where": "Results para 2"
   },
   "wilcoxon_W_vs_svm": {
    "value": 46,
-   "decimals": 0
+   "decimals": 0,
+   "printed": true,
+   "where": "Results para 2"
+  },
+  "dedup_reformatted_detected": {
+   "value": 183,
+   "decimals": 0,
+   "printed": true,
+   "where": "Results para 3; Table 2"
+  },
+  "dedup_reformatted_injected": {
+   "value": 200,
+   "decimals": 0,
+   "printed": true,
+   "where": "Results para 3; Table 2"
+  },
+  "dedup_reformatted_precision": {
+   "value": 0.984,
+   "decimals": 3,
+   "printed": true,
+   "where": "Results para 3; Table 2"
+  },
+  "dedup_nagtegaal_detected": {
+   "value": 7,
+   "decimals": 0,
+   "printed": true,
+   "where": "Results para 3; Table 2"
+  },
+  "dedup_nagtegaal_gold_duplicates": {
+   "value": 11,
+   "decimals": 0,
+   "printed": true,
+   "where": "Results para 3; Table 2"
+  },
+  "dedup_reformatted_originals": {
+   "value": 1170,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 2"
+  },
+  "dedup_reformatted_recall": {
+   "value": 0.915,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 2"
+  },
+  "dedup_reformatted_f1": {
+   "value": 0.948,
+   "decimals": 3,
+   "printed": true,
+   "where": "Table 2"
+  },
+  "dedup_nagtegaal_records": {
+   "value": 2019,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 2"
+  },
+  "dedup_nagtegaal_recall": {
+   "value": 0.64,
+   "decimals": 2,
+   "printed": true,
+   "where": "Table 2"
+  },
+  "dedup_nagtegaal_flagged_not_in_gold": {
+   "value": 10,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 2"
+  },
+  "dedup_blocked_vs_brute_records": {
+   "value": 1500,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 2"
+  },
+  "dedup_blocked_vs_brute_blocked": {
+   "value": 12,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 2 ('Identical (12/12)')"
+  },
+  "dedup_blocked_vs_brute_brute": {
+   "value": 12,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 2 ('Identical (12/12)')"
+  },
+  "dedup_blocked_vs_brute_brute_only": {
+   "value": 0,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 2 ('Identical'): exhaustive-only = 0"
+  },
+  "dedup_blocked_vs_brute_blocked_only": {
+   "value": 0,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 2 ('Identical'): blocked-only = 0"
+  },
+  "dedup_blocked_comparisons[n=100000]": {
+   "value": 916991,
+   "decimals": 0,
+   "printed": true,
+   "where": "Table 2"
+  },
+  "dedup_reformatted_false_positives": {
+   "value": 3,
+   "decimals": 0,
+   "printed": false,
+   "where": "not printed in the paper (canonical v1.0.0 value, kept as a regression check)"
+  },
+  "dedup_reformatted_total_flagged": {
+   "value": 186,
+   "decimals": 0,
+   "printed": false,
+   "where": "not printed in the paper (canonical v1.0.0 value, kept as a regression check)"
+  },
+  "buscar_never_fired": {
+   "value": 14,
+   "decimals": 0,
+   "printed": false,
+   "where": "not printed in the paper (canonical v1.0.0 value, kept as a regression check)"
   },
   "median_diff_vs_nb": {
    "value": 0.014,
-   "decimals": 3
+   "decimals": 3,
+   "printed": false,
+   "where": "not printed in the paper (canonical v1.0.0 value, kept as a regression check)"
+  },
+  "median_diff_vs_svm": {
+   "value": -0.018,
+   "decimals": 3,
+   "printed": false,
+   "where": "not printed in the paper (canonical v1.0.0 value, kept as a regression check)"
+  }
+ },
+ "printed_not_checked": {
+  "dedup_runtime_100k": {
+   "printed": "6.6 s (Results para 3; Table 2)",
+   "reason": "machine-dependent wall time, and not traceable to any archived run: the canonical Docker run (CI run 37199331989) took 19.2 s and the Linux, Windows and macOS runs of the same CI run 11.9, 12.9 and 16.2 s; a 4-CPU re-run on a second machine took 14.7 s. Each run now records its machine and times in outputs/<protocol>/<mode>/machine.json and table2_dedup."
+  },
+  "unit_and_browser_tests": {
+   "printed": "36 unit tests, 49 browser tests (Results para 1)",
+   "reason": "these are allmeta's test suites, not part of this archive; the count belongs to the allmeta commit named in the paper's software availability"
+  },
+  "kappa_example": {
+   "printed": "kappa = 0.836 over 70 dual-decided records (Figure 3)",
+   "reason": "illustrative screenshot of an example project (docs/screenshots/make_sample.py), not a benchmark result"
+  },
+  "auc_example": {
+   "printed": "AUC 0.91 (Figure 4)",
+   "reason": "illustrative screenshot value, not a benchmark result"
+  },
+  "example_project_counts": {
+   "printed": "312 records, 17 duplicates (Figure 1)",
+   "reason": "illustrative example project used for the screenshots"
+  },
+  "dedup_text_precision_2dp": {
+   "printed": "precision 0.98 (Results para 3)",
+   "reason": "same quantity as Table 2's 0.984, which is checked at 3 dp"
   }
  }
 }

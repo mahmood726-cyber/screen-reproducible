@@ -1,0 +1,133 @@
+{
+ "tool": "screen-dedup",
+ "appSha256": "dcc88d528ad0ad9404a06c9615ca29ad643d5c70ebbc359607a544679ef8ed33",
+ "node": "v24.15.0",
+ "machine": {
+  "cpu": "AMD EPYC 7763 64-Core Processor",
+  "cores": 4,
+  "platform": "linux",
+  "release": "6.17.0-1022-azure",
+  "arch": "x64",
+  "total_mem_gb": 16
+ },
+ "nagtegaal": {
+  "records": 2019,
+  "fields_used": "title, abstract (the file has no authors, year or DOI, so the author+year assist rule and the DOI pass cannot fire)",
+  "gold_duplicates": 11,
+  "detected": 7,
+  "recall": 0.6364,
+  "total_flagged": 17,
+  "flagged_not_in_gold": 10,
+  "scoring_note": "detected/recall/flagged_not_in_gold = v1.0.0 directed-ID scoring (the paper's 7/11 and 10); pairs = unordered scoring (v1.0.1)",
+  "pairs": {
+   "gold_pairs": 11,
+   "pairs_detected": 11,
+   "pair_recall": 1,
+   "pairs_missed": [],
+   "app_links": 17,
+   "extra_links": 6,
+   "extra_links_list": [
+    {
+     "flagged": "296",
+     "kept": "295",
+     "flagged_title": "Canadian Contraception Consensus (Part 2 of 4)",
+     "kept_title": "Canadian Contraception Consensus (Part 1 of 4)"
+    },
+    {
+     "flagged": "614",
+     "kept": "613",
+     "flagged_title": "Effect of financial incentives to physicians, patients, or both on lipid levels: A randomized clinical trial.",
+     "kept_title": "Effect of Financial Incentives to Physicians, Patients, or Both on Lipid Levels"
+    },
+    {
+     "flagged": "1018",
+     "kept": "1017",
+     "flagged_title": "Improving blood pressure control through provider education, provider alerts, and patient education: a cluster randomized trial.",
+     "kept_title": "Improving Blood Pressure Control through Provider Education, Provider Alerts, and Patient Education"
+    },
+    {
+     "flagged": "1592",
+     "kept": "1591",
+     "flagged_title": "RHEUMATISM AND ARTHRITIS:: REVIEW OF AMERICAN AND ENGLISH LITERATURE OF RECENT YEARS: (THIRTEENTH RHEUMATISM REVIEW)",
+     "kept_title": "Rheumatism and Arthritis: Review of American and English Literature of Recent Years: (Sixteenth Rheumatism Review)"
+    },
+    {
+     "flagged": "1889",
+     "kept": "719",
+     "flagged_title": "Towards a common terminology: a simplified framework of interventions to promote and integrate evidence into health practices, systems, and policies",
+     "kept_title": "Erratum to: Towards a common terminology: a simplified framework of interventions to promote and integrate evidence into health practices, systems, and policies"
+    },
+    {
+     "flagged": "1962",
+     "kept": "1961",
+     "flagged_title": "Using implementation intentions to teach practitioners: changing practice behaviours via continuing education.",
+     "kept_title": "Using implementation intentions to teach practitioners: changing practice behaviors via continuing education"
+    }
+   ]
+  }
+ },
+ "reformatted": {
+  "originals": 1170,
+  "injected": 200,
+  "detected": 183,
+  "missed": 17,
+  "recall": 0.915,
+  "total_flagged": 186,
+  "false_positives": 3,
+  "precision": 0.9839,
+  "f1": 0.9482,
+  "pairs": {
+   "gold_pairs": 200,
+   "pairs_detected": 183,
+   "pair_recall": 0.915,
+   "app_links": 186,
+   "extra_links": 3
+  }
+ },
+ "blocked_vs_brute": {
+  "records": 1500,
+  "blocked": 12,
+  "brute": 12,
+  "in_both": 12,
+  "blocked_only": 0,
+  "brute_only": 0
+ },
+ "scaling": [
+  {
+   "n": 2000,
+   "blocked_comparisons": 14540,
+   "blocked_merges": 181,
+   "all_pairs": 1999000,
+   "brute_comparisons": 1818362,
+   "blocked_ms": 276,
+   "brute_ms": 6946
+  },
+  {
+   "n": 10000,
+   "blocked_comparisons": 84092,
+   "blocked_merges": 909,
+   "all_pairs": 49995000,
+   "brute_comparisons": 45455454,
+   "blocked_ms": 1543,
+   "brute_ms": 182400
+  },
+  {
+   "n": 50000,
+   "blocked_comparisons": 724102,
+   "blocked_merges": 4545,
+   "all_pairs": 1249975000,
+   "brute_comparisons": null,
+   "blocked_ms": 12460,
+   "brute_ms": null
+  },
+  {
+   "n": 100000,
+   "blocked_comparisons": 916991,
+   "blocked_merges": 9090,
+   "all_pairs": 4999950000,
+   "brute_comparisons": null,
+   "blocked_ms": 19351,
+   "brute_ms": null
+  }
+ ]
+}

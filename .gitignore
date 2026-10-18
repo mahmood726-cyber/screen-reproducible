@@ -1,8 +1,8 @@
 # downloaded at run time (not redistributed; see data/README.md)
 data/corpora/cohen_*.csv.gz
-# run outputs
-results/
-outputs/
+# run outputs (anchored: archived canonical per-seed results live in canonical/<protocol>/<mode>/results/ and ARE tracked)
+/results/
+/outputs/
 __pycache__/
 *.pyc
 .venv/

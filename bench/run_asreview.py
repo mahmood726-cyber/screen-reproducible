@@ -23,7 +23,10 @@ broken by record order, identically on every CPU. Results differ from stock ASRe
 where probabilities tie. ASReview's model settings are not changed.
 WSS@95 = 0.95 - (records screened to reach 95% recall)/N, the same definition as Screen's harness.
 
-  python bench/run_asreview.py --dataset cohen_adhd --models nb,svm --seeds 42,7,2024 --out results/asreview/cohen_adhd.json
+  python bench/run_asreview.py --dataset cohen_adhd --models nb,svm --seeds 42,7,2024 --out results/v1.0.0/full/asreview/cohen_adhd.json
+Seeds: protocol v1.0.0 (the paper) used 3 seeds (42, 7, 2024); protocol v1.0.1 uses Screen's 10 seed values
+(101, 202, ..., 1010), so both tools have the same replication and an SD over 10 seeds. The seed values are
+shared, the random streams are not (ASReview's priors come from sklearn's check_random_state(seed)).
 (Adapted from allmeta benchmark/_embed/asreview_groundtruth.py; logic unchanged.)
 """
 import argparse
@@ -116,7 +119,8 @@ def main():
         for m in a.models.split(","):
             t0 = time.time()
             n, p, vals = run(idn, m, seeds)
-            row.update({"N": n, "relevant": p, f"{m}_wss95_per_seed": vals, f"{m}_wss95": float(np.mean(vals)), f"{m}_seconds": time.time() - t0})
+            row.update({"N": n, "relevant": p, f"{m}_wss95_per_seed": vals, f"{m}_wss95": float(np.mean(vals)),
+                        f"{m}_wss95_sd": float(np.std(vals, ddof=1)) if len(vals) > 1 else 0.0, f"{m}_seconds": time.time() - t0})
             print(f"[asreview] {idn:30s} {m:3s} WSS@95 {np.mean(vals):.4f} ({len(seeds)} seeds, {time.time() - t0:.0f} s)", flush=True)
         res["perDataset"][idn] = row
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)

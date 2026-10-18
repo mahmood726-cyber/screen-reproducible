@@ -33,6 +33,6 @@ node docs/screenshots/capture.mjs work http://127.0.0.1:8092     # allmeta at 42
 python docs/screenshots/compose.py work docs/screenshots
 ```
 
-Two app defects show up in these screenshots and are reported in the paper:
+Two app defects show up in these screenshots. They are still present in allmeta v1.6.1 and v1.7.0, and the paper (as submitted) does not describe them; they are listed here so that a reader of Figures 1-6 knows:
 - **Notifications are never shown.** Screen calls `window.AlmToast`, but `shared/toast.js` defines `window.Toast`, so messages, including the PRISMA "N records still undecided" warning, reach only the browser console.
 - **PRISMA counts.** Pushing counts before screening is finished adds undecided and conflicting records to "Records excluded", and the title/abstract breakdown appears in the full-text "Reports excluded" box.

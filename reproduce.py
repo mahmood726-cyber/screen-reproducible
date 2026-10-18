@@ -1,13 +1,22 @@
 #!/usr/bin/env python3
-"""Re-run the whole Screen experiment and check every number against the paper.
+"""Re-run the whole Screen experiment and check every number against its reference values.
 
-  python reproduce.py            # full run: 19 datasets, Screen 10 seeds, ASReview NB+SVM 3 seeds
-  python reproduce.py --quick    # smoke run: 4 small datasets, 1 seed each (a few minutes)
+  python reproduce.py                       # full run, protocol v1.0.1 (default)
+  python reproduce.py --protocol v1.0.0     # full run, protocol of the paper (checks every number printed in it)
+  python reproduce.py --quick [--protocol]  # smoke run: 4 small datasets, 1 seed each (about a minute)
 
-Steps: verify pinned tool versions -> fetch + SHA-256-verify data -> run Screen, ASReview
-and de-duplication benchmarks in parallel (one process per dataset) -> build tables,
-figures and statistics -> print reproduced vs expected, PASS/FAIL per number.
-Exit code 0 only if every number passes.
+Protocols (see bench/protocol.mjs and README "Protocols"):
+  v1.0.0  the protocol of the archived v1.0.0 results and of the paper: shipped simulateActiveLearning verbatim
+          (a start set without a relevant record gets the first relevant record in FILE order; ranking starts
+          at 1 relevant + 2 irrelevant); ASReview on 3 seeds (42, 7, 2024). Checked against
+          expected/paper_values.json, an exact extraction of the numbers printed in the paper.
+  v1.0.1  forced start-set record drawn with the seed's RNG; ranking starts at the app's training gate
+          (2 relevant + 2 irrelevant); ASReview on Screen's 10 seeds. Checked against expected/v1.0.1/.
+
+Steps: verify pinned tool versions -> fetch + SHA-256-verify data -> protocol self-test -> run Screen,
+ASReview and de-duplication benchmarks in parallel (one process per dataset) -> build tables, figures and
+statistics -> print reproduced vs expected, PASS/FAIL per number. Exit code 0 only if every number passes.
+Results go to results/<protocol>/<mode>/, outputs to outputs/<protocol>/<mode>/.
 """
 import argparse
 import json
@@ -23,19 +32,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 PY = sys.executable
 
+SCREEN_SEEDS = "101,202,303,404,505,606,707,808,909,1010"
 FULL = {
     "datasets": None,  # all 19, from data/corpora/manifest.json
-    "screen_seeds": "101,202,303,404,505,606,707,808,909,1010",
-    "asreview_seeds": "42,7,2024",
+    "screen_seeds": SCREEN_SEEDS,
     "dedup_sizes": "2000,10000,50000,100000",
-    "expected": "expected/paper_values.json",
 }
 QUICK = {
     "datasets": ["cohen_antihistamines", "cohen_urinaryincontinence", "cohen_estrogens", "cohen_nsaids"],
     "screen_seeds": "101",
-    "asreview_seeds": "42",
     "dedup_sizes": "2000",
-    "expected": "expected/quick_values.json",
+}
+PROTOCOLS = {
+    "v1.0.0": {"asreview_seeds": {"full": "42,7,2024", "quick": "42"},
+               "expected": {"full": "expected/paper_values.json", "quick": "expected/quick_values.json"}},
+    "v1.0.1": {"asreview_seeds": {"full": SCREEN_SEEDS, "quick": "101"},
+               "expected": {"full": "expected/v1.0.1/full_values.json", "quick": "expected/v1.0.1/quick_values.json"}},
 }
 
 
@@ -92,16 +104,35 @@ def main():
     ap.add_argument("--skip-asreview", action="store_true", help="skip the ASReview comparator (its numbers will FAIL)")
     ap.add_argument("--allow-version-mismatch", action="store_true")
     ap.add_argument("--analysis-only", action="store_true", help="rebuild outputs from existing results")
+    ap.add_argument("--protocol", choices=sorted(PROTOCOLS), default="v1.0.1",
+                    help="benchmark protocol (default v1.0.1; v1.0.0 = the paper's numbers)")
+    ap.add_argument("--pin", metavar="PATH", help="also write the reproduced values as a reference file (maintainers only)")
+    ap.add_argument("--from-canonical", action="store_true",
+                    help="no benchmark run: rebuild tables, figures and the PASS/FAIL check from the archived canonical "
+                         "per-seed results in canonical/<protocol>/<mode>/results (seconds; outputs go to outputs/<protocol>/<mode>-canonical)")
     a = ap.parse_args()
     cfg = QUICK if a.quick else FULL
     mode = "quick" if a.quick else "full"
-    res, out, logs = ROOT / "results" / mode, ROOT / "outputs" / mode, ROOT / "results" / mode / "logs"
+    proto = PROTOCOLS[a.protocol]
+    res, out = ROOT / "results" / a.protocol / mode, ROOT / "outputs" / a.protocol / mode
+    if a.from_canonical:
+        res, out = ROOT / "canonical" / a.protocol / mode / "results", ROOT / "outputs" / a.protocol / f"{mode}-canonical"
+        if not res.exists():
+            sys.exit(f"no archived canonical results at {res.relative_to(ROOT)}")
+        a.analysis_only = True
+    logs = res / "logs"
+    print(f"protocol {a.protocol}, {mode} mode" + (" (from archived canonical results)" if a.from_canonical else ""))
     t_start = time.time()
     check_versions(strict=not a.allow_version_mismatch)
 
     if not a.analysis_only:
         if subprocess.run([PY, "bench/fetch_data.py"], cwd=ROOT).returncode:
             sys.exit("data fetch/verification failed")
+        # The v1.0.1 driver must reproduce the shipped simulation exactly under v1.0.0 settings, and the
+        # app's training gate must be 2+2, before any number from it is trusted.
+        if subprocess.run(["node", "bench/test_protocol.mjs"], cwd=ROOT, capture_output=True, text=True).returncode:
+            sys.exit("protocol self-test failed: run  node bench/test_protocol.mjs  for details")
+        print("protocol self-test: pass (bench/test_protocol.mjs)")
         if res.exists():
             shutil.rmtree(res)
         logs.mkdir(parents=True)
@@ -112,10 +143,10 @@ def main():
         tasks = [("dedup", ["node", "bench/run_dedup.mjs", "--sizes", cfg["dedup_sizes"], "--out", str(res / "dedup.json")])]
         for i in ids:
             tasks.append((f"screen:{i}", ["node", "bench/run_screen.mjs", "--dataset", i, "--seeds", cfg["screen_seeds"],
-                                         "--out", str(res / "screen" / f"{i}.json")]))
+                                         "--protocol", a.protocol, "--out", str(res / "screen" / f"{i}.json")]))
             if not a.skip_asreview:
                 tasks.append((f"asreview:{i}", [PY, "bench/run_asreview.py", "--dataset", i, "--models", "nb,svm",
-                                                "--seeds", cfg["asreview_seeds"], "--out", str(res / "asreview" / f"{i}.json")]))
+                                                "--seeds", proto["asreview_seeds"][mode], "--out", str(res / "asreview" / f"{i}.json")]))
         print(f"running {len(tasks)} jobs on {a.jobs} parallel processes ({mode} mode); logs in {logs.relative_to(ROOT)}")
         failed = []
         with ThreadPoolExecutor(max_workers=a.jobs) as ex:
@@ -129,8 +160,11 @@ def main():
         if failed:
             sys.exit("benchmark jobs failed: " + ", ".join(failed) + f" -- see {logs}")
 
-    rc = subprocess.run([PY, "analysis/make_outputs.py", "--results", str(res), "--outputs", str(out),
-                         "--expected", cfg["expected"]], cwd=ROOT).returncode
+    cmd = [PY, "analysis/make_outputs.py", "--results", str(res), "--outputs", str(out),
+           "--expected", proto["expected"][mode], "--protocol", a.protocol, "--wall-seconds", f"{time.time() - t_start:.0f}"]
+    if a.pin:
+        cmd += ["--pin", a.pin]
+    rc = subprocess.run(cmd, cwd=ROOT).returncode
     print(f"total time {time.time() - t_start:.0f} s")
     sys.exit(rc)
 

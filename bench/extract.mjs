@@ -50,13 +50,17 @@ const IMPORT_FUNCS = ["clean", "splitAuthors", "freshId", "dec", "normalizeImpor
 
 // Active-learning ranker. NOTE: ML_NGRAM_MAX, ML_DF_MAX_FRAC and `dec` were missing from
 // allmeta's benchmark/run_headless.mjs, which made it throw a ReferenceError against the
-// current app; they are included here (the fix described in the paper).
+// current app; they are included here. (This harness fix is documented here and in the
+// README; it is not described in the paper.)
+// mlCollectLabelled / mlTrainOn are the app's Train-button path; they are extracted only so
+// bench/test_protocol.mjs can confirm the UI training gate (2 relevant + 2 irrelevant).
 export const RANKER = {
   vars: ["_autoId", "ML_STOP", "ML_TF", "ML_MODEL_MODE", "ML_NGRAM_MAX", "ML_NB_ALPHA", "ML_BALANCE_RATIO", "ML_DF_MAX_FRAC"],
   funcs: [...IMPORT_FUNCS, "mlUnigrams", "mlTokenize", "mlText", "mlBuildVocab", "mlVector", "sigmoid",
     "mlSampleWeights", "mlFit", "mlPredict", "_lgamma", "_logChoose", "_phyper", "mlBuscarP",
-    "mulberry32", "simulateActiveLearning"],
-  exports: ["simulateActiveLearning"],
+    "mulberry32", "simulateActiveLearning", "mlCollectLabelled", "mlTrainOn"],
+  exports: ["simulateActiveLearning", "normalizeImported", "mlBuildVocab", "mlFit", "mlPredict", "mlBuscarP",
+    "mulberry32", "mlTrainOn"],
 };
 
 // De-duplication (DOI pass + blocked trigram-Jaccard pass).

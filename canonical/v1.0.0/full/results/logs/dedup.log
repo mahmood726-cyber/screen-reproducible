@@ -1,0 +1,5 @@
+[dedup] n=2000: blocked 226 ms, 14540 comparisons; exhaustive 8160 ms
+[dedup] n=10000: blocked 1474 ms, 84092 comparisons; exhaustive 178678 ms
+[dedup] n=50000: blocked 12513 ms, 724102 comparisons
+[dedup] n=100000: blocked 19244 ms, 916991 comparisons
+[dedup] Nagtegaal 7/11; reformatted 183/200 precision 0.9839; blocked=brute 12/12

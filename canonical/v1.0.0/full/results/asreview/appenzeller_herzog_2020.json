@@ -1,0 +1,45 @@
+{
+ "tool": "asreview",
+ "asreview": "2.2",
+ "seeds": [
+  42,
+  7,
+  2024
+ ],
+ "environment": {
+  "python": "3.13.13",
+  "machine": "x86_64",
+  "processor": "",
+  "numpy": "2.4.4",
+  "cpu_simd": [
+   "AVX",
+   "AVX2",
+   "FMA3",
+   "SSE",
+   "SSE2",
+   "SSE3",
+   "SSE41",
+   "SSE42"
+  ]
+ },
+ "perDataset": {
+  "appenzeller_herzog_2020": {
+   "N": 3453,
+   "relevant": 29,
+   "nb_wss95_per_seed": [
+    0.5060382276281494,
+    0.5074862438459311,
+    0.5077758470894873
+   ],
+   "nb_wss95": 0.507100106187856,
+   "nb_seconds": 65.33643221855164,
+   "svm_wss95_per_seed": [
+    0.4759194902982913,
+    0.4770779032725166,
+    0.47620909354184765
+   ],
+   "svm_wss95": 0.4764021623708852,
+   "svm_seconds": 1646.19740152359
+  }
+ }
+}

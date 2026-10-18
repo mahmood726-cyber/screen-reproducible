@@ -1,0 +1,45 @@
+{
+ "tool": "asreview",
+ "asreview": "2.2",
+ "seeds": [
+  42,
+  7,
+  2024
+ ],
+ "environment": {
+  "python": "3.13.13",
+  "machine": "x86_64",
+  "processor": "",
+  "numpy": "2.4.4",
+  "cpu_simd": [
+   "AVX",
+   "AVX2",
+   "FMA3",
+   "SSE",
+   "SSE2",
+   "SSE3",
+   "SSE41",
+   "SSE42"
+  ]
+ },
+ "perDataset": {
+  "cohen_oralhypoglycemics": {
+   "N": 503,
+   "relevant": 136,
+   "nb_wss95_per_seed": [
+    0.18061630218687863,
+    0.1607355864811133,
+    0.15675944333996017
+   ],
+   "nb_wss95": 0.16603711066931737,
+   "nb_seconds": 9.260491847991943,
+   "svm_wss95_per_seed": [
+    0.1607355864811133,
+    0.1607355864811133,
+    0.1607355864811133
+   ],
+   "svm_wss95": 0.1607355864811133,
+   "svm_seconds": 13.892739057540894
+  }
+ }
+}

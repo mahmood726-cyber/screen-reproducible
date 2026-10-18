@@ -1,0 +1,45 @@
+{
+ "tool": "asreview",
+ "asreview": "2.2",
+ "seeds": [
+  42,
+  7,
+  2024
+ ],
+ "environment": {
+  "python": "3.13.13",
+  "machine": "x86_64",
+  "processor": "",
+  "numpy": "2.4.4",
+  "cpu_simd": [
+   "AVX",
+   "AVX2",
+   "FMA3",
+   "SSE",
+   "SSE2",
+   "SSE3",
+   "SSE41",
+   "SSE42"
+  ]
+ },
+ "perDataset": {
+  "cohen_calciumchannelblockers": {
+   "N": 1218,
+   "relevant": 100,
+   "nb_wss95_per_seed": [
+    0.3342364532019704,
+    0.31781609195402294,
+    0.31042692939244654
+   ],
+   "nb_wss95": 0.3208264915161466,
+   "nb_seconds": 32.28718972206116,
+   "svm_wss95_per_seed": [
+    0.38513957307060753,
+    0.3424466338259441,
+    0.2866174055829228
+   ],
+   "svm_wss95": 0.3380678708264915,
+   "svm_seconds": 62.863117694854736
+  }
+ }
+}

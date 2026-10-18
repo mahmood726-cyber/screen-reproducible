@@ -1,0 +1,45 @@
+{
+ "tool": "asreview",
+ "asreview": "2.2",
+ "seeds": [
+  42,
+  7,
+  2024
+ ],
+ "environment": {
+  "python": "3.13.13",
+  "machine": "x86_64",
+  "processor": "",
+  "numpy": "2.4.4",
+  "cpu_simd": [
+   "AVX",
+   "AVX2",
+   "FMA3",
+   "SSE",
+   "SSE2",
+   "SSE3",
+   "SSE41",
+   "SSE42"
+  ]
+ },
+ "perDataset": {
+  "cohen_betablockers": {
+   "N": 2072,
+   "relevant": 42,
+   "nb_wss95_per_seed": [
+    0.48088803088803084,
+    0.48137065637065635,
+    0.48137065637065635
+   ],
+   "nb_wss95": 0.48120978120978114,
+   "nb_seconds": 62.78021764755249,
+   "svm_wss95_per_seed": [
+    0.5407335907335906,
+    0.5402509652509653,
+    0.5407335907335906
+   ],
+   "svm_wss95": 0.5405727155727155,
+   "svm_seconds": 148.39280533790588
+  }
+ }
+}
