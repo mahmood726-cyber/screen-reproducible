@@ -1,0 +1,8 @@
+{
+ "protocol": "v1.0.0",
+ "mode": "full",
+ "provenance": "GitHub Actions run 37199331989 (2026-10-04), job full-docker = the canonical Docker run (python:3.13.13-slim-bookworm + node 24.15.0 on an ubuntu-latest runner), commit d7be2de, artifact full-docker-outputs. The benchmark code (app/, bench/, analysis/, data/, expected/, requirements.txt, Dockerfile) is identical at tag v1.0.0 (53bdbd5), d7be2de and 3879cd6. Bit-identical to the Linux, Windows and macOS runs of the same workflow run (compare job: success). These are the results behind every benchmark number printed in the paper.",
+ "files": 78,
+ "packaged": "2026-10-18 18:23 UTC",
+ "rebuild": "python reproduce.py --protocol v1.0.0 --from-canonical"
+}

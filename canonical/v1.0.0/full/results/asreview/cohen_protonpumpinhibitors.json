@@ -1,0 +1,45 @@
+{
+ "tool": "asreview",
+ "asreview": "2.2",
+ "seeds": [
+  42,
+  7,
+  2024
+ ],
+ "environment": {
+  "python": "3.13.13",
+  "machine": "x86_64",
+  "processor": "",
+  "numpy": "2.4.4",
+  "cpu_simd": [
+   "AVX",
+   "AVX2",
+   "FMA3",
+   "SSE",
+   "SSE2",
+   "SSE3",
+   "SSE41",
+   "SSE42"
+  ]
+ },
+ "perDataset": {
+  "cohen_protonpumpinhibitors": {
+   "N": 1333,
+   "relevant": 51,
+   "nb_wss95_per_seed": [
+    0.3415978994748686,
+    0.34234808702175534,
+    0.3453488372093023
+   ],
+   "nb_wss95": 0.3430982745686421,
+   "nb_seconds": 26.914324045181274,
+   "svm_wss95_per_seed": [
+    0.4638784696174043,
+    0.4638784696174043,
+    0.464628657164291
+   ],
+   "svm_wss95": 0.46412853213303323,
+   "svm_seconds": 39.77511930465698
+  }
+ }
+}

@@ -16,6 +16,16 @@ on:
         type: choice
         options: [full, quick]
         default: full
+      protocol:
+        description: "benchmark protocol for a full run: v1.0.1 (default) or v1.0.0 (the paper's numbers); quick runs always run both"
+        type: choice
+        options: [v1.0.1, v1.0.0]
+        default: v1.0.1
+      platforms:
+        description: "full run on all = Docker + Linux + Windows + macOS with the bit-identity check; docker = the canonical Docker run only"
+        type: choice
+        options: [all, docker]
+        default: all
 
 permissions:
   contents: read
@@ -39,29 +49,35 @@ jobs:
         with:
           node-version-file: .nvmrc
       - run: python -m pip install -r requirements.txt
-      - run: python reproduce.py --quick
+      - name: quick run, protocol v1.0.0 (the paper's protocol)
+        run: python reproduce.py --quick --protocol v1.0.0
+      - name: quick run, protocol v1.0.1
+        if: always()
+        run: python reproduce.py --quick --protocol v1.0.1
       - name: PASS/FAIL report to the job summary
         if: always()
         shell: bash
         run: |
-          f=outputs/quick/reproduction_report.md
-          if [ -f "$f" ]; then { echo "## ${{ matrix.os }}: quick run"; tail -n +2 "$f"; } >> "$GITHUB_STEP_SUMMARY"; else echo "## ${{ matrix.os }}: quick run produced no report" >> "$GITHUB_STEP_SUMMARY"; fi
+          for p in v1.0.0 v1.0.1; do
+            f=outputs/$p/quick/reproduction_report.md
+            if [ -f "$f" ]; then { echo "## ${{ matrix.os }}: quick run, protocol $p"; tail -n +2 "$f"; } >> "$GITHUB_STEP_SUMMARY"; else echo "## ${{ matrix.os }}: quick run ($p) produced no report" >> "$GITHUB_STEP_SUMMARY"; fi
+          done
       - if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
           name: reproduction-report-quick-${{ matrix.os }}
           path: |
-            outputs/quick/reproduction_report.md
-            outputs/quick/reproduction_report.json
-            outputs/quick/stats.json
+            outputs/*/quick/reproduction_report.md
+            outputs/*/quick/reproduction_report.json
+            outputs/*/quick/stats.json
           if-no-files-found: warn
       - if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
           name: quick-${{ matrix.os }}
           path: |
-            outputs/quick
-            results/quick
+            outputs/*/quick
+            results/*/quick
           if-no-files-found: warn
 
   docker:
@@ -71,32 +87,38 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
       - run: docker build -t screen-reproducible .
-      - run: mkdir -p outputs results && docker run --rm -v "$PWD/outputs:/work/outputs" -v "$PWD/results:/work/results" screen-reproducible --quick
+      - name: quick run, protocol v1.0.0 (the paper's protocol)
+        run: mkdir -p outputs results && docker run --rm -v "$PWD/outputs:/work/outputs" -v "$PWD/results:/work/results" screen-reproducible --quick --protocol v1.0.0
+      - name: quick run, protocol v1.0.1
+        if: always()
+        run: docker run --rm -v "$PWD/outputs:/work/outputs" -v "$PWD/results:/work/results" screen-reproducible --quick --protocol v1.0.1
       - name: PASS/FAIL report to the job summary
         if: always()
         run: |
-          f=outputs/quick/reproduction_report.md
-          if [ -f "$f" ]; then { echo "## Docker (canonical): quick run"; tail -n +2 "$f"; } >> "$GITHUB_STEP_SUMMARY"; else echo "## Docker: quick run produced no report" >> "$GITHUB_STEP_SUMMARY"; fi
+          for p in v1.0.0 v1.0.1; do
+            f=outputs/$p/quick/reproduction_report.md
+            if [ -f "$f" ]; then { echo "## Docker (canonical): quick run, protocol $p"; tail -n +2 "$f"; } >> "$GITHUB_STEP_SUMMARY"; else echo "## Docker: quick run ($p) produced no report" >> "$GITHUB_STEP_SUMMARY"; fi
+          done
       - if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
           name: reproduction-report-quick-docker
           path: |
-            outputs/quick/reproduction_report.md
-            outputs/quick/reproduction_report.json
-            outputs/quick/stats.json
+            outputs/*/quick/reproduction_report.md
+            outputs/*/quick/reproduction_report.json
+            outputs/*/quick/stats.json
           if-no-files-found: warn
       - if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
           name: quick-docker
           path: |
-            outputs/quick
-            results/quick
+            outputs/*/quick
+            results/*/quick
           if-no-files-found: warn
 
   full:
-    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'full'
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'full' && inputs.platforms == 'all'
     strategy:
       fail-fast: false
       matrix:
@@ -113,29 +135,29 @@ jobs:
         with:
           node-version-file: .nvmrc
       - run: python -m pip install -r requirements.txt
-      - run: python reproduce.py
+      - run: python reproduce.py --protocol ${{ inputs.protocol }}
       - name: PASS/FAIL report to the job summary
         if: always()
         shell: bash
         run: |
-          f=outputs/full/reproduction_report.md
-          if [ -f "$f" ]; then { echo "## ${{ matrix.os }}: full run"; tail -n +2 "$f"; } >> "$GITHUB_STEP_SUMMARY"; else echo "## ${{ matrix.os }}: full run produced no report" >> "$GITHUB_STEP_SUMMARY"; fi
+          f=outputs/${{ inputs.protocol }}/full/reproduction_report.md
+          if [ -f "$f" ]; then { echo "## ${{ matrix.os }}: full run, protocol ${{ inputs.protocol }}"; tail -n +2 "$f"; } >> "$GITHUB_STEP_SUMMARY"; else echo "## ${{ matrix.os }}: full run produced no report" >> "$GITHUB_STEP_SUMMARY"; fi
       - if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
           name: reproduction-report-full-${{ matrix.os }}
           path: |
-            outputs/full/reproduction_report.md
-            outputs/full/reproduction_report.json
-            outputs/full/stats.json
+            outputs/${{ inputs.protocol }}/full/reproduction_report.md
+            outputs/${{ inputs.protocol }}/full/reproduction_report.json
+            outputs/${{ inputs.protocol }}/full/stats.json
           if-no-files-found: warn
       - if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
           name: full-run-outputs-${{ matrix.os }}
           path: |
-            outputs/full
-            results/full
+            outputs/${{ inputs.protocol }}/full
+            results/${{ inputs.protocol }}/full
           if-no-files-found: warn
 
   full-docker:
@@ -147,33 +169,33 @@ jobs:
       - run: docker build -t screen-reproducible .
       - run: |
           mkdir -p outputs results
-          docker run --rm -v "$PWD/outputs:/work/outputs" -v "$PWD/results:/work/results" screen-reproducible --full
+          docker run --rm -v "$PWD/outputs:/work/outputs" -v "$PWD/results:/work/results" screen-reproducible --full --protocol ${{ inputs.protocol }}
       - name: PASS/FAIL report to the job summary
         if: always()
         run: |
-          f=outputs/full/reproduction_report.md
-          if [ -f "$f" ]; then { echo "## Docker (canonical): full run"; tail -n +2 "$f"; } >> "$GITHUB_STEP_SUMMARY"; else echo "## Docker: full run produced no report" >> "$GITHUB_STEP_SUMMARY"; fi
+          f=outputs/${{ inputs.protocol }}/full/reproduction_report.md
+          if [ -f "$f" ]; then { echo "## Docker (canonical): full run, protocol ${{ inputs.protocol }}"; tail -n +2 "$f"; } >> "$GITHUB_STEP_SUMMARY"; else echo "## Docker: full run produced no report" >> "$GITHUB_STEP_SUMMARY"; fi
       - if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
           name: reproduction-report-full-docker
           path: |
-            outputs/full/reproduction_report.md
-            outputs/full/reproduction_report.json
-            outputs/full/stats.json
+            outputs/${{ inputs.protocol }}/full/reproduction_report.md
+            outputs/${{ inputs.protocol }}/full/reproduction_report.json
+            outputs/${{ inputs.protocol }}/full/stats.json
           if-no-files-found: warn
       - if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
           name: full-docker-outputs
           path: |
-            outputs/full
-            results/full
+            outputs/${{ inputs.protocol }}/full
+            results/${{ inputs.protocol }}/full
           if-no-files-found: warn
 
   compare:
     # The canonical (Docker) run and the native runs on Linux, Windows and macOS must be bit-identical.
-    if: always() && github.event_name == 'workflow_dispatch' && inputs.mode == 'full'
+    if: always() && github.event_name == 'workflow_dispatch' && inputs.mode == 'full' && inputs.platforms == 'all'
     needs: [full, full-docker]
     runs-on: ubuntu-latest
     steps:
@@ -186,7 +208,8 @@ jobs:
           set -o pipefail
           ls runs
           { echo '## Cross-platform comparison'; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
-          python analysis/compare_runs.py runs/full-docker-outputs/results/full runs/full-run-outputs-ubuntu-latest/results/full runs/full-run-outputs-windows-latest/results/full runs/full-run-outputs-macos-latest/results/full | tee -a "$GITHUB_STEP_SUMMARY"
+          P=${{ inputs.protocol }}
+          python analysis/compare_runs.py runs/full-docker-outputs/results/$P/full runs/full-run-outputs-ubuntu-latest/results/$P/full runs/full-run-outputs-windows-latest/results/$P/full runs/full-run-outputs-macos-latest/results/$P/full | tee -a "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
   publish:
@@ -220,11 +243,13 @@ jobs:
             args=(--mode full --canonical full-docker-outputs --platform "Docker (canonical)=full-docker-outputs"
                   --platform "Linux=full-run-outputs-ubuntu-latest" --platform "Windows=full-run-outputs-windows-latest"
                   --platform "macOS=full-run-outputs-macos-latest" --compare "${{ needs.compare.result }}"
-                  --mode-note "Full run: every number in the paper (started from Actions -> Run workflow, mode full).")
+                  --protocol "${{ inputs.protocol }}"
+                  --mode-note "Full run, protocol ${{ inputs.protocol }} (v1.0.0 = every number in the paper; started from Actions -> Run workflow, mode full).")
           else
             args=(--mode quick --canonical quick-docker --platform "Docker (canonical)=quick-docker"
                   --platform "Linux=quick-ubuntu-latest" --platform "Windows=quick-windows-latest" --platform "macOS=quick-macos-latest"
-                  --mode-note "Quick run (4 small datasets, 1 seed), run on every push.")
+                  --protocol v1.0.1
+                  --mode-note "Quick run (4 small datasets, 1 seed), protocol v1.0.1, run on every push (protocol v1.0.0 runs too; see the job summaries).")
           fi
           python3 ci/build_site.py --runs runs --site pub "${args[@]}" \
             --title "Screen: reproducible benchmark" \

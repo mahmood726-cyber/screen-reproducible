@@ -28,8 +28,11 @@ table{border-collapse:collapse;width:100%;font-size:.88rem;font-variant-numeric:
 figcaption{color:var(--muted);font-size:.85rem}code{font-size:.85em}"""
 
 
+PROTOCOL = None  # set from --protocol: reports live in outputs/<protocol>/<mode>/
+
+
 def find_report(art_dir, mode):
-    hits = [p for p in Path(art_dir).rglob("reproduction_report.md") if p.parent.name == mode] or list(Path(art_dir).rglob("reproduction_report.md"))
+    hits = [p for p in Path(art_dir).rglob("reproduction_report.md") if p.parent.name == mode and (PROTOCOL is None or p.parent.parent.name == PROTOCOL)]
     return hits[0] if hits else None
 
 
@@ -40,7 +43,7 @@ def summary_line(report):
     if not m:
         return None, "report unreadable"
     a, b = int(m.group(1)), int(m.group(2))
-    return a == b, f"{a}/{b} numbers reproduced"
+    return (a == b and b > 0), f"{a}/{b} numbers reproduced"
 
 
 def md_table_to_html(md):
@@ -68,7 +71,10 @@ def main():
     ap.add_argument("--site", required=True); ap.add_argument("--title", required=True); ap.add_argument("--repo", required=True)
     ap.add_argument("--sha", required=True); ap.add_argument("--run-id", required=True); ap.add_argument("--links", action="append", default=[])
     ap.add_argument("--mode-note", default="")
+    ap.add_argument("--protocol", default=None, help="protocol whose reports to publish (outputs/<protocol>/<mode>/)")
     a = ap.parse_args()
+    global PROTOCOL
+    PROTOCOL = a.protocol
     runs, site = Path(a.runs), Path(a.site)
     out = site / a.mode
     if out.exists():
@@ -92,7 +98,7 @@ def main():
         for extra in ("reproduction_report.md", "stats.json"):
             if (canon.parent / extra).exists():
                 shutil.copy2(canon.parent / extra, out / extra)
-    meta = {"mode": a.mode, "all_ok": all_ok, "when": when, "sha": a.sha, "run_id": a.run_id, "run_url": run_url,
+    meta = {"mode": a.mode, "protocol": a.protocol, "all_ok": all_ok, "when": when, "sha": a.sha, "run_id": a.run_id, "run_url": run_url,
             "platforms": plats, "compare": a.compare, "mode_note": a.mode_note}
     (out / "meta.json").write_text(json.dumps(meta, indent=1), encoding="utf-8")
 

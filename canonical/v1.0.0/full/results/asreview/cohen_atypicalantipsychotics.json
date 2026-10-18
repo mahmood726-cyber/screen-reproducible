@@ -1,0 +1,45 @@
+{
+ "tool": "asreview",
+ "asreview": "2.2",
+ "seeds": [
+  42,
+  7,
+  2024
+ ],
+ "environment": {
+  "python": "3.13.13",
+  "machine": "x86_64",
+  "processor": "",
+  "numpy": "2.4.4",
+  "cpu_simd": [
+   "AVX",
+   "AVX2",
+   "FMA3",
+   "SSE",
+   "SSE2",
+   "SSE3",
+   "SSE41",
+   "SSE42"
+  ]
+ },
+ "perDataset": {
+  "cohen_atypicalantipsychotics": {
+   "N": 1120,
+   "relevant": 146,
+   "nb_wss95_per_seed": [
+    0.18392857142857133,
+    0.19821428571428568,
+    0.19821428571428568
+   ],
+   "nb_wss95": 0.1934523809523809,
+   "nb_seconds": 29.522871255874634,
+   "svm_wss95_per_seed": [
+    0.25803571428571426,
+    0.2571428571428571,
+    0.25803571428571426
+   ],
+   "svm_wss95": 0.2577380952380952,
+   "svm_seconds": 55.139551877975464
+  }
+ }
+}

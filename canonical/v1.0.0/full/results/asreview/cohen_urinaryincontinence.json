@@ -1,0 +1,45 @@
+{
+ "tool": "asreview",
+ "asreview": "2.2",
+ "seeds": [
+  42,
+  7,
+  2024
+ ],
+ "environment": {
+  "python": "3.13.13",
+  "machine": "x86_64",
+  "processor": "",
+  "numpy": "2.4.4",
+  "cpu_simd": [
+   "AVX",
+   "AVX2",
+   "FMA3",
+   "SSE",
+   "SSE2",
+   "SSE3",
+   "SSE41",
+   "SSE42"
+  ]
+ },
+ "perDataset": {
+  "cohen_urinaryincontinence": {
+   "N": 327,
+   "relevant": 40,
+   "nb_wss95_per_seed": [
+    0.4759938837920489,
+    0.4851681957186544,
+    0.5004587155963303
+   ],
+   "nb_wss95": 0.48720693170234447,
+   "nb_seconds": 3.2277848720550537,
+   "svm_wss95_per_seed": [
+    0.42094801223241585,
+    0.42094801223241585,
+    0.42094801223241585
+   ],
+   "svm_wss95": 0.42094801223241585,
+   "svm_seconds": 4.626574754714966
+  }
+ }
+}

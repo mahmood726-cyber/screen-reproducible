@@ -1,0 +1,45 @@
+{
+ "tool": "asreview",
+ "asreview": "2.2",
+ "seeds": [
+  42,
+  7,
+  2024
+ ],
+ "environment": {
+  "python": "3.13.13",
+  "machine": "x86_64",
+  "processor": "",
+  "numpy": "2.4.4",
+  "cpu_simd": [
+   "AVX",
+   "AVX2",
+   "FMA3",
+   "SSE",
+   "SSE2",
+   "SSE3",
+   "SSE41",
+   "SSE42"
+  ]
+ },
+ "perDataset": {
+  "cohen_skeletalmusclerelaxants": {
+   "N": 1643,
+   "relevant": 9,
+   "nb_wss95_per_seed": [
+    0.06807668898356656,
+    0.06929397443700547,
+    0.06868533171028601
+   ],
+   "nb_wss95": 0.06868533171028601,
+   "nb_seconds": 44.856982707977295,
+   "svm_wss95_per_seed": [
+    0.10581253804017032,
+    0.18737066342057207,
+    0.11068167985392574
+   ],
+   "svm_wss95": 0.13462162710488937,
+   "svm_seconds": 282.37151074409485
+  }
+ }
+}

@@ -1,0 +1,345 @@
+{
+ "source": "Regression pin for protocol v1.0.1, quick mode, written by analysis/make_outputs.py --pin from the run recorded in machine.json beside it. It detects any change in these numbers; it is NOT an independent check of them (protocol v1.0.0 is checked against values extracted from the paper, and bench/test_protocol.mjs checks that the v1.0.1 driver equals the shipped simulation under v1.0.0 settings).",
+ "values": {
+  "asreview_nb_mean": {
+   "value": 0.3653,
+   "decimals": 4
+  },
+  "asreview_nb_wss95[cohen_antihistamines]": {
+   "value": -0.021,
+   "decimals": 4
+  },
+  "asreview_nb_wss95[cohen_estrogens]": {
+   "value": 0.2978,
+   "decimals": 4
+  },
+  "asreview_nb_wss95[cohen_nsaids]": {
+   "value": 0.7083,
+   "decimals": 4
+  },
+  "asreview_nb_wss95[cohen_urinaryincontinence]": {
+   "value": 0.476,
+   "decimals": 4
+  },
+  "asreview_nb_wss95_sd[cohen_antihistamines]": {
+   "value": 0.0,
+   "decimals": 4
+  },
+  "asreview_nb_wss95_sd[cohen_estrogens]": {
+   "value": 0.0,
+   "decimals": 4
+  },
+  "asreview_nb_wss95_sd[cohen_nsaids]": {
+   "value": 0.0,
+   "decimals": 4
+  },
+  "asreview_nb_wss95_sd[cohen_urinaryincontinence]": {
+   "value": 0.0,
+   "decimals": 4
+  },
+  "asreview_seeds": {
+   "value": 1,
+   "decimals": 0
+  },
+  "asreview_svm_mean": {
+   "value": 0.3653,
+   "decimals": 4
+  },
+  "asreview_svm_wss95[cohen_antihistamines]": {
+   "value": -0.0145,
+   "decimals": 4
+  },
+  "asreview_svm_wss95[cohen_estrogens]": {
+   "value": 0.325,
+   "decimals": 4
+  },
+  "asreview_svm_wss95[cohen_nsaids]": {
+   "value": 0.7235,
+   "decimals": 4
+  },
+  "asreview_svm_wss95[cohen_urinaryincontinence]": {
+   "value": 0.4271,
+   "decimals": 4
+  },
+  "asreview_svm_wss95_sd[cohen_antihistamines]": {
+   "value": 0.0,
+   "decimals": 4
+  },
+  "asreview_svm_wss95_sd[cohen_estrogens]": {
+   "value": 0.0,
+   "decimals": 4
+  },
+  "asreview_svm_wss95_sd[cohen_nsaids]": {
+   "value": 0.0,
+   "decimals": 4
+  },
+  "asreview_svm_wss95_sd[cohen_urinaryincontinence]": {
+   "value": 0.0,
+   "decimals": 4
+  },
+  "buscar_never_fired": {
+   "value": 4,
+   "decimals": 0
+  },
+  "datasets_forced_record_shared_by_all_such_seeds": {
+   "value": 0,
+   "decimals": 0
+  },
+  "datasets_with_forced_relevant": {
+   "value": 1,
+   "decimals": 0
+  },
+  "dedup_blocked_comparisons[n=2000]": {
+   "value": 14540,
+   "decimals": 0
+  },
+  "dedup_blocked_vs_brute_blocked": {
+   "value": 12,
+   "decimals": 0
+  },
+  "dedup_blocked_vs_brute_blocked_only": {
+   "value": 0,
+   "decimals": 0
+  },
+  "dedup_blocked_vs_brute_brute": {
+   "value": 12,
+   "decimals": 0
+  },
+  "dedup_blocked_vs_brute_brute_only": {
+   "value": 0,
+   "decimals": 0
+  },
+  "dedup_blocked_vs_brute_records": {
+   "value": 1500,
+   "decimals": 0
+  },
+  "dedup_nagtegaal_detected": {
+   "value": 7,
+   "decimals": 0
+  },
+  "dedup_nagtegaal_extra_links": {
+   "value": 6,
+   "decimals": 0
+  },
+  "dedup_nagtegaal_flagged_not_in_gold": {
+   "value": 10,
+   "decimals": 0
+  },
+  "dedup_nagtegaal_gold_duplicates": {
+   "value": 11,
+   "decimals": 0
+  },
+  "dedup_nagtegaal_gold_pairs": {
+   "value": 11,
+   "decimals": 0
+  },
+  "dedup_nagtegaal_pair_recall": {
+   "value": 1.0,
+   "decimals": 4
+  },
+  "dedup_nagtegaal_pairs_detected": {
+   "value": 11,
+   "decimals": 0
+  },
+  "dedup_nagtegaal_recall": {
+   "value": 0.6364,
+   "decimals": 4
+  },
+  "dedup_nagtegaal_records": {
+   "value": 2019,
+   "decimals": 0
+  },
+  "dedup_reformatted_detected": {
+   "value": 183,
+   "decimals": 0
+  },
+  "dedup_reformatted_f1": {
+   "value": 0.9482,
+   "decimals": 4
+  },
+  "dedup_reformatted_false_positives": {
+   "value": 3,
+   "decimals": 0
+  },
+  "dedup_reformatted_injected": {
+   "value": 200,
+   "decimals": 0
+  },
+  "dedup_reformatted_originals": {
+   "value": 1170,
+   "decimals": 0
+  },
+  "dedup_reformatted_precision": {
+   "value": 0.9839,
+   "decimals": 4
+  },
+  "dedup_reformatted_recall": {
+   "value": 0.915,
+   "decimals": 4
+  },
+  "dedup_reformatted_total_flagged": {
+   "value": 186,
+   "decimals": 0
+  },
+  "mean_diff_vs_nb": {
+   "value": -0.0208,
+   "decimals": 4
+  },
+  "mean_diff_vs_svm": {
+   "value": -0.0208,
+   "decimals": 4
+  },
+  "median_diff_vs_nb": {
+   "value": -0.026,
+   "decimals": 4
+  },
+  "median_diff_vs_svm": {
+   "value": -0.0151,
+   "decimals": 4
+  },
+  "n_datasets": {
+   "value": 4,
+   "decimals": 0
+  },
+  "prevalence_max_pct": {
+   "value": 21.7391,
+   "decimals": 4
+  },
+  "prevalence_min_pct": {
+   "value": 5.1613,
+   "decimals": 4
+  },
+  "prevalence_pct[cohen_antihistamines]": {
+   "value": 5.1613,
+   "decimals": 4
+  },
+  "prevalence_pct[cohen_estrogens]": {
+   "value": 21.7391,
+   "decimals": 4
+  },
+  "prevalence_pct[cohen_nsaids]": {
+   "value": 10.4326,
+   "decimals": 4
+  },
+  "prevalence_pct[cohen_urinaryincontinence]": {
+   "value": 12.2324,
+   "decimals": 4
+  },
+  "recall_at_10pct_pct": {
+   "value": 23.2851,
+   "decimals": 4
+  },
+  "recall_at_20pct_pct": {
+   "value": 57.3552,
+   "decimals": 4
+  },
+  "recall_at_50pct_pct": {
+   "value": 90.0152,
+   "decimals": 4
+  },
+  "records[cohen_antihistamines]": {
+   "value": 310,
+   "decimals": 0
+  },
+  "records[cohen_estrogens]": {
+   "value": 368,
+   "decimals": 0
+  },
+  "records[cohen_nsaids]": {
+   "value": 393,
+   "decimals": 0
+  },
+  "records[cohen_urinaryincontinence]": {
+   "value": 327,
+   "decimals": 0
+  },
+  "records_max": {
+   "value": 393.0,
+   "decimals": 4
+  },
+  "records_min": {
+   "value": 310.0,
+   "decimals": 4
+  },
+  "relevant[cohen_antihistamines]": {
+   "value": 16,
+   "decimals": 0
+  },
+  "relevant[cohen_estrogens]": {
+   "value": 80,
+   "decimals": 0
+  },
+  "relevant[cohen_nsaids]": {
+   "value": 41,
+   "decimals": 0
+  },
+  "relevant[cohen_urinaryincontinence]": {
+   "value": 40,
+   "decimals": 0
+  },
+  "screen_max": {
+   "value": 0.6447,
+   "decimals": 4
+  },
+  "screen_mean_all": {
+   "value": 0.3444,
+   "decimals": 4
+  },
+  "screen_mean_cohen": {
+   "value": 0.3444,
+   "decimals": 4
+  },
+  "screen_median_all": {
+   "value": 0.3609,
+   "decimals": 4
+  },
+  "screen_min": {
+   "value": 0.0113,
+   "decimals": 4
+  },
+  "screen_seeds": {
+   "value": 1,
+   "decimals": 0
+  },
+  "screen_wss95[cohen_antihistamines]": {
+   "value": 0.0113,
+   "decimals": 4
+  },
+  "screen_wss95[cohen_estrogens]": {
+   "value": 0.2734,
+   "decimals": 4
+  },
+  "screen_wss95[cohen_nsaids]": {
+   "value": 0.6447,
+   "decimals": 4
+  },
+  "screen_wss95[cohen_urinaryincontinence]": {
+   "value": 0.4485,
+   "decimals": 4
+  },
+  "screen_wss95_sd[cohen_antihistamines]": {
+   "value": 0.0,
+   "decimals": 4
+  },
+  "screen_wss95_sd[cohen_estrogens]": {
+   "value": 0.0,
+   "decimals": 4
+  },
+  "screen_wss95_sd[cohen_nsaids]": {
+   "value": 0.0,
+   "decimals": 4
+  },
+  "screen_wss95_sd[cohen_urinaryincontinence]": {
+   "value": 0.0,
+   "decimals": 4
+  },
+  "wins_vs_nb": {
+   "value": 1,
+   "decimals": 0
+  },
+  "wins_vs_svm": {
+   "value": 2,
+   "decimals": 0
+  }
+ }
+}

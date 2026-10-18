@@ -1,0 +1,45 @@
+{
+ "tool": "asreview",
+ "asreview": "2.2",
+ "seeds": [
+  42,
+  7,
+  2024
+ ],
+ "environment": {
+  "python": "3.13.13",
+  "machine": "x86_64",
+  "processor": "",
+  "numpy": "2.4.4",
+  "cpu_simd": [
+   "AVX",
+   "AVX2",
+   "FMA3",
+   "SSE",
+   "SSE2",
+   "SSE3",
+   "SSE41",
+   "SSE42"
+  ]
+ },
+ "perDataset": {
+  "cohen_aceinhibitors": {
+   "N": 2544,
+   "relevant": 41,
+   "nb_wss95_per_seed": [
+    0.7479559748427672,
+    0.7794025157232705,
+    0.7825471698113207
+   ],
+   "nb_wss95": 0.7699685534591194,
+   "nb_seconds": 111.35638332366943,
+   "svm_wss95_per_seed": [
+    0.7491352201257861,
+    0.7514937106918238,
+    0.7507075471698113
+   ],
+   "svm_wss95": 0.7504454926624738,
+   "svm_seconds": 231.04126906394958
+  }
+ }
+}
