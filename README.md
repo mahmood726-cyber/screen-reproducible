@@ -46,6 +46,30 @@ of the app has to do. `node bench/test_protocol.mjs` checks, before any v1.0.1 n
 for every seed and v1.0.1 does not, and (4) under v1.0.1 no ranked round happens before the gate.
 `reproduce.py` runs this self-test first and stops if it fails.
 
+### What changes under v1.0.1
+
+Under v1.0.0, 17 of 19 datasets have at least one seed whose 20-record start set holds no relevant record,
+and on every one of them all such seeds receive the same forced record (15 datasets have two or more
+such seeds; Bos 2018 and Skeletal Muscle Relaxants: all 10 seeds; Wolters 2018: 9 of 10). That is why Bos 2018 has an SD of 0.001 over "10 seeds".
+Canonical Docker runs (`canonical/v1.0.0/full`, `canonical/v1.0.1/full`):
+
+| | v1.0.0 (paper) | v1.0.1 |
+|---|--:|--:|
+| Screen mean WSS@95 (19 datasets) | 0.447 | 0.427 |
+| Screen median; Cohen / ASReview-benchmark means | 0.493; 0.374 / 0.721 | 0.459; 0.364 / 0.664 |
+| ASReview NB mean / SVM mean | 0.428 / 0.466 (3 seeds) | 0.433 / 0.468 (10 seeds) |
+| Screen vs NB: datasets Screen higher; mean difference; Wilcoxon | 12/19; +0.018; W = 61, p = 0.18 | 9/19; −0.006; W = 89, p = 0.83 |
+| Screen vs SVM: datasets Screen higher; mean difference; Wilcoxon | 4/19; −0.019; W = 46, p = 0.049 | 5/19; −0.041; W = 34, p = 0.012 |
+| Recall after screening 10% / 20% / 50% | 54% / 74% / 91% | 37% / 65% / 91% |
+| buscar never fired before full recall | 14/19 | 14/19 |
+| Bos 2018: Screen mean (SD) | 0.834 (0.001) | 0.689 (0.102) |
+| Wolters 2018: Screen mean (SD) | 0.775 (0.002) | 0.701 (0.040) |
+
+Per-dataset values (mean and SD over 10 seeds for all three tools) are in
+`python reproduce.py --from-canonical` → `outputs/v1.0.1/full-canonical/table1_wss95.md`. The v1.0.1 run
+has been made once, in Docker (CI run 39154233026); it has not yet been repeated on Linux, Windows and
+macOS for the bit-identity check.
+
 Sensitivity overrides for the v1.0.1 driver (not used by `reproduce.py`): `node bench/run_screen.mjs ...
 --start-draw file|rng --gate P,N --unranked file|rng`.
 
@@ -126,7 +150,7 @@ docker build -t screen-reproducible . && docker run --rm screen-reproducible --f
 |---|---|---|---|
 | `--quick` | 4 small datasets, 1 seed per tool, de-dup up to 2,000 records | ~30 s on an idle machine | ~30 s |
 | full, v1.0.0 | 19 datasets; Screen 10 seeds; ASReview NB + SVM 3 seeds; de-dup up to 100,000 records | ~40–80 min | ~20–35 min |
-| full, v1.0.1 | as v1.0.0, but ASReview on 10 seeds | roughly 3× the ASReview share of v1.0.0 | see `canonical/v1.0.1/full/PROVENANCE.json` |
+| full, v1.0.1 | as v1.0.0, but ASReview on 10 seeds | roughly 3× the ASReview share of v1.0.0 | ~82 min (canonical Docker run) |
 | `--from-canonical` | no benchmark; tables, figures and checks from `canonical/` | ~1 min | ~1 min |
 
 The full run is CPU-bound and uses every core by default (`--jobs N` to change this). Most of the

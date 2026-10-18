@@ -1,0 +1,8 @@
+{
+ "protocol": "v1.0.1",
+ "mode": "full",
+ "provenance": "GitHub Actions run 39154233026 (2026-10-18), job full-docker = the canonical Docker run (python:3.13.13-slim-bookworm + node 24.15.0 on an ubuntu-latest runner), workflow_dispatch mode=full protocol=v1.0.1 platforms=docker, commit d858ef8, artifact full-docker-outputs; job ran 18:27-19:50 UTC (83 min). Not yet cross-checked on Linux/Windows/macOS (dispatch with platforms=all for the bit-identity check).",
+ "files": 78,
+ "packaged": "2026-10-18 20:00 UTC",
+ "rebuild": "python reproduce.py --protocol v1.0.1 --from-canonical"
+}
