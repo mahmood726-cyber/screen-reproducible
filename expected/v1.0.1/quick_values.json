@@ -1,5 +1,18 @@
 {
- "source": "Regression pin for protocol v1.0.1, quick mode, written by analysis/make_outputs.py --pin from the run recorded in machine.json beside it. It detects any change in these numbers; it is NOT an independent check of them (protocol v1.0.0 is checked against values extracted from the paper, and bench/test_protocol.mjs checks that the v1.0.1 driver equals the shipped simulation under v1.0.0 settings).",
+ "source": "Regression pin for protocol v1.0.1, quick mode, written by analysis/make_outputs.py --pin from the run described in 'run'. It detects any change in these numbers; it is NOT an independent check of them (protocol v1.0.0 is checked against values extracted from the paper, and bench/test_protocol.mjs checks that the v1.0.1 driver equals the shipped simulation under v1.0.0 settings). Cross-platform CI runs that pass against this file are the independent evidence that it is reproducible.",
+ "run": {
+  "results": "results/v1.0.1/quick",
+  "benchmark_machine": {
+   "cpu": "Intel(R) Core(TM) i5-6400 CPU @ 2.70GHz",
+   "cores": 4,
+   "platform": "win32",
+   "release": "10.0.26200",
+   "arch": "x64",
+   "total_mem_gb": 16
+  },
+  "node": "v24.15.0",
+  "appSha256": "dcc88d528ad0ad9404a06c9615ca29ad643d5c70ebbc359607a544679ef8ed33"
+ },
  "values": {
   "asreview_nb_mean": {
    "value": 0.3653,

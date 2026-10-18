@@ -305,7 +305,7 @@ def compare(got, expected_path):
     return out, exp
 
 
-def pin(got, path, protocol, mode, decimals_like=None):
+def pin(got, path, protocol, mode, run_info=None):
     """Write the reproduced values as a reference file. Used once per protocol by a maintainer; a file written
     this way is a REGRESSION PIN (it can only detect change), not an independent check."""
     vals = {}
@@ -315,11 +315,12 @@ def pin(got, path, protocol, mode, decimals_like=None):
         integer = float(v).is_integer() and not any(t in k for t in ("wss95", "p_vs", "mean", "median", "diff", "recall", "precision", "f1", "pct", "_min", "_max"))
         vals[k] = {"value": int(v) if integer else round(float(v), 4), "decimals": 0 if integer else 4}
     doc = {"source": f"Regression pin for protocol {protocol}, {mode} mode, written by analysis/make_outputs.py --pin from the run "
-                     f"recorded in machine.json beside it. It detects any change in these numbers; it is NOT an independent check "
+                     f"described in 'run'. It detects any change in these numbers; it is NOT an independent check "
                      f"of them (protocol v1.0.0 is checked against values extracted from the paper, and bench/test_protocol.mjs checks that "
-                     f"the v1.0.1 driver equals the shipped simulation under v1.0.0 settings).", "values": vals}
+                     f"the v1.0.1 driver equals the shipped simulation under v1.0.0 settings). Cross-platform CI runs that pass against "
+                     f"this file are the independent evidence that it is reproducible.", "run": run_info or {}, "values": vals}
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    Path(path).write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")
+    Path(path).write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8", newline="\n")
 
 
 def machine_info():
@@ -382,14 +383,17 @@ def main():
     write_table(outdir / "table2_dedup", ["Test", "Input", "Result"], t2)
     figures(rows, st, dedup, outdir, a.protocol)
     (outdir / "stats.json").write_text(json.dumps(st, indent=1))
-    mi = machine_info()
-    mi.update({"node_dedup_machine": mach, "wall_seconds_total": a.wall_seconds, "protocol": a.protocol,
-               "dedup_ms": {str(s["n"]): s["blocked_ms"] for s in dedup["scaling"]}})
+    # Timings belong to the machine that RAN the benchmark (recorded by run_dedup.mjs); runs from before v1.0.1
+    # did not record it. The analysis machine is recorded separately (it differs for --from-canonical).
+    mi = {"protocol": a.protocol, "results": str(a.results), "benchmark_machine": mach or "not recorded (run made before v1.0.1)",
+          "node": dedup.get("node"), "dedup_blocked_ms": {str(s["n"]): s["blocked_ms"] for s in dedup["scaling"]},
+          "wall_seconds_total": a.wall_seconds, "analysis_machine": machine_info()}
     (outdir / "machine.json").write_text(json.dumps(mi, indent=1) + "\n", encoding="utf-8")
 
     got = reproduced_values(st, rows, dedup)
     if a.pin:
-        pin(got, a.pin, a.protocol, Path(a.outputs).name)
+        pin(got, a.pin, a.protocol, Path(a.outputs).name,
+            {"results": str(a.results), "benchmark_machine": mach, "node": dedup.get("node"), "appSha256": dedup.get("appSha256")})
         print(f"reference values written to {a.pin} (regression pin)")
     if not Path(a.expected).exists():
         # Fail closed: a run with no reference values has checked nothing.

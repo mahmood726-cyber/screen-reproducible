@@ -1092,7 +1092,7 @@
  "printed_not_checked": {
   "dedup_runtime_100k": {
    "printed": "6.6 s (Results para 3; Table 2)",
-   "reason": "machine-dependent wall time; the machine that produced 6.6 s is not recorded in v1.0.0. Each run now records its own time and machine in outputs/<protocol>/<mode>/machine.json and table2_dedup."
+   "reason": "machine-dependent wall time, and not traceable to any archived run: the canonical Docker run (CI run 37199331989) took 19.2 s and the Linux, Windows and macOS runs of the same CI run 11.9, 12.9 and 16.2 s; a 4-CPU re-run on a second machine took 14.7 s. Each run now records its machine and times in outputs/<protocol>/<mode>/machine.json and table2_dedup."
   },
   "unit_and_browser_tests": {
    "printed": "36 unit tests, 49 browser tests (Results para 1)",

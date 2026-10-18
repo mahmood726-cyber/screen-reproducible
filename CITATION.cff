@@ -7,10 +7,11 @@ type: software
 authors:
   - family-names: Ahmad
     given-names: Mahmood
-    # orcid: https://orcid.org/0000-0000-0000-0000   <- add before the Zenodo release
+    # orcid: "[AUTHOR TO COMPLETE: ORCID]"   <- add the real ORCID before the next Zenodo release (never a placeholder value)
 repository-code: "https://github.com/mahmood726-cyber/screen-reproducible"
 url: "https://github.com/mahmood726-cyber/screen-reproducible"
 license: MIT
+# version/date of the latest RELEASE; bump to 1.0.1 and set date-released only when v1.0.1 is actually released
 version: 1.0.0
 date-released: 2026-10-03
 keywords:
@@ -21,10 +22,14 @@ keywords:
   - reproducibility
   - benchmark
 references:
+  # The app version described in the article (allmeta v1.6.0, the DOI cited there). The archived app copy is
+  # allmeta commit 421ba13 (before v1.6.0); its ranking and de-duplication code is identical to v1.6.0 and v1.6.1.
+  # All allmeta versions: concept DOI 10.5281/zenodo.20516880.
   - type: software
     title: "allmeta — open browser-only tools for evidence synthesis"
     authors:
       - family-names: Ahmad
         given-names: Mahmood
-    doi: 10.5281/zenodo.20516880
+    version: 1.6.0
+    doi: 10.5281/zenodo.23428850
     repository-code: "https://github.com/mahmood726-cyber/allmeta"
